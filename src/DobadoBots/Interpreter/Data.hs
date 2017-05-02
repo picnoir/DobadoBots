@@ -9,8 +9,8 @@ data ActionToken = ActionToken deriving (Show, Eq)
 
 data SensorToken = SensorToken deriving (Show, Eq)
 
-data Cond = Action | Cond { sensor         :: SensorToken
-                          , ifValid        :: Cond 
-                          , ifInvalid      :: Cond 
-                          } deriving (Show, Eq)
+data Cond = Token ActionToken | Cond { sensor         :: SensorToken
+                                    , ifValid        :: Cond 
+                                    , ifInvalid      :: Cond 
+                                    } deriving (Show, Eq)
 
