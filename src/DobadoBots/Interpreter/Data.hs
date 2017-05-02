@@ -5,11 +5,12 @@ module DobadoBots.Interpreter.Data
 )
 where
 
-data ActionToken = ActionToken deriving (Show)
+data ActionToken = ActionToken deriving (Show, Eq)
 
-data SensorToken = SensorToken deriving (Show)
+data SensorToken = SensorToken deriving (Show, Eq)
 
-data Cond = Cond { sensor         :: SensorToken
-                ,  ifValid        :: ActionToken
-                ,  ifInvalid      :: ActionToken
-                } deriving (Show)
+data Cond = Action | Cond { sensor         :: SensorToken
+                          , ifValid        :: Cond 
+                          , ifInvalid      :: Cond 
+                          } deriving (Show, Eq)
+
