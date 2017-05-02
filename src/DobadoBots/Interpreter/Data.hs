@@ -5,9 +5,17 @@ module DobadoBots.Interpreter.Data
 )
 where
 
-data ActionToken = ActionToken deriving (Show, Eq)
+data ActionToken = MoveForward 
+                 | TurnLeft
+                 | TurnRight
+                 | FaceObjective
+                 | ChangeObjective
+                 deriving (Show, Eq)
 
-data SensorToken = SensorToken deriving (Show, Eq)
+data SensorToken = LaserDistance
+                 | LaserScan
+                 | ObjectiveDistance
+                 deriving (Show, Eq)
 
 data Cond = Token ActionToken | Cond { sensor   :: SensorToken
                                      , ifValid   :: Cond
