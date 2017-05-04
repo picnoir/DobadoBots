@@ -1,0 +1,3 @@
+IF laserDistance = 1
+ELSE
+   moveForward

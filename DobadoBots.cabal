@@ -18,6 +18,7 @@ library
   exposed-modules:     DobadoBots
   build-depends:       base >= 4.7 && < 5
                       ,text
+                      ,parsec
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
                       ,DobadoBots.Interpreter.Interpreter
@@ -38,6 +39,7 @@ test-suite DobadoBots-test
                      , DobadoBots
                      , file-embed
                      , hspec
+                     , hspec-expectations
                      , text
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
