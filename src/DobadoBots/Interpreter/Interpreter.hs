@@ -12,10 +12,10 @@ scriptFile = Token <$> actionParser
          <|> conditionParser
 
 actionParser:: CharParser () ActionToken
-actionParser = MoveForward <$ string "moveForward" 
-          <|>  try (TurnLeft <$ string "turnLeft")
-          <|>  try (TurnRight <$ string "turnRight")
-          <|>  FaceObjective <$ string "faceObjective"
+actionParser = MoveForward     <$ string "moveForward"
+          <|>  try (TurnLeft   <$ string "turnLeft")
+          <|>  try (TurnRight  <$ string "turnRight")
+          <|>  FaceObjective   <$ string "faceObjective"
           <|>  ChangeObjective <$ string "changeObjective"
 
 sensorParser :: CharParser () SensorToken
