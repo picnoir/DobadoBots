@@ -19,7 +19,9 @@ actionParser = MoveForward     <$ string "moveForward"
           <|>  ChangeObjective <$ string "changeObjective"
 
 sensorParser :: CharParser () SensorToken
-sensorParser = LaserDistance <$ string "laserDistance" 
+sensorParser = try (LaserDistance <$ string "laserDistance")
+           <|> ObjectiveDistance <$ string "objectiveDistance"
+           <|> try (LaserScan <$ string "laserScan")
 
 logicExprParser :: CharParser () (LogicExpr SensorToken)
 logicExprParser = op '=' Eq
@@ -36,12 +38,13 @@ logicExprParser = op '=' Eq
 
 conditionParser :: CharParser () Cond
 conditionParser = Cond <$>
-                    (string "IF" *> logicExprParser <* newline)
+                    ((spaces *> string "IF") *> logicExprParser <* newline)
                   <*>
-                    (spaces *> (Token <$> actionParser) <* newline)
+                    (spaces *> parseNested <* newline)
                   <*>
-                    (string "ELSE" *> (newline *> (spaces *> (Token <$> actionParser))))
-
-
+                    ((spaces *> string "ELSE") *> (newline *> (spaces *> parseNested)))
+                  where
+                    parseNested = Token <$> actionParser
+                              <|> conditionParser 
 parseScript :: Text -> Either ParseError Cond 
 parseScript script = parse scriptFile "Error while parsing script: " $ unpack script 

@@ -1,4 +1,4 @@
-IF laserDistance > 1
+IF laserScan > 1
    turnLeft
 ELSE
    moveForward

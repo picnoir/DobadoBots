@@ -1,0 +1,10 @@
+IF laserDistance > 10
+      turnLeft
+ELSE
+   IF laserDistance > 20
+      IF objectiveDistance < 3
+         moveForward
+      ELSE
+         turnLeft
+   ELSE
+      turnRight
