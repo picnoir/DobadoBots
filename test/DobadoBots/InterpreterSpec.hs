@@ -28,6 +28,10 @@ spec = describe "parseScript" $ do
            parseScript (decodeUtf8 $(embedFile "test/fixtures/simplecond2.script")) `shouldBe` Right (Cond (Sup LaserDistance 1)(Token TurnLeft) (Token MoveForward))
          it "should parse simple cond <" $ do
            parseScript (decodeUtf8 $(embedFile "test/fixtures/simplecond3.script")) `shouldBe` Right (Cond (Inf LaserDistance 1)(Token TurnLeft) (Token MoveForward))
+         it "should parse weirdly indented files" $ do
+           parseScript (decodeUtf8 $(embedFile "test/fixtures/simpleBadIndented.script")) `shouldBe` Right (Cond (Inf LaserDistance 1)(Token TurnLeft) (Token MoveForward))
+         it "should parse tab indented files" $ do
+           parseScript (decodeUtf8 $(embedFile "test/fixtures/simpleTabIndented.script")) `shouldBe` Right (Cond (Inf LaserDistance 1)(Token TurnLeft) (Token MoveForward))
          it "should parse nested cond" $ do
            parseScript (decodeUtf8 $(embedFile "test/fixtures/nestedcond.script")) `shouldBe` Right (Cond (Sup LaserDistance 10) (Cond (Sup LaserDistance 10) (Token TurnLeft) (Token TurnRight)) (Token MoveForward))
          it "should fail when no operator in condition"$ do

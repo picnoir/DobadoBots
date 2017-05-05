@@ -1,0 +1,4 @@
+IFlaserDistance<1
+turnLeft
+ELSE
+moveForward
