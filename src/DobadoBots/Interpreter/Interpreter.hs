@@ -2,16 +2,20 @@ module DobadoBots.Interpreter.Interpreter(
   parseScript 
 ) where
 
-import DobadoBots.Interpreter.Data
+import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..),
+                                    SensorToken(..), LogicExpr(..))
 
-import Data.Text
-import Text.ParserCombinators.Parsec
+import Data.Text (unpack, Text(..))
+import Text.ParserCombinators.Parsec (CharParser, ParseError, (<|>),
+                                      string, spaces, parse, many1,
+                                      digit, newline, char, try)
+
 
 scriptFile :: CharParser () Cond
 scriptFile = Token <$> actionParser
          <|> conditionParser
 
-actionParser:: CharParser () ActionToken
+actionParser :: CharParser () ActionToken
 actionParser = MoveForward     <$ string "moveForward"
           <|>  try (TurnLeft   <$ string "turnLeft")
           <|>  try (TurnRight  <$ string "turnRight")
