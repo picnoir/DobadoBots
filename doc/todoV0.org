@@ -1,0 +1,41 @@
+* TODO We need a playable dobadobots game engine.
+
+      - [ ] We want a working game engine.
+            - [ ] We need some data structures representing the game engine.
+                  - [ ] We need a way to specify an arena.
+                        - [ ] We need to specify obstacles.
+                        - [ ] We need to specify an objective.
+                        - [ ] We need to implement robots starting points.
+                  - [ ] We need a way to specify a robot.   
+                  - [ ] We need a way to persist an arena level. 
+            - [ ] We need to implement a function computing game engine state
+              evolutions.
+                  - [ ] We need to implement a function computing robots
+                    movement.
+                  - [ ] We need to implement a function computing lasers
+                    movement.
+                  - [ ] We need to implement a function computing collisions
+                    between objects.
+                        - [ ] We need to implement a bounding box based
+                          collision checker.
+                        - [ ] We need to implement a function checking bots
+                          collisions against walls and between themselves.
+                        - [ ] We need to implement a function checking bots
+                          collisions against objectives.
+                        - [ ] We need to implement a function checking bots
+                          collisions with lasers.
+                        - [ ] We need to implement a function checknig laser
+                          collisions with walls.
+
+* TODO We need a proper dobadobots ui.
+
+  - [ ] We need to display both the arena and the code.
+        - [ ] We need to implement an arena viewer.
+              - [ ] We need to display arena walls. 
+              - [ ] We need to display robots.
+              - [ ] We need to display robots laser.
+              - [ ] We need to display objective.
+              - [ ] We need to display line between robot and objective.
+        - [ ] We need to implement a text editor.
+              - [ ] We need to implement an AST pretty printer.
+              - [ ] We want a visual marker for the path currently executed.
