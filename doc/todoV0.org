@@ -32,6 +32,7 @@
 
   - [ ] We need to display both the arena and the code.
         - [ ] We need to implement an arena viewer.
+              - [ ] We need to display an empty window.
               - [ ] We need to display arena walls. 
               - [ ] We need to display robots.
               - [ ] We need to display robots laser.
