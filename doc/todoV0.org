@@ -1,13 +1,14 @@
 * TODO We need a playable dobadobots game engine.
 
-      - [ ] We want a working game engine.
-            - [ ] We need some data structures representing the game engine.
-                  - [ ] We need a way to specify an arena.
-                        - [ ] We need to specify obstacles.
-                        - [ ] We need to specify an objective.
-                        - [ ] We need to implement robots starting points.
-                  - [ ] We need a way to specify a robot.   
-                  - [ ] We need a way to persist an arena level. 
+      - [-] We want a working game engine.
+            - [-] We need some data structures representing the game engine.
+                  - [X] We need a way to specify an arena.
+                        - [X] We need to specify a general structure.
+                        - [X] We need to specify obstacles.
+                        - [X] We need to specify an objective.
+                        - [X] We need to implement robots starting points.
+                  - [X] We need a way to specify a robot.
+                  - [ ] We need a way to persist an arena level.
             - [ ] We need to implement a function computing game engine state
               evolutions.
                   - [ ] We need to implement a function computing robots
