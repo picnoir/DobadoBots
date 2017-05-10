@@ -10,10 +10,10 @@ import Linear.V2
 
 type Size = (Float, Float)
 
-data GameEngine = GameEngine {obstacles ::[Obstacle] 
-                            , objective :: Objective
+data GameEngine = GameEngine {obstacles      :: [Obstacle]
+                            , objective      :: Objective
                             , startingPoints :: [StartingPoint]
-                            , robots :: [Robot]
+                            , robots         :: [Robot]
 
 data Object = Object {position :: V2 Float
                     , size     :: Size
