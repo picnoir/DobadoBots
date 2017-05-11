@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module DobadoBots.GameEngine.Data (
   Size(..)
 , Position(..)
@@ -8,7 +10,10 @@ module DobadoBots.GameEngine.Data (
 , Objective(..)
 , StartingPoint(..)
 ) where
-import Linear.V2
+
+import Linear.V2 (V2(..))
+import Data.Aeson (FromJSON(..), withObject, (.:)) 
+import qualified Data.Aeson.Types as AT (Parser, Object) 
 
 type Size = V2 Float 
 
@@ -33,3 +38,26 @@ type Objective = Object
 type StartingPoint = Object
 
 type Robot = Object 
+
+instance FromJSON GameEngine where
+  parseJSON = withObject "GameEngine" $ \v -> GameEngine
+    <$> v .: "obstacles"
+    <*> v .: "objectives"
+    <*> v .: "startingPoints"
+    <*> pure []
+
+instance FromJSON Object where
+    parseJSON = withObject  "Object" $ \v -> Object
+      <$> parsePosition v
+      <*> parseSize v
+      <*> v .: "rotation"
+      <*> parseVelocity v
+
+parsePosition :: AT.Object -> AT.Parser (V2 Float)
+parsePosition v = V2 <$> v .: "x" <*> v .: "y"
+
+parseSize :: AT.Object -> AT.Parser (V2 Float)
+parseSize v = V2 <$> v .: "width" <*> v .: "heigt"
+
+parseVelocity :: AT.Object -> AT.Parser (V2 Float)
+parseVelocity = parsePosition

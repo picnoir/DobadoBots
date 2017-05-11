@@ -21,6 +21,8 @@ library
                       ,parsec
                       ,linear
                       ,sdl2
+                      ,aeson
+                      ,bytestring
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
                       ,DobadoBots.Interpreter.Interpreter
