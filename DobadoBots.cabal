@@ -24,6 +24,7 @@ library
                       ,aeson
                       ,bytestring
                       ,unordered-containers
+                      ,vector
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
                       ,DobadoBots.Interpreter.Interpreter
