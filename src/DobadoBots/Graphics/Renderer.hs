@@ -3,7 +3,7 @@ module DobadoBots.Graphics.Renderer (
 ) where
 
 import qualified SDL (Renderer, rendererDrawColor, clear,
-  present, drawRects, Rectangle(..), Point(..), V2(..), V4(..))
+  present, fillRects, fillRect, Rectangle(..), Point(..), V2(..), V4(..))
 import SDL (($=))
 import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..))
 import qualified Linear.V2 as L (V2(..))
@@ -12,18 +12,20 @@ import qualified Data.Vector.Storable as V (Vector(..), fromList, map)
 
 mainGraphicsLoop :: SDL.Renderer -> GameEngine -> IO ()
 mainGraphicsLoop renderer gameState = do 
-  --let quit = elem SDL.QuitEvent $ map SDL.eventPayload events
-  SDL.rendererDrawColor renderer $= SDL.V4 maxBound maxBound maxBound maxBound
-  drawArena renderer gameState 
+  SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
+  drawArena renderer gameState 
   SDL.present renderer
 
 drawArena :: SDL.Renderer -> GameEngine -> IO ()
 drawArena renderer gameState = do
   let obsR = getObstaclesRects $ obstacles gameState
   let objR = getObjectiveRect $ objective gameState
-  SDL.drawRects renderer obsR
-
+  SDL.rendererDrawColor renderer $= SDL.V4 42 84 126 maxBound
+  SDL.fillRects renderer obsR
+  SDL.rendererDrawColor renderer $= SDL.V4 255 88 0 maxBound
+  SDL.fillRect renderer $ Just objR
+  
 
 getObstaclesRects :: [Obstacle] -> V.Vector (SDL.Rectangle CInt)
 getObstaclesRects obs = V.fromList $ rectangles 
