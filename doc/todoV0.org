@@ -9,8 +9,12 @@
                         - [X] We need to implement robots starting points.
                   - [X] We need a way to specify a robot.
                   - [ ] We need a way to persist an arena level.
+                        - [ ] We need a data format for the arena level
+                          (JSON?)
+                        - [ ] We need to implement a parser + related tests
+                          for this data format (using aeson?)
             - [ ] We need to implement a function computing game engine state
-              evolutions.
+              evolution.
                   - [ ] We need to implement a function computing robots
                     movement.
                   - [ ] We need to implement a function computing lasers
@@ -30,10 +34,10 @@
 
 * TODO We need a proper dobadobots ui.
 
-  - [ ] We need to display both the arena and the code.
-        - [ ] We need to implement an arena viewer.
-              - [ ] We need to display an empty window.
-              - [ ] We need to display arena walls. 
+  - [-] We need to display both the arena and the code.
+        - [-] We need to implement an arena viewer.
+              - [X] We need to display an empty window.
+              - [ ] We need to display arena walls.
               - [ ] We need to display robots.
               - [ ] We need to display robots laser.
               - [ ] We need to display objective.
