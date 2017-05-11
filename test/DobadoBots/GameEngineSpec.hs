@@ -2,7 +2,7 @@
 
 module DobadoBots.GameEngineSpec where
 
-import DobadoBots (loadLevel, Object(..), GameEngine(..)) 
+import DobadoBots (loadLevel, Object(..), GameEngine(..))
 
 import Test.Hspec (describe, it, Spec(..), shouldBe)
 import Data.Text.Encoding (decodeUtf8)
@@ -17,5 +17,6 @@ spec = describe "parseArena" $ do
               [(Object (V2 12.3 13.2) (V2 10.0 12.0) 0.0 (V2 0 0))]
               (Object (V2 50 50) (V2 10 12) 0.0 (V2 0 0))
               [(Object (V2 0 0) (V2 10 12) 0.0 (V2 0 0))]
-              []
+              [(Object (V2 0 0) (V2 10 12) 0   (V2 0 0))]
             )
+            

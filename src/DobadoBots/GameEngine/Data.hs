@@ -45,7 +45,7 @@ instance FromJSON GameEngine where
     <$> v .: "obstacles"
     <*> v .: "objective"
     <*> v .: "startingpoints"
-    <*> pure []
+    <*> v .: "startingpoints"
 
 instance FromJSON Object where
     parseJSON = withObject  "Object" $ \v -> Object
