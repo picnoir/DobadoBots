@@ -31,6 +31,7 @@ library
                       ,DobadoBots.GameEngine.Data
                       ,DobadoBots.GameEngine.LevelLoader
                       ,DobadoBots.Graphics.Window
+                      ,DobadoBots.Graphics.Renderer
 
 executable DobadoBots-exe
   hs-source-dirs:      app

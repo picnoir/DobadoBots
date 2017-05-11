@@ -12,4 +12,5 @@ import DobadoBots.Interpreter.Data
 import DobadoBots.GameEngine.Data
 import DobadoBots.GameEngine.LevelLoader (loadLevel)
 import DobadoBots.Interpreter.Interpreter (parseScript)
-import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow, mainGraphicsLoop)
+import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)
+import DobadoBots.Graphics.Renderer (mainGraphicsLoop)
