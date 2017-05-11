@@ -13,7 +13,8 @@ module DobadoBots.GameEngine.Data (
 
 import Linear.V2 (V2(..))
 import Data.Aeson (FromJSON(..), withObject, (.:)) 
-import qualified Data.Aeson.Types as AT (Parser, Object) 
+import qualified Data.Aeson.Types as AT (Parser, Object(..), Value(..)) 
+import qualified Data.HashMap.Lazy as HS (lookup)
 
 type Size = V2 Float 
 
@@ -42,22 +43,24 @@ type Robot = Object
 instance FromJSON GameEngine where
   parseJSON = withObject "GameEngine" $ \v -> GameEngine
     <$> v .: "obstacles"
-    <*> v .: "objectives"
-    <*> v .: "startingPoints"
+    <*> v .: "objective"
+    <*> v .: "startingpoints"
     <*> pure []
 
 instance FromJSON Object where
     parseJSON = withObject  "Object" $ \v -> Object
-      <$> parsePosition v
-      <*> parseSize v
+      <$> parsePosition (HS.lookup "position" v) 
+      <*> parseSize (HS.lookup "size" v) 
       <*> v .: "rotation"
-      <*> parseVelocity v
+      <*> parseVelocity (HS.lookup "velocity" v) 
 
-parsePosition :: AT.Object -> AT.Parser (V2 Float)
-parsePosition v = V2 <$> v .: "x" <*> v .: "y"
+parsePosition :: Maybe (AT.Value) -> AT.Parser (V2 Float)
+parsePosition (Just (AT.Object v)) = V2 <$> v .: "x" <*> v .: "y"
+parsePosition _ = fail "No position object."
 
-parseSize :: AT.Object -> AT.Parser (V2 Float)
-parseSize v = V2 <$> v .: "width" <*> v .: "heigt"
+parseSize :: Maybe (AT.Value) -> AT.Parser (V2 Float)
+parseSize (Just(AT.Object v)) = V2 <$> v .: "width" <*> v .: "height"
+parseSize _ = fail "No size object."
 
-parseVelocity :: AT.Object -> AT.Parser (V2 Float)
+parseVelocity :: Maybe (AT.Value)-> AT.Parser (V2 Float)
 parseVelocity = parsePosition
