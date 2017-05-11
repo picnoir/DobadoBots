@@ -1,5 +1,7 @@
 module DobadoBots.GameEngine.Data (
   Size(..)
+, Position(..)
+, Velocity(..)
 , GameEngine(..)
 , Object(..)
 , Obstacle(..)
@@ -8,17 +10,21 @@ module DobadoBots.GameEngine.Data (
 ) where
 import Linear.V2
 
-type Size = (Float, Float)
+type Size = V2 Float 
+
+type Position = V2 Float
+
+type Velocity = V2 Float
 
 data GameEngine = GameEngine {obstacles      :: [Obstacle]
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
-                            , robots         :: [Robot]}
+                            , robots         :: [Robot]} deriving (Show, Eq)
 
-data Object = Object {position :: V2 Float
+data Object = Object {position :: Position
                     , size     :: Size
                     , rotation :: Float
-                    , velocity :: V2 Float} deriving (Show)
+                    , velocity :: Velocity} deriving (Show, Eq)
 
 type Obstacle = Object
 
