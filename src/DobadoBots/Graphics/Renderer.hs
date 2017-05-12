@@ -7,7 +7,7 @@ module DobadoBots.Graphics.Renderer (
 import GHC.Float (float2Double)
 import qualified SDL (Renderer, rendererDrawColor, clear,
   present, fillRects, fillRect, Rectangle(..), Point(..), V2(..), V4(..), Texture(..),
-  loadBMP, createTextureFromSurface, freeSurface, copyEx)
+  loadBMP, createTextureFromSurface, freeSurface, copyEx, drawLine)
 import SDL (($=))
 import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..), Robot(..))
 import qualified Linear.V2 as L (V2(..))
@@ -23,8 +23,20 @@ mainGraphicsLoop renderer gameState tex = do
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
   drawArena renderer gameState 
+  drawLines renderer gameState
   drawRobots renderer (robotTexture tex) $ robots gameState 
   SDL.present renderer
+
+drawObjectiveLine :: SDL.Renderer -> [Robot] -> Objective -> IO ()
+drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
+  where
+    drawRbLine rb = SDL.drawLine r (pRobot rb) pObjective 
+    pRobot rb = SDL.P $ linearToSDLV2 $ position rb 
+    pObjective = SDL.P $ linearToSDLV2 $ position o
+
+drawLines :: SDL.Renderer -> GameEngine -> IO ()
+drawLines r s = do
+  drawObjectiveLine r (robots s) (objective s)
 
 drawArena :: SDL.Renderer -> GameEngine -> IO ()
 drawArena renderer gameState = do
@@ -34,7 +46,6 @@ drawArena renderer gameState = do
   SDL.fillRects renderer obsR
   SDL.rendererDrawColor renderer $= SDL.V4 255 88 0 maxBound
   SDL.fillRect renderer $ Just objR
-  
 
 getObstaclesRects :: [Obstacle] -> V.Vector (SDL.Rectangle CInt)
 getObstaclesRects obs = V.fromList $ rectangles 

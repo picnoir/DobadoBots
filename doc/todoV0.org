@@ -34,13 +34,12 @@
 
       * TODO We need a proper dobadobots ui.
 
-        - [-] We need to display both the arena and the code.
-              - [-] We need to implement an arena viewer.
+        - [X] We need to display both the arena and the code.
+              - [X] We need to implement an arena viewer.
                     - [X] We need to display an empty window.
-                    - [ ] We need to display arena walls.
                     - [X] We need to display objective.
-                    - [ ] We need to display robots.
-                    - [ ] We need to display obstacles.
+                    - [X] We need to display robots.
+                    - [X] We need to display obstacles.
               - [ ] We need to display line between robot and objective.
               - [ ] We need to display robots laser.
         - [ ] We need to implement a text editor.
