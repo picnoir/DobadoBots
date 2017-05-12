@@ -4,6 +4,8 @@ module DobadoBots(
 , closeMainWindow
 , mainGraphicsLoop
 , loadLevel
+, Textures(..)
+, loadTextures
 , module DobadoBots.Interpreter.Data
 , module DobadoBots.GameEngine.Data
 ) where
@@ -13,4 +15,4 @@ import DobadoBots.GameEngine.Data
 import DobadoBots.GameEngine.LevelLoader (loadLevel)
 import DobadoBots.Interpreter.Interpreter (parseScript)
 import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)
-import DobadoBots.Graphics.Renderer (mainGraphicsLoop)
+import DobadoBots.Graphics.Renderer (mainGraphicsLoop, loadTextures, Textures(..))
