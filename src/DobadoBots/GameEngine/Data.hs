@@ -10,6 +10,7 @@ module DobadoBots.GameEngine.Data (
 , Objective(..)
 , StartingPoint(..)
 , Robot(..)
+, getCenter
 ) where
 
 import Linear.V2 (V2(..))
@@ -65,3 +66,6 @@ parseSize _ = fail "No size object."
 
 parseVelocity :: Maybe (AT.Value)-> AT.Parser (V2 Float)
 parseVelocity = parsePosition
+
+getCenter :: Object -> Position
+getCenter o = (position o) + ((size o) / 2)

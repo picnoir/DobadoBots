@@ -9,7 +9,7 @@ import qualified SDL (Renderer, rendererDrawColor, clear,
   present, fillRects, fillRect, Rectangle(..), Point(..), V2(..), V4(..), Texture(..),
   loadBMP, createTextureFromSurface, freeSurface, copyEx, drawLine)
 import SDL (($=))
-import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..), Robot(..))
+import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..), Robot(..), getCenter)
 import qualified Linear.V2 as L (V2(..))
 import Foreign.C.Types (CInt(..), CDouble(..))
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
@@ -31,8 +31,8 @@ drawObjectiveLine :: SDL.Renderer -> [Robot] -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
   where
     drawRbLine rb = SDL.drawLine r (pRobot rb) pObjective 
-    pRobot rb = SDL.P $ linearToSDLV2 $ position rb 
-    pObjective = SDL.P $ linearToSDLV2 $ position o
+    pRobot rb = SDL.P $ linearToSDLV2 $ getCenter rb 
+    pObjective = SDL.P $ linearToSDLV2 $ getCenter o
 
 drawLines :: SDL.Renderer -> GameEngine -> IO ()
 drawLines r s = do
@@ -62,13 +62,10 @@ getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
   
 drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
 drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle Nothing (SDL.V2 False False)
-  where angle :: CDouble
+  where 
         angle = CDouble $ float2Double $ rotation robot  
-        dest :: SDL.Rectangle CInt
         dest = SDL.Rectangle p s
-        p :: SDL.Point SDL.V2 CInt
         p = SDL.P $ linearToSDLV2 $ position robot
-        s :: SDL.V2 CInt
         s = linearToSDLV2 $ size robot
 
 drawRobots :: SDL.Renderer -> SDL.Texture -> [Robot] -> IO()
