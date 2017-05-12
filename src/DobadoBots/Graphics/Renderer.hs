@@ -4,13 +4,14 @@ module DobadoBots.Graphics.Renderer (
 , loadTextures
 ) where
 
+import GHC.Float (float2Double)
 import qualified SDL (Renderer, rendererDrawColor, clear,
   present, fillRects, fillRect, Rectangle(..), Point(..), V2(..), V4(..), Texture(..),
-  loadBMP, createTextureFromSurface, freeSurface)
+  loadBMP, createTextureFromSurface, freeSurface, copyEx)
 import SDL (($=))
-import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..))
+import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..), Object(..), Robot(..))
 import qualified Linear.V2 as L (V2(..))
-import Foreign.C.Types (CInt(..))
+import Foreign.C.Types (CInt(..), CDouble(..))
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 
 data Textures = Textures {
@@ -22,6 +23,7 @@ mainGraphicsLoop renderer gameState tex = do
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
   drawArena renderer gameState 
+  drawRobots renderer (robotTexture tex) $ robots gameState 
   SDL.present renderer
 
 drawArena :: SDL.Renderer -> GameEngine -> IO ()
@@ -47,6 +49,19 @@ getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
   where pointRect obj = SDL.P $ linearToSDLV2 $ position obj
         sizeRect obj  = linearToSDLV2 $ size obj
   
+drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
+drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle Nothing (SDL.V2 False False)
+  where angle :: CDouble
+        angle = CDouble $ float2Double $ rotation robot  
+        dest :: SDL.Rectangle CInt
+        dest = SDL.Rectangle p s
+        p :: SDL.Point SDL.V2 CInt
+        p = SDL.P $ linearToSDLV2 $ position robot
+        s :: SDL.V2 CInt
+        s = linearToSDLV2 $ size robot
+
+drawRobots :: SDL.Renderer -> SDL.Texture -> [Robot] -> IO()
+drawRobots r t rbts = mapM_ (drawRobot r t) rbts
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt
 linearToSDLV2 (L.V2 x y) = SDL.V2 (toCint x) (toCint y)  

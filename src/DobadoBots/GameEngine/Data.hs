@@ -9,6 +9,7 @@ module DobadoBots.GameEngine.Data (
 , Obstacle(..)
 , Objective(..)
 , StartingPoint(..)
+, Robot(..)
 ) where
 
 import Linear.V2 (V2(..))
