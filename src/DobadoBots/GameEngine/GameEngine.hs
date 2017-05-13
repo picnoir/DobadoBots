@@ -55,14 +55,14 @@ returnNearestObstacleIntersection r obs = getNearestCoordinates $ nearestDistanc
         nearestDistance :: [(Float, Float)] -> Maybe Float
         nearestDistance xs
           | length xs < 1 = Nothing
-          | otherwise =  Just $ (minimum$ map minTuple xs) + 10
+          | otherwise =  Just $ (minimum$ map minTuple xs)
         intersections :: Robot -> [Obstacle] -> [(Float, Float)]
         intersections r' obs'= catMaybes $ map (returnObstacleIntersection r') obs'
         angle = 45 - rotation r
 
 returnObstacleIntersection :: Robot -> Obstacle -> Maybe (Float,Float)
 returnObstacleIntersection robot obstacle = GS.intersectLineShape (getRobotFrontLine robot) shape
-  where shape = GS.Rectangle centerRectPoint (v2toSGVect $ size obstacle)
+  where shape = GS.Rectangle centerRectPoint (v2toSGVect $ (size obstacle)/2)
         centerRectPoint = G2.Point2 $ v2toSGVect $ ((size obstacle)/2) + position obstacle 
 
 getRobotFrontLine :: Robot -> G2.Line2' Float
