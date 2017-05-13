@@ -26,6 +26,7 @@ library
                       ,unordered-containers
                       ,vector
                       ,containers
+                      ,SGplus
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
                       ,DobadoBots.Interpreter.Interpreter

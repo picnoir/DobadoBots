@@ -1,4 +1,4 @@
-* TODO We need a playable dobadobots game engine.
+* TODO We need a playable dobadobots game engine.ttt
 - [X] We want a working game engine.
       - [X] We need some data structures representing the game engine.
             - [X] We need a way to specify an arena.
@@ -20,17 +20,22 @@
             - [ ] We need to implement a function rotating robots.
       - [ ] We need to implement a function computing bullets.
       - [ ] We need to implement a function computing collisions.
-            - [ ] We need to implement a function computing bot collisions
+            - [ ] We need to implement a function computing robot collisions
               with obstacles.
                   - [ ] We need to implement a function checking laser
-                    collision agains obstacles.
+        collision agains obstacles.
+                        - [ ] Draw a line being projected from the bot.
+                        - [ ] Convert obstacles using the shape
+                                      datastructure.
+                        - [ ] Apply intersect function. https://hackage.haskell.org/package/SGplus-1.1/docs/Data-SG-Shape.html#t:Shape-39-     
+                        - [ ] Find the nearest intersecting point.
                   - [ ] We need to implement a function checking bots
                     collisions against obstacles.
             - [ ] We need to implement a function checking bots
               collisions against objectives.
             - [ ] We need to implement a function checking bots
               collisions with bullets.
-            - [ ] We need to implement a function checknig bullets 
+            - [ ] We need to implement a function checknig bullets
               collisions with walls.
 
 * TODO We need a proper dobadobots ui.
@@ -42,6 +47,10 @@
                     - [X] We need to display obstacles.
               - [X] We need to display line between robot and objective.
               - [ ] We need to display robots laser.
+                    - [ ] We need to find intersection point between robot and
+                      nearest obstacle.
         - [ ] We need to implement a text editor.
               - [ ] We need to implement an AST pretty printer.
               - [ ] We want a visual marker for the path currently executed.
+
+* TODO Check weird hackage behaviour.
