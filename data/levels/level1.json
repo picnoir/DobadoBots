@@ -4,6 +4,11 @@
       "size": {"width":200,"height":20},
       "rotation": 0,
       "velocity":0
+  },{ 
+      "position":{"x":200,"y":280},
+      "size": {"width":200,"height":20},
+      "rotation": 0,
+      "velocity":0
   }]
   ,"objective" :  {
       "position":{"x":450,"y":50},
@@ -14,7 +19,7 @@
   ,"startingpoints" :  [
     { "position":{"x":250,"y":450},
       "size": {"width":20 ,"height":20},
-      "rotation": -50,
+      "rotation": -120,
       "velocity": 1
     }]
 }

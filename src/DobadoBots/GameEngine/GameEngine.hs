@@ -55,7 +55,7 @@ returnNearestObstacleIntersection r obs = getNearestCoordinates $ nearestDistanc
         nearestDistance :: [(Float, Float)] -> Maybe Float
         nearestDistance xs
           | length xs < 1 = Nothing
-          | otherwise =  Just $ (maximum $ map maxTuple xs) + 10
+          | otherwise =  Just $ (minimum$ map minTuple xs) + 10
         intersections :: Robot -> [Obstacle] -> [(Float, Float)]
         intersections r' obs'= catMaybes $ map (returnObstacleIntersection r') obs'
         angle = 45 - rotation r
@@ -77,9 +77,9 @@ getRobotFrontLine robot = line
 getXV2 :: V2 a -> a
 getXV2 (V2 x _) = x
 
-maxTuple :: (Ord a) => (a,a) -> a
-maxTuple (x,y)
-  | x < y = y
+minTuple :: (Ord a) => (a,a) -> a
+minTuple (x,y)
+  | x > y = y
   | otherwise = y
 
 getYV2 :: V2 a -> a
