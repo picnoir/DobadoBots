@@ -15,6 +15,7 @@ module DobadoBots.GameEngine.Data (
 
 import Linear.V2 (V2(..))
 import Data.Aeson (FromJSON(..), withObject, (.:)) 
+import Data.Sequence (Seq)
 import qualified Data.Aeson.Types as AT (Parser, Object(..), Value(..)) 
 import qualified Data.HashMap.Lazy as HS (lookup)
 
@@ -22,12 +23,12 @@ type Size = V2 Float
 
 type Position = V2 Float
 
-type Velocity = V2 Float
+type Velocity = Float
 
 data GameEngine = GameEngine {obstacles      :: [Obstacle]
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
-                            , robots         :: [Robot]} deriving (Show, Eq)
+                            , robots         :: Seq Robot} deriving (Show, Eq)
 
 data Object = Object {position :: Position
                     , size     :: Size
@@ -54,7 +55,7 @@ instance FromJSON Object where
       <$> parsePosition (HS.lookup "position" v) 
       <*> parseSize (HS.lookup "size" v) 
       <*> v .: "rotation"
-      <*> parseVelocity (HS.lookup "velocity" v) 
+      <*> v .: "velocity"
 
 parsePosition :: Maybe (AT.Value) -> AT.Parser (V2 Float)
 parsePosition (Just (AT.Object v)) = V2 <$> v .: "x" <*> v .: "y"
@@ -63,9 +64,6 @@ parsePosition _ = fail "No position object."
 parseSize :: Maybe (AT.Value) -> AT.Parser (V2 Float)
 parseSize (Just(AT.Object v)) = V2 <$> v .: "width" <*> v .: "height"
 parseSize _ = fail "No size object."
-
-parseVelocity :: Maybe (AT.Value)-> AT.Parser (V2 Float)
-parseVelocity = parsePosition
 
 getCenter :: Object -> Position
 getCenter o = (position o) + ((size o) / 2)

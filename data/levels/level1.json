@@ -3,18 +3,18 @@
       "position":{"x":200,"y":250},
       "size": {"width":200,"height":20},
       "rotation": 0,
-      "velocity":{"x":0,"y":0}
+      "velocity":0
   }]
   ,"objective" :  {
       "position":{"x":450,"y":50},
       "size": {"width":10,"height":12},
       "rotation": 0,
-      "velocity":{"x":0,"y":0}
+      "velocity":0
     }
   ,"startingpoints" :  [
     { "position":{"x":250,"y":450},
       "size": {"width":20 ,"height":20},
       "rotation": 0,
-      "velocity":{"x":0,"y":0}
+      "velocity": -1
     }]
 }
