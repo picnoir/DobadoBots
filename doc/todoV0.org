@@ -1,46 +1,46 @@
-      * TODO We need a playable dobadobots game engine.
+* TODO We need a playable dobadobots game engine.
+- [X] We want a working game engine.
+      - [X] We need some data structures representing the game engine.
+            - [X] We need a way to specify an arena.
+                  - [X] We need to specify a general structure.
+                  - [X] We need to specify obstacles.
+                  - [X] We need to specify an objective.
+                  - [X] We need to implement robots starting points.
+            - [X] We need a way to specify a robot.
+            - [X] We need a way to persist an arena level.
+                  - [X] We need a data format for the arena level
+                    (JSON?)
+                  - [X] We need to implement a parser + related tests
+                    for this data format (using aeson?)
+- [-] We need to implement a function computing game engine
+  evolution.
+      - [-] We need to implement a function computing robots
+        movement.
+            - [X] We need to implement a function moving robots forward.
+            - [ ] We need to implement a function rotating robots.
+      - [ ] We need to implement a function computing bullets.
+      - [ ] We need to implement a function computing collisions.
+            - [ ] We need to implement a function computing bot collisions
+              with obstacles.
+                  - [ ] We need to implement a function checking laser
+                    collision agains obstacles.
+                  - [ ] We need to implement a function checking bots
+                    collisions against obstacles.
+            - [ ] We need to implement a function checking bots
+              collisions against objectives.
+            - [ ] We need to implement a function checking bots
+              collisions with bullets.
+            - [ ] We need to implement a function checknig bullets 
+              collisions with walls.
 
-            - [-] We want a working game engine.
-                  - [X] We need some data structures representing the game engine.
-                        - [X] We need a way to specify an arena.
-                              - [X] We need to specify a general structure.
-                              - [X] We need to specify obstacles.
-                              - [X] We need to specify an objective.
-                              - [X] We need to implement robots starting points.
-                        - [X] We need a way to specify a robot.
-                        - [X] We need a way to persist an arena level.
-                              - [X] We need a data format for the arena level
-                                (JSON?)
-                              - [X] We need to implement a parser + related tests
-                                for this data format (using aeson?)
-                  - [ ] We need to implement a function computing game engine state
-                    evolution.
-                        - [ ] We need to implement a function computing robots
-                          movement.
-                        - [ ] We need to implement a function computing lasers
-                          movement.
-                        - [ ] We need to implement a function computing collisions
-                          between objects.
-                              - [ ] We need to implement a bounding box based
-                                collision checker.
-                              - [ ] We need to implement a function checking bots
-                                collisions against walls and between themselves.
-                              - [ ] We need to implement a function checking bots
-                                collisions against objectives.
-                              - [ ] We need to implement a function checking bots
-                                collisions with lasers.
-                              - [ ] We need to implement a function checknig laser
-                                collisions with walls.
-
-      * TODO We need a proper dobadobots ui.
-
-        - [X] We need to display both the arena and the code.
+* TODO We need a proper dobadobots ui.
+        - [-] We need to display both the arena and the code.
               - [X] We need to implement an arena viewer.
                     - [X] We need to display an empty window.
                     - [X] We need to display objective.
                     - [X] We need to display robots.
                     - [X] We need to display obstacles.
-              - [ ] We need to display line between robot and objective.
+              - [X] We need to display line between robot and objective.
               - [ ] We need to display robots laser.
         - [ ] We need to implement a text editor.
               - [ ] We need to implement an AST pretty printer.

@@ -4,6 +4,7 @@ module DobadoBots.GameEngine.GameEngine (
 
 import qualified Data.Sequence as S (update, index)
 import Linear.V2 (V2(..))
+import Debug.Trace
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data (GameEngine(..), Object(..), Robot)
@@ -28,6 +29,11 @@ moveRobots st = GameEngine
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
 moveRobot :: Robot -> Robot
-moveRobot r = Object newPos (size r) (rotation r) rVel 
-  where newPos = (position r) + (V2 0 rVel) 
+moveRobot r = trace (show deltaPos) $ Object newPos (size r) (rotation r) rVel 
+  where newPos = (position r) + deltaPos
+        deltaPos = V2 (rVel * (cos angle)) (rVel * (sin angle)) 
         rVel = velocity r
+        angle = degreeToRadian $ rotation r
+
+degreeToRadian :: Float -> Float
+degreeToRadian d = d / 180 * pi
