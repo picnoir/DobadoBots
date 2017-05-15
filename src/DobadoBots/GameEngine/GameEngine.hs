@@ -8,7 +8,7 @@ import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
 import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2', Point2'(..), makeRel2)
 import qualified Data.SG.Geometry        as GG (alongLine)
-import           Data.Maybe                    (catMaybes)
+import           Data.Maybe                    (catMaybes, maybeToList)
 import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..))
@@ -26,11 +26,20 @@ returnNearestObstacleIntersection r obs = getNearestCoordinates $ nearestDistanc
         getNearestCoordinates (Just ray) 
           | ray < 0           = Nothing
           | otherwise         = Just $ point2ToV2 $ (GG.alongLine ray $ getRobotFrontLine r) 
-        nearestDistance xs
+        angle                 = 45 - rotation r
+
+nearestDistance :: [(Float,Float)] -> Maybe Float
+nearestDistance xs
           | length xs < 1     = Nothing
           | otherwise         = Just $ minimum $ map minTuple xs
-        intersections r' obs' = catMaybes $ map (returnObstacleIntersection r') obs'
-        angle                 = 45 - rotation r
+
+intersections :: Robot -> [Obstacle] -> [(Float,Float)] 
+intersections r obs = catMaybes $ map (returnObstacleIntersection r) obs
+
+returnObstacleIntersection :: Robot -> Obstacle -> Maybe (Float,Float)
+returnObstacleIntersection robot obstacle = GS.intersectLineShape (getRobotFrontLine robot) shape
+  where shape = GS.Rectangle centerRectPoint $ v2toSGVect $ size obstacle / 2
+        centerRectPoint = G2.Point2 $ v2toSGVect $ size obstacle/2 + position obstacle 
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
@@ -43,24 +52,21 @@ moveRobots st = GameEngine
                   (obstacles st)
                   (objective st)
                   (startingPoints st)
-                  (S.update 0 (moveRobot $ S.index (robots st) 0) $ robots st)
+                  (fmap (moveRobot $ obstacles st) $ robots st)
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
-moveRobot  :: Robot -> Robot
-moveRobot r = Object newPos (size r) (rotation r) rVel 
-  where newPos   = (position r) + deltaPos
-        deltaPos = V2 (rVel * cos angle) $ rVel * sin angle
-        rVel     = velocity r
-        angle    = degreeToRadian $ rotation r
+moveRobot  :: [Obstacle] -> Robot -> Robot
+moveRobot obs r = Object newPos (size r) (rotation r) rVel 
+  where newPos     = (position r) + deltaPos
+        deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
+        rVel       = minimum $ [velocity r] ++ maybeToList nearestD
+        angle      = degreeToRadian $ rotation r
+        nearestD   = rmBotWidth <$> (nearestDistance $ intersections r obs)
+        rmBotWidth = (subtract $ (/2) $ getYV2 $ size r)
 
 degreeToRadian :: Float -> Float
 degreeToRadian d = d / 180 * pi
-
-returnObstacleIntersection :: Robot -> Obstacle -> Maybe (Float,Float)
-returnObstacleIntersection robot obstacle = GS.intersectLineShape (getRobotFrontLine robot) shape
-  where shape = GS.Rectangle centerRectPoint $ v2toSGVect $ size obstacle / 2
-        centerRectPoint = G2.Point2 $ v2toSGVect $ size obstacle/2 + position obstacle 
 
 getRobotFrontLine :: Robot -> G2.Line2' Float
 getRobotFrontLine robot = line 

@@ -1,54 +1,59 @@
-* TODO We need a playable dobadobots game engine.ttt
+* TODO We need a playable dobadobots game engine.
 - [X] We want a working game engine.
-      - [X] We need some data structures representing the game engine.
-            - [X] We need a way to specify an arena.
-                  - [X] We need to specify a general structure.
-                  - [X] We need to specify obstacles.
-                  - [X] We need to specify an objective.
-                  - [X] We need to implement robots starting points.
-            - [X] We need a way to specify a robot.
-            - [X] We need a way to persist an arena level.
-                  - [X] We need a data format for the arena level
-                    (JSON?)
-                  - [X] We need to implement a parser + related tests
-                    for this data format (using aeson?)
+- [X] We need some data structures representing the game engine.
+      - [X] We need a way to specify an arena.
+            - [X] We need to specify a general structure.
+            - [X] We need to specify obstacles.
+            - [X] We need to specify an objective.
+            - [X] We need to implement robots starting points.
+      - [X] We need a way to specify a robot.
+      - [X] We need a way to persist an arena level.
+            - [X] We need a data format for the arena level
+              (JSON?)
+            - [X] We need to implement a parser + related tests
+              for this data format (using aeson?)
 - [-] We need to implement a function computing game engine
-  evolution.
-      - [-] We need to implement a function computing robots
-        movement.
-            - [X] We need to implement a function moving robots forward.
-            - [ ] We need to implement a function rotating robots.
-      - [ ] We need to implement a function computing bullets.
-      - [-] We need to implement a function computing collisions.
-            - [-] We need to implement a function computing robot collisions
-              with obstacles.
-                  - [X] We need to implement a function checking laser
-        collision agains obstacles.
-                        - [X] Draw a line being projected from the bot.
-                        - [X] Convert obstacles using the shape
-                                      datastructure.
-                        - [X] Apply intersect function. https://hackage.haskell.org/package/SGplus-1.1/docs/Data-SG-Shape.html#t:Shape-39-
-                        - [X] Find the nearest intersecting point.
-                  - [ ] We need to implement a function checking bots
-                    collisions against obstacles.
+evolution.
+- [-] We need to implement a function computing robots
+  movement.
+      - [X] We need to implement a function moving robots forward.
+      - [ ] We need to implement a function rotating robots.
+- [ ] We need to implement a function computing bullets.
+- [-] We need to implement a function computing collisions.
+      - [ ] We need to find a way to return the pointed object:
+        could be an obstacle, could be a robot, could be the
+        objective.
+      - [-] We need to implement a function computing robot collisions
+        with obstacles.
+            - [-] We need to implement a function checking laser
+  collision agains obstacles.
+                  - [X] Draw a line being projected from the bot.
+                  - [X] Convert obstacles using the shape
+                                datastructure.
+                  - [X] Apply intersect function. https://hackage.haskell.org/package/SGplus-1.1/docs/Data-SG-Shape.html#t:Shape-39-
+                  - [X] Find the nearest intersecting point.
             - [ ] We need to implement a function checking bots
-              collisions against objectives.
-            - [ ] We need to implement a function checking bots
-              collisions with bullets.
-            - [ ] We need to implement a function checknig bullets
-              collisions with walls.
+              collisions against obstacles.
+      - [ ] We need to implement a function checking bots
+        collisions against objectives.
+      - [ ] We need to implement a function checking bots
+        collisions with bullets.
+      - [ ] We need to implement a function checknig bullets
+        collisions with walls.
 
 * TODO We need a proper dobadobots ui.
-        - [X] We need to display both the arena and the code.
-              - [X] We need to implement an arena viewer.
-                    - [X] We need to display an empty window.
-                    - [X] We need to display objective.
-                    - [X] We need to display robots.
-                    - [X] We need to display obstacles.
-              - [X] We need to display line between robot and objective.
-              - [X] We need to display robots laser.
-                    - [X] We need to find intersection point between robot and
-                      nearest obstacle.
+  - [-] We need to display both the arena and the code.
+        - [X] We need to implement an arena viewer.
+              - [X] We need to display an empty window.
+              - [X] We need to display objective.
+              - [X] We need to display robots.
+              - [X] We need to display obstacles.
+        - [X] We need to display line between robot and objective.
+        - [-] We need to display robots laser.
+              - [X] We need to find intersection point between robot and
+                nearest obstacle.
+              - [ ] We need to find a point to head laser when no obstacle is
+                detected.
         - [ ] We need to implement a text editor.
               - [ ] We need to implement an AST pretty printer.
               - [ ] We want a visual marker for the path currently executed.
