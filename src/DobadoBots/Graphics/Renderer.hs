@@ -42,9 +42,11 @@ drawRobotsFrontLine r rbs o = mapM_ drawRbFrontLine rbs
   where
     drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (pObstacle (nearestObs rb o) rb)
     pRobot rb = SDL.P $ linearToSDLV2 $ getCenter rb
-    pObstacle Nothing  rb' = pRobot rb'
+    pObstacle Nothing  rb' = SDL.P $ SDL.V2 (toCint $ 10 * cos (rAngle rb')) (toCint $ 10 * sin  (rAngle rb'))
     pObstacle (Just p) _ = SDL.P $ linearToSDLV2 p
     nearestObs = returnNearestObstacleIntersection 
+    rAngle rb = (rotation rb) - 90
+
 
 drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
@@ -88,7 +90,9 @@ drawRobots r t rbts = mapM_ (drawRobot r t) rbts
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt
 linearToSDLV2 (L.V2 x y) = SDL.V2 (toCint x) (toCint y)  
-  where toCint x = CInt $ floor x
+
+toCint :: Float -> CInt
+toCint x = CInt $ floor x
 
 loadTextures :: FilePath -> SDL.Renderer -> IO (Textures)
 loadTextures robotImg renderer = do

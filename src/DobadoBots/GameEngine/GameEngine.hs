@@ -63,7 +63,7 @@ moveRobot obs r = Object newPos (size r) (rotation r) rVel
         rVel       = minimum $ [velocity r] ++ maybeToList nearestD
         angle      = degreeToRadian $ rotation r
         nearestD   = rmBotWidth <$> (nearestDistance $ intersections r obs)
-        rmBotWidth = (subtract $ (/2) $ getYV2 $ size r)
+        rmBotWidth = subtract $ (/2) $ getYV2 $ size r
 
 degreeToRadian :: Float -> Float
 degreeToRadian d = d / 180 * pi

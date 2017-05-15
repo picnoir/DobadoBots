@@ -23,16 +23,16 @@ evolution.
       - [ ] We need to find a way to return the pointed object:
         could be an obstacle, could be a robot, could be the
         objective.
-      - [-] We need to implement a function computing robot collisions
+      - [X] We need to implement a function computing robot collisions
         with obstacles.
-            - [-] We need to implement a function checking laser
+            - [X] We need to implement a function checking laser
   collision agains obstacles.
                   - [X] Draw a line being projected from the bot.
                   - [X] Convert obstacles using the shape
                                 datastructure.
                   - [X] Apply intersect function. https://hackage.haskell.org/package/SGplus-1.1/docs/Data-SG-Shape.html#t:Shape-39-
                   - [X] Find the nearest intersecting point.
-            - [ ] We need to implement a function checking bots
+            - [X] We need to implement a function checking bots
               collisions against obstacles.
       - [ ] We need to implement a function checking bots
         collisions against objectives.
@@ -49,10 +49,10 @@ evolution.
               - [X] We need to display robots.
               - [X] We need to display obstacles.
         - [X] We need to display line between robot and objective.
-        - [-] We need to display robots laser.
+        - [X] We need to display robots laser.
               - [X] We need to find intersection point between robot and
                 nearest obstacle.
-              - [ ] We need to find a point to head laser when no obstacle is
+              - [X] We need to find a point to head laser when no obstacle is
                 detected.
         - [ ] We need to implement a text editor.
               - [ ] We need to implement an AST pretty printer.
