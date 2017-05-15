@@ -23,30 +23,28 @@ gameEngineTick :: GameEngine -> Cond -> GameEngine
 gameEngineTick st (Token t) = applyAction t st
 gameEngineTick st _ = undefined
 
-
 returnNearestIntersection :: Robot -> GameEngine -> (Collider, (V2 Float))
 returnNearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, polarToCartesian r $ snd $ fromJust nearestCol)
-  | otherwise = (Wall, polarToCartesian r 20)
+  | otherwise         = (Wall, polarToCartesian r 20)
   where
     polarToCartesian r dist = V2 (dist * (cos $ angleRob r)) (dist * (sin $ angleRob r))
-    angleRob r = 90 + rotation r
-    nearestCol = returnNearestIntersectionDistance r st
+    angleRob r              = 90 + rotation r
+    nearestCol              = returnNearestIntersectionDistance r st
 
 returnNearestIntersectionDistance :: Robot -> GameEngine -> Maybe (Collider, Float)
 returnNearestIntersectionDistance r st = case minCollider of
       (col, Just(dist)) -> Just (col,dist)
-      (_, Nothing) -> Nothing
-  where nearObs = (Obstacle , minTupleArray $ obstacleIntersections r $ obstacles st)
-        nearRob = (Robot, minTupleArray $ robotIntersections r $ F.toList $ robots st)
-        nearObj = (Objective, minTupleArray $ objectiveIntersections r $ objective st)
-        colVector = [nearObs, nearRob, nearObj]
+      (_, Nothing)      -> Nothing
+  where nearObs     = (Obstacle , minTupleArray $ obstacleIntersections r $ obstacles st)
+        nearRob     = (Robot, minTupleArray $ robotIntersections r $ F.toList $ robots st)
+        nearObj     = (Objective, minTupleArray $ objectiveIntersections r $ objective st)
+        colVector   = [nearObs, nearRob, nearObj]
         minCollider = minimumBy (compare `on` snd) (filter (isJust.snd) colVector)
 
 returnNearestObstacleIntersection :: Robot -> [Obstacle] -> Maybe (V2 Float)
 returnNearestObstacleIntersection r obs = getNearestCoordinates $ nearestDistance $ obstacleIntersections r obs
   where 
-        getNearestCoordinates :: Maybe Float -> Maybe (V2 Float)
         getNearestCoordinates Nothing = Nothing
         getNearestCoordinates (Just ray) 
           | ray < 0           = Nothing
