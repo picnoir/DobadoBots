@@ -7,7 +7,7 @@ module DobadoBots(
 , Textures(..)
 , loadTextures
 , gameEngineTick
-, returnNearestObstacleIntersection
+, returnNearestIntersection
 , module DobadoBots.Interpreter.Data
 , module DobadoBots.GameEngine.Data
 ) where
@@ -15,7 +15,7 @@ module DobadoBots(
 import DobadoBots.Interpreter.Data
 import DobadoBots.GameEngine.Data
 import DobadoBots.GameEngine.LevelLoader (loadLevel)
-import DobadoBots.GameEngine.GameEngine (gameEngineTick, returnNearestObstacleIntersection)
+import DobadoBots.GameEngine.GameEngine (gameEngineTick, returnNearestIntersection)
 import DobadoBots.Interpreter.Interpreter (parseScript)
 import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)
 import DobadoBots.Graphics.Renderer (mainGraphicsLoop, loadTextures, Textures(..))

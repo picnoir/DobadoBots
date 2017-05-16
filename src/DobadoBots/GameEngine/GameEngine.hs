@@ -1,6 +1,6 @@
 module DobadoBots.GameEngine.GameEngine (
   gameEngineTick
-, returnNearestObstacleIntersection
+, returnNearestIntersection
 ) where
 
 import qualified Data.Sequence           as S  (update, index)
@@ -17,7 +17,7 @@ import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data  (GameEngine(..), Object(..), Robot, Obstacle(..), Objective(..))
 
-data Collider = Obstacle | Objective | Wall | Robot
+data Collider = Obstacle | Objective | Wall | Robot deriving (Show)
 
 gameEngineTick :: GameEngine -> Cond -> GameEngine
 gameEngineTick st (Token t) = applyAction t st
@@ -25,10 +25,11 @@ gameEngineTick st _ = undefined
 
 returnNearestIntersection :: Robot -> GameEngine -> (Collider, (V2 Float))
 returnNearestIntersection r st
-  | isJust nearestCol = (fst $ fromJust nearestCol, polarToCartesian r $ snd $ fromJust nearestCol)
+  | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)
   | otherwise         = (Wall, polarToCartesian r 20)
   where
-    polarToCartesian r dist = V2 (dist * (cos $ angleRob r)) (dist * (sin $ angleRob r))
+    getV2IntersecPoint      = point2ToV2 . GG.alongLine (snd $ fromJust nearestCol) $ getRobotFrontLine r
+    polarToCartesian r dist = V2 (dist * (cos $ angleRob r)) $ dist * (sin $ angleRob r)
     angleRob r              = 90 + rotation r
     nearestCol              = returnNearestIntersectionDistance r st
 
@@ -36,19 +37,21 @@ returnNearestIntersectionDistance :: Robot -> GameEngine -> Maybe (Collider, Flo
 returnNearestIntersectionDistance r st = case minCollider of
       (col, Just(dist)) -> Just (col,dist)
       (_, Nothing)      -> Nothing
-  where nearObs     = (Obstacle , minTupleArray $ obstacleIntersections r $ obstacles st)
-        nearRob     = (Robot, minTupleArray $ robotIntersections r $ F.toList $ robots st)
-        nearObj     = (Objective, minTupleArray $ objectiveIntersections r $ objective st)
-        colVector   = [nearObs, nearRob, nearObj]
-        minCollider = minimumBy (compare `on` snd) (filter (isJust.snd) colVector)
+  where nearObs            = (Obstacle , minTupleArray . obstacleIntersections r $ obstacles st)
+        nearRob            = (Robot, minTupleArray . robotIntersections r . F.toList $ robots st)
+        nearObj            = (Objective, minTupleArray . objectiveIntersections r $ objective st)
+        colVector          = filter (isJust . snd ) [nearObs, nearRob, nearObj]
+        minCollider        = case colVector of
+                                (x:xs) -> minimumBy (compare `on` snd) $ colVector
+                                []     -> (Wall, Nothing)
 
 returnNearestObstacleIntersection :: Robot -> [Obstacle] -> Maybe (V2 Float)
-returnNearestObstacleIntersection r obs = getNearestCoordinates $ nearestDistance $ obstacleIntersections r obs
+returnNearestObstacleIntersection r obs = getNearestCoordinates . nearestDistance $ obstacleIntersections r obs
   where 
         getNearestCoordinates Nothing = Nothing
         getNearestCoordinates (Just ray) 
           | ray < 0           = Nothing
-          | otherwise         = Just $ point2ToV2 $ (GG.alongLine ray $ getRobotFrontLine r) 
+          | otherwise         = Just . point2ToV2 $ (GG.alongLine ray $ getRobotFrontLine r) 
         angle                 = 45 - rotation r
 
 nearestDistance :: [(Float,Float)] -> Maybe Float
@@ -61,12 +64,13 @@ objectiveIntersections :: Robot -> Objective -> [(Float,Float)]
 objectiveIntersections r obj = catMaybes $ [returnObstacleIntersection r obj] 
 
 robotIntersections :: Robot -> [Robot] -> [(Float,Float)]
-robotIntersections = obstacleIntersections
+robotIntersections r rbs= obstacleIntersections r otherRobots
+  where otherRobots = filter (/= r) rbs 
 
 returnObstacleIntersection :: Robot -> Object -> Maybe (Float,Float)
 returnObstacleIntersection robot obj = GS.intersectLineShape (getRobotFrontLine robot) shape
-  where shape = GS.Rectangle centerRectPoint $ v2toSGVect $ size obj / 2
-        centerRectPoint = G2.Point2 $ v2toSGVect $ size obj /2 + position obj 
+  where shape = GS.Rectangle centerRectPoint . v2toSGVect $ size obj / 2
+        centerRectPoint = G2.Point2 . v2toSGVect $ size obj /2 + position obj 
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.

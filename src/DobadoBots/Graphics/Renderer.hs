@@ -6,7 +6,7 @@ module DobadoBots.Graphics.Renderer (
 
 import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..),
   Object(..), Robot(..), getCenter)
-import DobadoBots.GameEngine.GameEngine (returnNearestObstacleIntersection)
+import DobadoBots.GameEngine.GameEngine (returnNearestIntersection)
 
 import GHC.Float (float2Double)
 import qualified SDL (Renderer, rendererDrawColor, clear,
@@ -35,18 +35,14 @@ drawLines :: SDL.Renderer -> GameEngine -> IO ()
 drawLines r s = do
   drawObjectiveLine r (robots s) (objective s)
   SDL.rendererDrawColor r $= SDL.V4 255 0 0 maxBound
-  drawRobotsFrontLine r (robots s) (obstacles s)
+  drawRobotsFrontLine r (robots s) s
 
-drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> [Obstacle] -> IO ()
-drawRobotsFrontLine r rbs o = mapM_ drawRbFrontLine rbs
+drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameEngine -> IO ()
+drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
-    drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (pObstacle (nearestObs rb o) rb)
+    drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (SDL.P . linearToSDLV2 . snd $ nearestInt rb)
     pRobot rb = SDL.P $ linearToSDLV2 $ getCenter rb
-    pObstacle Nothing  rb' = SDL.P $ SDL.V2 (toCint $ 10 * cos (rAngle rb')) (toCint $ 10 * sin  (rAngle rb'))
-    pObstacle (Just p) _ = SDL.P $ linearToSDLV2 p
-    nearestObs = returnNearestObstacleIntersection 
-    rAngle rb = (rotation rb) - 90
-
+    nearestInt rb = returnNearestIntersection rb st
 
 drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
