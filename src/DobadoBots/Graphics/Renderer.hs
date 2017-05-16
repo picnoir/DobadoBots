@@ -18,7 +18,7 @@ import Foreign.C.Types (CInt(..), CDouble(..))
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S (Seq)
 
-data Textures = Textures {
+newtype Textures = Textures {
   robotTexture :: SDL.Texture
 }
 
@@ -61,7 +61,7 @@ drawArena renderer gameState = do
   SDL.fillRect renderer $ Just objR
 
 getObstaclesRects :: [Obstacle] -> V.Vector (SDL.Rectangle CInt)
-getObstaclesRects obs = V.fromList $ rectangles 
+getObstaclesRects obs = V.fromList rectangles 
   where
     rectangles   = map rectangle obs
     rectangle ob = SDL.Rectangle (pointRect ob) (sizeRect ob)
@@ -82,7 +82,7 @@ drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle
         s     = linearToSDLV2 $ size robot
 
 drawRobots :: SDL.Renderer -> SDL.Texture -> S.Seq Robot -> IO()
-drawRobots r t rbts = mapM_ (drawRobot r t) rbts
+drawRobots r t = mapM_ (drawRobot r t)
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt
 linearToSDLV2 (L.V2 x y) = SDL.V2 (toCint x) (toCint y)  
@@ -90,7 +90,7 @@ linearToSDLV2 (L.V2 x y) = SDL.V2 (toCint x) (toCint y)
 toCint :: Float -> CInt
 toCint x = CInt $ floor x
 
-loadTextures :: FilePath -> SDL.Renderer -> IO (Textures)
+loadTextures :: FilePath -> SDL.Renderer -> IO Textures
 loadTextures robotImg renderer = do
   robot <- rTex robotImg renderer 
   return $ Textures robot 

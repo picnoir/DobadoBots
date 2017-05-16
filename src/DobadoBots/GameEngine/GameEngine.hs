@@ -11,7 +11,7 @@ import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
 import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2', Point2'(..), makeRel2)
 import qualified Data.SG.Geometry        as GG (alongLine)
-import           Data.Maybe                    (catMaybes, maybeToList, listToMaybe, isJust, fromJust)
+import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList, listToMaybe, isJust, fromJust)
 import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..))
@@ -23,26 +23,26 @@ gameEngineTick :: GameEngine -> Cond -> GameEngine
 gameEngineTick st (Token t) = applyAction t st
 gameEngineTick st _ = undefined
 
-returnNearestIntersection :: Robot -> GameEngine -> (Collider, (V2 Float))
+returnNearestIntersection :: Robot -> GameEngine -> (Collider, V2 Float)
 returnNearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)
   | otherwise         = (Wall, polarToCartesian r 20)
   where
     getV2IntersecPoint      = point2ToV2 . GG.alongLine (snd $ fromJust nearestCol) $ getRobotFrontLine r
-    polarToCartesian r dist = V2 (dist * (cos $ angleRob r)) $ dist * (sin $ angleRob r)
+    polarToCartesian r dist = V2 (dist * cos  (angleRob r))  (dist * sin  (angleRob r))
     angleRob r              = 90 + rotation r
     nearestCol              = returnNearestIntersectionDistance r st
 
 returnNearestIntersectionDistance :: Robot -> GameEngine -> Maybe (Collider, Float)
 returnNearestIntersectionDistance r st = case minCollider of
-      (col, Just(dist)) -> Just (col,dist)
+      (col, Just dist) -> Just (col,dist)
       (_, Nothing)      -> Nothing
   where nearObs            = (Obstacle , minTupleArray . obstacleIntersections r $ obstacles st)
         nearRob            = (Robot, minTupleArray . robotIntersections r . F.toList $ robots st)
         nearObj            = (Objective, minTupleArray . objectiveIntersections r $ objective st)
         colVector          = filter (isJust . snd ) [nearObs, nearRob, nearObj]
         minCollider        = case colVector of
-                                (x:xs) -> minimumBy (compare `on` snd) $ colVector
+                                (x:xs) -> minimumBy (compare `on` snd) colVector
                                 []     -> (Wall, Nothing)
 
 returnNearestObstacleIntersection :: Robot -> [Obstacle] -> Maybe (V2 Float)
@@ -51,17 +51,17 @@ returnNearestObstacleIntersection r obs = getNearestCoordinates . nearestDistanc
         getNearestCoordinates Nothing = Nothing
         getNearestCoordinates (Just ray) 
           | ray < 0           = Nothing
-          | otherwise         = Just . point2ToV2 $ (GG.alongLine ray $ getRobotFrontLine r) 
+          | otherwise         = Just . point2ToV2 . GG.alongLine ray $ getRobotFrontLine r 
         angle                 = 45 - rotation r
 
 nearestDistance :: [(Float,Float)] -> Maybe Float
 nearestDistance = minTupleArray 
 
 obstacleIntersections :: Robot -> [Obstacle] -> [(Float,Float)] 
-obstacleIntersections r obs = catMaybes $ map (returnObstacleIntersection r) obs
+obstacleIntersections r = mapMaybe $ returnObstacleIntersection r 
 
 objectiveIntersections :: Robot -> Objective -> [(Float,Float)]
-objectiveIntersections r obj = catMaybes $ [returnObstacleIntersection r obj] 
+objectiveIntersections r obj = catMaybes [returnObstacleIntersection r obj] 
 
 robotIntersections :: Robot -> [Robot] -> [(Float,Float)]
 robotIntersections r rbs= obstacleIntersections r otherRobots
@@ -83,17 +83,17 @@ moveRobots st = GameEngine
                   (obstacles st)
                   (objective st)
                   (startingPoints st)
-                  (fmap (moveRobot $ obstacles st) $ robots st)
+                  (moveRobot (obstacles st) <$> robots st)
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
 moveRobot  :: [Obstacle] -> Robot -> Robot
 moveRobot obs r = Object newPos (size r) (rotation r) rVel 
-  where newPos     = (position r) + deltaPos
+  where newPos     = position r + deltaPos
         deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
-        rVel       = minimum $ [velocity r] ++ maybeToList nearestD
+        rVel       = minimum $ velocity r : maybeToList nearestD
         angle      = degreeToRadian $ rotation r
-        nearestD   = rmBotWidth <$> (nearestDistance $ obstacleIntersections r obs)
+        nearestD   = rmBotWidth <$> nearestDistance (obstacleIntersections r obs)
         rmBotWidth = subtract $ (/2) $ getYV2 $ size r
 
 degreeToRadian :: Float -> Float
@@ -102,8 +102,8 @@ degreeToRadian d = d / 180 * pi
 getRobotFrontLine :: Robot -> G2.Line2' Float
 getRobotFrontLine robot = line 
   where line        = G2.Line2 (G2.Point2 (xRobot,yRobot)) $ G2.makeRel2 (xFrontRobot,yFrontRobot)
-        xRobot      = getXV2 $ centerRobot
-        yRobot      = getYV2 $ centerRobot
+        xRobot      = getXV2 centerRobot
+        yRobot      = getYV2 centerRobot
         centerRobot = position robot + size robot / 2
         xFrontRobot = cos $ degreeToRadian $ rotation robot
         yFrontRobot = sin $ degreeToRadian $ rotation robot
@@ -121,8 +121,8 @@ minTuple (x,y)
 
 minTupleArray :: (Ord a) => [(a,a)] -> Maybe a
 minTupleArray xs  
-    | length xs > 0 = Just <$> minimum $ fmap minTuple xs
-    | otherwise = Nothing
+    | not (null xs) = Just <$> minimum $ fmap minTuple xs
+    | otherwise     = Nothing
 
 v2toSGVect :: V2 a -> (a,a)
 v2toSGVect (V2 x y) = (x,y)

@@ -57,13 +57,13 @@ instance FromJSON Object where
       <*> v .: "rotation"
       <*> v .: "velocity"
 
-parsePosition :: Maybe (AT.Value) -> AT.Parser (V2 Float)
+parsePosition :: Maybe AT.Value -> AT.Parser (V2 Float)
 parsePosition (Just (AT.Object v)) = V2 <$> v .: "x" <*> v .: "y"
 parsePosition _ = fail "No position object."
 
-parseSize :: Maybe (AT.Value) -> AT.Parser (V2 Float)
+parseSize :: Maybe AT.Value -> AT.Parser (V2 Float)
 parseSize (Just(AT.Object v)) = V2 <$> v .: "width" <*> v .: "height"
 parseSize _ = fail "No size object."
 
 getCenter :: Object -> Position
-getCenter o = (position o) + ((size o) / 2)
+getCenter o = position o + (size o / 2)

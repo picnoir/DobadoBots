@@ -13,7 +13,7 @@ import Foreign.C.Types (CInt(..))
 screenWidth, screenHeight :: CInt
 (screenWidth, screenHeight) = (640, 480)
 
-createMainWindow :: Text -> IO ((SDL.Renderer, SDL.Window))
+createMainWindow :: Text -> IO (SDL.Renderer, SDL.Window)
 createMainWindow winName = do
   SDL.initialize [SDL.InitVideo]
   SDL.HintRenderScaleQuality $= SDL.ScaleLinear
@@ -35,6 +35,6 @@ closeMainWindow renderer window = do
   SDL.destroyWindow window
   SDL.quit
 
-handleEvents :: IO ([SDL.Event])
+handleEvents :: IO [SDL.Event]
 handleEvents = SDL.pollEvents
 
