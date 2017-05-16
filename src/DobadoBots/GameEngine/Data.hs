@@ -4,7 +4,7 @@ module DobadoBots.GameEngine.Data (
   Size(..)
 , Position(..)
 , Velocity(..)
-, GameEngine(..)
+, GameState(..)
 , Object(..)
 , Obstacle(..)
 , Objective(..)
@@ -25,7 +25,7 @@ type Position = V2 Float
 
 type Velocity = Float
 
-data GameEngine = GameEngine {obstacles      :: [Obstacle]
+data GameState = GameState   {obstacles      :: [Obstacle]
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
                             , robots         :: Seq Robot} deriving (Show, Eq)
@@ -43,8 +43,8 @@ type StartingPoint = Object
 
 type Robot = Object 
 
-instance FromJSON GameEngine where
-  parseJSON = withObject "GameEngine" $ \v -> GameEngine
+instance FromJSON GameState where
+  parseJSON = withObject "GameState" $ \v -> GameState
     <$> v .: "obstacles"
     <*> v .: "objective"
     <*> v .: "startingpoints"

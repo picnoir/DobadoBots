@@ -15,15 +15,15 @@ import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList
 import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..))
-import DobadoBots.GameEngine.Data  (GameEngine(..), Object(..), Robot, Obstacle(..), Objective(..))
+import DobadoBots.GameEngine.Data  (GameState(..), Object(..), Robot, Obstacle(..), Objective(..))
 
 data Collider = Obstacle | Objective | Wall | Robot deriving (Show)
 
-gameEngineTick :: GameEngine -> Cond -> GameEngine
+gameEngineTick :: GameState -> Cond -> GameState 
 gameEngineTick st (Token t) = applyAction t st
 gameEngineTick st _ = undefined
 
-returnNearestIntersection :: Robot -> GameEngine -> (Collider, V2 Float)
+returnNearestIntersection :: Robot -> GameState -> (Collider, V2 Float)
 returnNearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)
   | otherwise         = (Wall, polarToCartesian r 20)
@@ -33,7 +33,7 @@ returnNearestIntersection r st
     angleRob r              = 90 + rotation r
     nearestCol              = returnNearestIntersectionDistance r st
 
-returnNearestIntersectionDistance :: Robot -> GameEngine -> Maybe (Collider, Float)
+returnNearestIntersectionDistance :: Robot -> GameState -> Maybe (Collider, Float)
 returnNearestIntersectionDistance r st = case minCollider of
       (col, Just dist) -> Just (col,dist)
       (_, Nothing)      -> Nothing
@@ -74,12 +74,12 @@ returnObstacleIntersection robot obj = GS.intersectLineShape (getRobotFrontLine 
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
-applyAction :: ActionToken -> GameEngine -> GameEngine
+applyAction :: ActionToken -> GameState -> GameState 
 applyAction MoveForward = moveRobots
 applyAction _ = error "DAFUK IZ DAT TOKEN?"
 
-moveRobots :: GameEngine -> GameEngine 
-moveRobots st = GameEngine
+moveRobots :: GameState -> GameState 
+moveRobots st = GameState
                   (obstacles st)
                   (objective st)
                   (startingPoints st)

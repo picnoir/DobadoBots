@@ -4,7 +4,7 @@ module DobadoBots.Graphics.Renderer (
 , loadTextures
 ) where
 
-import DobadoBots.GameEngine.Data (GameEngine(..), Objective(..), Obstacle(..),
+import DobadoBots.GameEngine.Data (GameState(..), Objective(..), Obstacle(..),
   Object(..), Robot(..), getCenter)
 import DobadoBots.GameEngine.GameEngine (returnNearestIntersection)
 
@@ -22,7 +22,7 @@ newtype Textures = Textures {
   robotTexture :: SDL.Texture
 }
 
-mainGraphicsLoop :: SDL.Renderer -> GameEngine -> Textures -> IO ()
+mainGraphicsLoop :: SDL.Renderer -> GameState -> Textures -> IO ()
 mainGraphicsLoop renderer gameState tex = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
@@ -31,13 +31,13 @@ mainGraphicsLoop renderer gameState tex = do
   drawRobots renderer (robotTexture tex) $ robots gameState 
   SDL.present renderer
 
-drawLines :: SDL.Renderer -> GameEngine -> IO ()
+drawLines :: SDL.Renderer -> GameState -> IO ()
 drawLines r s = do
   drawObjectiveLine r (robots s) (objective s)
   SDL.rendererDrawColor r $= SDL.V4 255 0 0 maxBound
   drawRobotsFrontLine r (robots s) s
 
-drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameEngine -> IO ()
+drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameState -> IO ()
 drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
     drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (SDL.P . linearToSDLV2 . snd $ nearestInt rb)
@@ -51,7 +51,7 @@ drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
     pRobot rb     = SDL.P . linearToSDLV2 $ getCenter rb
     pObjective    = SDL.P . linearToSDLV2 $ getCenter o
 
-drawArena :: SDL.Renderer -> GameEngine -> IO ()
+drawArena :: SDL.Renderer -> GameState -> IO ()
 drawArena renderer gameState = do
   let obsR = getObstaclesRects $ obstacles gameState
   let objR = getObjectiveRect $ objective gameState

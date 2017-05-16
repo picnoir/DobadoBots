@@ -3,7 +3,7 @@
 import Control.Monad (unless)
 import Data.Text (Text(..))
 import qualified Data.Text.IO as TIO (readFile)
-import DobadoBots (createMainWindow, closeMainWindow, mainGraphicsLoop, GameEngine(..),
+import DobadoBots (createMainWindow, closeMainWindow, mainGraphicsLoop, GameState(..),
   loadLevel, loadTextures, Textures, gameEngineTick, parseScript, Cond(..))
 import qualified SDL (EventPayload(..), eventPayload, pollEvents, Renderer)
 
@@ -23,7 +23,7 @@ main = do
     getAst   (Right ast)   = return ast
     getAst   (Left err)    = fail $ show err
 
-mainLoop :: SDL.Renderer -> Cond -> GameEngine -> Textures -> IO ()
+mainLoop :: SDL.Renderer -> Cond -> GameState -> Textures -> IO ()
 mainLoop r ast st tex = do
   evts <- SDL.pollEvents
   let nst = gameEngineTick st ast
