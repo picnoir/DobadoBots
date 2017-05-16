@@ -35,7 +35,9 @@ nearestIntersectionDistance r st = case minCollider of
   where nearObs            = (Obstacle , minTupleArray . obstacleIntersections r $ obstacles st)
         nearRob            = (Robot, minTupleArray . robotIntersections r . F.toList $ robots st)
         nearObj            = (Objective, minTupleArray . objectiveIntersections r $ objective st)
-        colVector          = filter (isJust . snd ) [nearObs, nearRob, nearObj]
+        nearWall           = (Wall, Just $ arenaIntersection r st)
+        colVector          = filter distanceFilter [nearObs, nearRob, nearObj]
+        distanceFilter v   = (isJust $ snd v) && ((>0) . fromJust $ snd v)
         minCollider        = case colVector of
                                 (x:xs) -> minimumBy (compare `on` snd) colVector
                                 []     -> (Wall, Nothing)
@@ -57,6 +59,9 @@ obstacleIntersections r = mapMaybe $ returnObjectIntersection r
 
 objectiveIntersections :: Robot -> Objective -> [(Float,Float)]
 objectiveIntersections r obj = catMaybes [returnObjectIntersection r obj] 
+
+arenaIntersection :: Robot -> GameState -> Float
+arenaIntersection = undefined
 
 robotIntersections :: Robot -> [Robot] -> [(Float,Float)]
 robotIntersections r rbs = mapMaybe (returnObjectIntersection r) otherRobots
