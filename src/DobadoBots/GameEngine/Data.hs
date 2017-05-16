@@ -27,6 +27,7 @@ type Position = V2 Float
 type Velocity = Float
 
 data GameState = GameState   {obstacles      :: [Obstacle]
+                            , arenaSize      :: Size
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
                             , robots         :: Seq Robot} deriving (Show, Eq)
@@ -49,6 +50,7 @@ type Robot = Object
 instance FromJSON GameState where
   parseJSON = withObject "GameState" $ \v -> GameState
     <$> v .: "obstacles"
+    <*> pure (V2 640 480)
     <*> v .: "objective"
     <*> v .: "startingpoints"
     <*> v .: "startingpoints"

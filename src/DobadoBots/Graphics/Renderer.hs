@@ -76,9 +76,9 @@ getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
 drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
 drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle Nothing (SDL.V2 False False)
   where 
-        angle = CDouble $ float2Double $ rotation robot
+        angle = CDouble . float2Double $ rotation robot
         dest  = SDL.Rectangle p s
-        p     = SDL.P $ linearToSDLV2 $ position robot
+        p     = SDL.P . linearToSDLV2 $ position robot
         s     = linearToSDLV2 $ size robot
 
 drawRobots :: SDL.Renderer -> SDL.Texture -> S.Seq Robot -> IO()

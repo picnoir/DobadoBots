@@ -21,7 +21,7 @@ getYV2 (V2 _ y) = y
 minTuple :: (Ord a) => (a,a) -> a
 minTuple (x,y)
   | x > y = y
-  | otherwise = y
+  | otherwise = x
 
 minTupleArray :: (Ord a) => [(a,a)] -> Maybe a
 minTupleArray xs  
@@ -35,7 +35,7 @@ sGVectToV2 :: (a,a) -> V2 a
 sGVectToV2 (x,y) = V2 x y
 
 degreeToRadian :: Float -> Float
-degreeToRadian d = d / 180 * pi
+degreeToRadian d = (d * pi) / 180 
 
 point2ToV2 :: Point2' a -> V2 a
 point2ToV2 (Point2 (x,y)) = V2 x y

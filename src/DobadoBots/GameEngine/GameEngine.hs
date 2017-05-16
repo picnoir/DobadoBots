@@ -26,6 +26,7 @@ applyAction _ = error "DAFUK IZ DAT TOKEN?"
 moveRobots :: GameState -> GameState 
 moveRobots st = GameState
                   (obstacles st)
+                  (arenaSize st)
                   (objective st)
                   (startingPoints st)
                   (moveRobot st <$> robots st)
@@ -36,8 +37,8 @@ moveRobot  :: GameState -> Robot -> Robot
 moveRobot st r = Object newPos (size r) (rotation r) rVel 
   where newPos     = position r + deltaPos
         deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
-        rVel       = minimum $ velocity r : maybeToList nearestD
+        rVel       = minimum $ velocity r : maybeToList nearestD 
         angle      = degreeToRadian $ rotation r
-        nearestD   = (rmBotWidth . snd) <$> nearestIntersectionDistance r st
+        nearestD   = rmBotWidth . snd <$> nearestIntersectionDistance r st
         rmBotWidth = subtract . (/2) . getYV2 $ size r
 

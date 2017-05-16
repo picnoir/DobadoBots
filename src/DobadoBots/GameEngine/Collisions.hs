@@ -10,46 +10,40 @@ import qualified Data.SG.Geometry        as GG (alongLine)
 import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
 import           Data.List                     (minimumBy)
 import           Data.Function                 (on)
-import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2', Point2'(..), makeRel2)
-import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList, listToMaybe, isJust, fromJust)
+import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2', 
+                                                Point2'(..), makeRel2, 
+                                                intersectLines2)
+import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList,
+                                                listToMaybe, isJust, fromJust)
 
-import DobadoBots.GameEngine.Data (Robot(..), GameState(..),
-                                   Collider(..), Obstacle(..),
-                                   Objective(..), Object(..))
-import DobadoBots.GameEngine.Utils (getXV2, getYV2, minTupleArray, v2toSGVect, point2ToV2, degreeToRadian)
-  
+
+import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
+                                                Collider(..), Obstacle(..),
+                                                Objective(..), Object(..))
+import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
+                                                v2toSGVect, point2ToV2, degreeToRadian)
+
 nearestIntersection :: Robot -> GameState -> (Collider, V2 Float)
 nearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)
-  | otherwise         = (Wall, polarToCartesian r 20)
+  | otherwise         = error "no colliding point!"
   where
     getV2IntersecPoint      = point2ToV2 . GG.alongLine (snd $ fromJust nearestCol) $ getRobotFrontLine r
-    polarToCartesian r dist = V2 (dist * cos  (angleRob r))  (dist * sin  (angleRob r))
-    angleRob r              = 90 + rotation r
     nearestCol              = nearestIntersectionDistance r st
 
 nearestIntersectionDistance :: Robot -> GameState -> Maybe (Collider, Float)
 nearestIntersectionDistance r st = case minCollider of
-      (col, Just dist) -> Just (col,dist)
-      (_, Nothing)      -> Nothing
+      (col, Just dist)    -> Just (col, dist) 
+      (_, Nothing)        -> Nothing
   where nearObs            = (Obstacle , minTupleArray . obstacleIntersections r $ obstacles st)
         nearRob            = (Robot, minTupleArray . robotIntersections r . F.toList $ robots st)
         nearObj            = (Objective, minTupleArray . objectiveIntersections r $ objective st)
         nearWall           = (Wall, Just $ arenaIntersection r st)
-        colVector          = filter distanceFilter [nearObs, nearRob, nearObj]
-        distanceFilter v   = (isJust $ snd v) && ((>0) . fromJust $ snd v)
+        colVector          = filter distanceFilter [nearObs, nearRob, nearObj, nearWall]
+        distanceFilter v   = isJust  (snd v) && ((>= 0) . fromJust $ snd v)
         minCollider        = case colVector of
                                 (x:xs) -> minimumBy (compare `on` snd) colVector
                                 []     -> (Wall, Nothing)
-
-returnNearestObstacleIntersection :: Robot -> [Obstacle] -> Maybe (V2 Float)
-returnNearestObstacleIntersection r obs = getNearestCoordinates . nearestDistance $ obstacleIntersections r obs
-  where 
-        getNearestCoordinates Nothing = Nothing
-        getNearestCoordinates (Just ray) 
-          | ray < 0           = Nothing
-          | otherwise         = Just . point2ToV2 . GG.alongLine ray $ getRobotFrontLine r 
-        angle                 = 45 - rotation r
 
 nearestDistance :: [(Float,Float)] -> Maybe Float
 nearestDistance = minTupleArray 
@@ -61,7 +55,18 @@ objectiveIntersections :: Robot -> Objective -> [(Float,Float)]
 objectiveIntersections r obj = catMaybes [returnObjectIntersection r obj] 
 
 arenaIntersection :: Robot -> GameState -> Float
-arenaIntersection = undefined
+arenaIntersection r st = case length filteredInsersections of
+                              0 -> 0 
+                              _ -> minimum filteredInsersections
+  where 
+        filteredInsersections = filter (>= 0) wallsIntersections
+        wallsIntersections    = fst <$> catMaybes (G2.intersectLines2 (getRobotFrontLine r) <$> walls)
+        walls                 = [leftWall,rightWall,topWall,bottomWall]
+        leftWall              = G2.Line2 (G2.Point2 (0,0)) (G2.makeRel2 (0,aHeight))
+        rightWall             = G2.Line2 (G2.Point2 (aWidth,0)) (G2.makeRel2 (0,aHeight))
+        topWall               = G2.Line2 (G2.Point2 (0,0)) (G2.makeRel2 (aWidth,0))
+        bottomWall            = G2.Line2 (G2.Point2 (0,aHeight)) (G2.makeRel2 (aWidth,0))
+        (V2 aWidth aHeight)   = arenaSize st
 
 robotIntersections :: Robot -> [Robot] -> [(Float,Float)]
 robotIntersections r rbs = mapMaybe (returnObjectIntersection r) otherRobots
@@ -69,7 +74,7 @@ robotIntersections r rbs = mapMaybe (returnObjectIntersection r) otherRobots
 
 returnObjectIntersection :: Robot -> Object -> Maybe (Float,Float)
 returnObjectIntersection robot obj = GS.intersectLineShape (getRobotFrontLine robot) shape
-  where shape = GS.Rectangle centerRectPoint . v2toSGVect $ size obj / 2
+  where shape           = GS.Rectangle centerRectPoint . v2toSGVect $ size obj / 2
         centerRectPoint = G2.Point2 . v2toSGVect $ size obj /2 + position obj 
 
 getRobotFrontLine :: Robot -> G2.Line2' Float
@@ -78,6 +83,8 @@ getRobotFrontLine robot = line
         xRobot      = getXV2 centerRobot
         yRobot      = getYV2 centerRobot
         centerRobot = position robot + size robot / 2
-        xFrontRobot = cos . degreeToRadian $ rotation robot
-        yFrontRobot = sin . degreeToRadian $ rotation robot
+        vRobot      = velocity robot
+        rot         = rotation robot
+        xFrontRobot = vRobot * (cos . degreeToRadian $ rot)
+        yFrontRobot = vRobot * (sin . degreeToRadian $ rot)
 
