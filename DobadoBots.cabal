@@ -33,6 +33,8 @@ library
                       ,DobadoBots.GameEngine.Data
                       ,DobadoBots.GameEngine.LevelLoader
                       ,DobadoBots.GameEngine.GameEngine
+                      ,DobadoBots.GameEngine.Collisions
+                      ,DobadoBots.GameEngine.Utils
                       ,DobadoBots.Graphics.Window
                       ,DobadoBots.Graphics.Renderer
                       

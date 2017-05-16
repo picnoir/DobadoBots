@@ -10,6 +10,7 @@ module DobadoBots.GameEngine.Data (
 , Objective(..)
 , StartingPoint(..)
 , Robot(..)
+, Collider(..)
 , getCenter
 ) where
 
@@ -34,6 +35,8 @@ data Object = Object {position :: Position
                     , size     :: Size
                     , rotation :: Float
                     , velocity :: Velocity} deriving (Show, Eq)
+
+data Collider = Obstacle | Objective | Wall | Robot deriving (Show)
 
 type Obstacle = Object
 

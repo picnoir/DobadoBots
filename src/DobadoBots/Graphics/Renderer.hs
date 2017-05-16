@@ -6,7 +6,7 @@ module DobadoBots.Graphics.Renderer (
 
 import DobadoBots.GameEngine.Data (GameState(..), Objective(..), Obstacle(..),
   Object(..), Robot(..), getCenter)
-import DobadoBots.GameEngine.GameEngine (returnNearestIntersection)
+import DobadoBots.GameEngine.Collisions (nearestIntersection)
 
 import GHC.Float (float2Double)
 import qualified SDL (Renderer, rendererDrawColor, clear,
@@ -42,7 +42,7 @@ drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
     drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (SDL.P . linearToSDLV2 . snd $ nearestInt rb)
     pRobot rb = SDL.P . linearToSDLV2 $ getCenter rb
-    nearestInt rb = returnNearestIntersection rb st
+    nearestInt rb = nearestIntersection rb st
 
 drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
