@@ -41,15 +41,15 @@ drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameEngine -> IO ()
 drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
     drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (SDL.P . linearToSDLV2 . snd $ nearestInt rb)
-    pRobot rb = SDL.P $ linearToSDLV2 $ getCenter rb
+    pRobot rb = SDL.P . linearToSDLV2 $ getCenter rb
     nearestInt rb = returnNearestIntersection rb st
 
 drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
   where
     drawRbLine rb = SDL.drawLine r (pRobot rb) pObjective
-    pRobot rb     = SDL.P $ linearToSDLV2 $ getCenter rb
-    pObjective    = SDL.P $ linearToSDLV2 $ getCenter o
+    pRobot rb     = SDL.P . linearToSDLV2 $ getCenter rb
+    pObjective    = SDL.P . linearToSDLV2 $ getCenter o
 
 drawArena :: SDL.Renderer -> GameEngine -> IO ()
 drawArena renderer gameState = do
@@ -65,12 +65,12 @@ getObstaclesRects obs = V.fromList $ rectangles
   where
     rectangles   = map rectangle obs
     rectangle ob = SDL.Rectangle (pointRect ob) (sizeRect ob)
-    pointRect ob = SDL.P $ linearToSDLV2 $ position ob
+    pointRect ob = SDL.P . linearToSDLV2 $ position ob
     sizeRect ob  = linearToSDLV2 $ size ob
 
 getObjectiveRect :: Objective -> SDL.Rectangle CInt
 getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
-  where pointRect obj = SDL.P $ linearToSDLV2 $ position obj
+  where pointRect obj = SDL.P . linearToSDLV2 $ position obj
         sizeRect obj  = linearToSDLV2 $ size obj
   
 drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
