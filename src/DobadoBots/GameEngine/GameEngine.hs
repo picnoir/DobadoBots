@@ -94,7 +94,7 @@ moveRobot obs r = Object newPos (size r) (rotation r) rVel
         rVel       = minimum $ velocity r : maybeToList nearestD
         angle      = degreeToRadian $ rotation r
         nearestD   = rmBotWidth <$> nearestDistance (obstacleIntersections r obs)
-        rmBotWidth = subtract $ (/2) $ getYV2 $ size r
+        rmBotWidth = subtract . (/2) . getYV2 $ size r
 
 degreeToRadian :: Float -> Float
 degreeToRadian d = d / 180 * pi
@@ -105,8 +105,8 @@ getRobotFrontLine robot = line
         xRobot      = getXV2 centerRobot
         yRobot      = getYV2 centerRobot
         centerRobot = position robot + size robot / 2
-        xFrontRobot = cos $ degreeToRadian $ rotation robot
-        yFrontRobot = sin $ degreeToRadian $ rotation robot
+        xFrontRobot = cos . degreeToRadian $ rotation robot
+        yFrontRobot = sin . degreeToRadian $ rotation robot
 
 getXV2 :: V2 a -> a
 getXV2 (V2 x _) = x
