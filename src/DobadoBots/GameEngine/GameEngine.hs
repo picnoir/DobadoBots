@@ -10,13 +10,14 @@ import qualified Linear.Metric           as LM (distance)
 import           Data.Maybe                    (maybeToList)
 import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty)
 
-import DobadoBots.Interpreter.Data      (Cond(..), ActionToken(..))
-import DobadoBots.GameEngine.Data       (GameState(..), Object(..), Robot(..),
-                                         RobotId(..),Obstacle(..), Objective(..),
-                                         Collision(..), Level(..))
-import DobadoBots.GameEngine.Collisions (nearestIntersection, nearestIntersectionDistance,
-                                         nearestDistance)
-import DobadoBots.GameEngine.Utils      (getYV2, minTuple, degreeToRadian)
+import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
+import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
+                                                RobotId(..),Obstacle(..), Objective(..),
+                                                Collision(..), Level(..))
+import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
+                                                nearestDistance)
+import DobadoBots.GameEngine.Utils             (getYV2, minTuple, degreeToRadian)
+
 
 generateGameState :: Level -> GameState
 generateGameState l = GameState
@@ -55,7 +56,7 @@ moveRobot st r = Robot' (robotId r) $ Object newPos (size $ object r) (rotation 
         deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
         rVel       = minimum $ velocity (object r) : maybeToList nearestD 
         angle      = degreeToRadian . rotation $ object r
-        nearestD   = rmBotWidth . snd <$> nearestIntersectionDistance r st
+        nearestD   = max 0 . rmBotWidth . snd <$> nearestIntersectionDistance r st
         rmBotWidth = subtract . (/2) . getYV2 . size $ object r
 
 computeCollisions :: GameState -> GameState
