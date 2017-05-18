@@ -37,16 +37,21 @@ mainGraphicsLoop renderer gameState tex = do
   drawArena renderer gameState 
   drawLines renderer gameState
   drawRobots renderer (robotTexture tex) $ robots gameState 
+  mapM (drawRobotDist renderer gameState ) $ robots gameState
   SDL.present renderer
 
-drawRobotDist :: SDL.Renderer -> Robot -> (Collider,L.V2 Float) -> IO ()
-drawRobotDist r rb nearest = do
-  let middle = SDL.P $ linearToSDLV2 (posRob - posTarget)
-  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 100 (Raw.Color 255 255 255 0) $ show $ LM.distance posRob posTarget
+drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
+drawRobotDist r st rb = do
+  let middle = SDL.P $ linearToSDLV2 $ (posTarget + posRob)/ 2
+  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 20 (Raw.Color 255 255 255 0) $ show $ LM.distance posRob posTarget
   let loc = SDL.Rectangle middle size
   SDL.copy r fontTex Nothing (Just loc)
   where posRob = position $ object rb
-        posTarget = snd nearest
+        posTarget = case lookup of
+                     (Just val) -> snd val
+                     Nothing    -> posRob
+        lookup = HM.lookup (robotId rb) $ collisions st
+
 
 drawLines :: SDL.Renderer -> GameState -> IO ()
 drawLines r s = do
