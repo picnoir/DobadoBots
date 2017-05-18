@@ -8,6 +8,7 @@ module DobadoBots(
 , loadTextures
 , gameEngineTick
 , nearestIntersection
+, generateGameState
 , module DobadoBots.Interpreter.Data
 , module DobadoBots.GameEngine.Data
 ) where
@@ -15,7 +16,7 @@ module DobadoBots(
 import DobadoBots.Interpreter.Data
 import DobadoBots.GameEngine.Data
 import DobadoBots.GameEngine.LevelLoader (loadLevel)
-import DobadoBots.GameEngine.GameEngine (gameEngineTick)
+import DobadoBots.GameEngine.GameEngine (gameEngineTick, generateGameState)
 import DobadoBots.GameEngine.Collisions (nearestIntersection)
 import DobadoBots.Interpreter.Interpreter (parseScript)
 import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)

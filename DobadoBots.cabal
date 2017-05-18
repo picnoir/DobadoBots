@@ -21,9 +21,11 @@ library
                       ,parsec
                       ,linear
                       ,sdl2
+                      ,sdl2-ttf
                       ,aeson
                       ,bytestring
                       ,unordered-containers
+                      ,hashable
                       ,vector
                       ,containers
                       ,SGplus

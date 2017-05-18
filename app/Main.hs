@@ -3,16 +3,20 @@
 import Control.Monad (unless)
 import Data.Text (Text(..))
 import qualified Data.Text.IO as TIO (readFile)
-import DobadoBots (createMainWindow, closeMainWindow, mainGraphicsLoop, GameState(..),
-  loadLevel, loadTextures, Textures, gameEngineTick, parseScript, Cond(..))
+import DobadoBots (createMainWindow, closeMainWindow,
+                   mainGraphicsLoop, GameState(..),
+                   loadLevel, loadTextures, Textures,
+                   gameEngineTick, parseScript, Cond(..),
+                   generateGameState)
 import qualified SDL (EventPayload(..), eventPayload, pollEvents, Renderer)
 
 main :: IO ()
 main = do
   levelStr <- TIO.readFile "data/levels/level1.json"
+  level <- getState $ loadLevel levelStr
+  let engineState = generateGameState level
   scriptStr <- TIO.readFile "data/script.script"
   ast <- getAst $ parseScript scriptStr
-  engineState <- getState $ loadLevel levelStr
   (renderer, window) <- createMainWindow "DobadoBots" 
   textures <- loadTextures "data/img/robot.bmp" renderer 
   mainLoop renderer ast engineState textures

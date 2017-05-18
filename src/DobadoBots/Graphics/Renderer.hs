@@ -5,18 +5,26 @@ module DobadoBots.Graphics.Renderer (
 ) where
 
 import DobadoBots.GameEngine.Data (GameState(..), Objective(..), Obstacle(..),
-  Object(..), Robot(..), getCenter)
-import DobadoBots.GameEngine.Collisions (nearestIntersection)
+  Object(..), Robot(..), Collider(..), getCenter)
 
 import GHC.Float (float2Double)
 import qualified SDL (Renderer, rendererDrawColor, clear,
-  present, fillRects, fillRect, Rectangle(..), Point(..), V2(..), V4(..), Texture(..),
-  loadBMP, createTextureFromSurface, freeSurface, copyEx, drawLine)
+                      present, fillRects, fillRect, 
+                      Rectangle(..), Point(..), V2(..), 
+                      V4(..), Texture(..),
+                      loadBMP, createTextureFromSurface, 
+                      freeSurface, copyEx, drawLine, copy, surfaceDimensions)
+import qualified SDL.Raw as Raw (Color(..))
+import qualified SDL.TTF as TTF (withInit, wasInit, openFont, renderUTF8Solid,
+                                 closeFont)
 import SDL (($=))
 import qualified Linear.V2 as L (V2(..))
+import qualified Linear.Metric as LM (distance)
 import Foreign.C.Types (CInt(..), CDouble(..))
+import           Control.Monad (unless) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S (Seq)
+import qualified Data.HashMap.Strict as HM (lookup)
 
 newtype Textures = Textures {
   robotTexture :: SDL.Texture
@@ -31,6 +39,15 @@ mainGraphicsLoop renderer gameState tex = do
   drawRobots renderer (robotTexture tex) $ robots gameState 
   SDL.present renderer
 
+drawRobotDist :: SDL.Renderer -> Robot -> (Collider,L.V2 Float) -> IO ()
+drawRobotDist r rb nearest = do
+  let middle = SDL.P $ linearToSDLV2 (posRob - posTarget)
+  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 100 (Raw.Color 255 255 255 0) $ show $ LM.distance posRob posTarget
+  let loc = SDL.Rectangle middle size
+  SDL.copy r fontTex Nothing (Just loc)
+  where posRob = position $ object rb
+        posTarget = snd nearest
+
 drawLines :: SDL.Renderer -> GameState -> IO ()
 drawLines r s = do
   drawObjectiveLine r (robots s) (objective s)
@@ -40,15 +57,19 @@ drawLines r s = do
 drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameState -> IO ()
 drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
-    drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (SDL.P . linearToSDLV2 . snd $ nearestInt rb)
-    pRobot rb = SDL.P . linearToSDLV2 $ getCenter rb
-    nearestInt rb = nearestIntersection rb st
+    drawRbFrontLine :: Robot -> IO ()
+    drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (pFront rb)
+    pRobot rb = SDL.P . linearToSDLV2 . getCenter $ object rb
+    pFront rb = case nearestInt $ robotId rb of
+        Nothing -> pRobot rb
+        (Just int) -> SDL.P . linearToSDLV2 . snd $ int
+    nearestInt rbId = HM.lookup rbId $ collisions st
 
 drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
   where
     drawRbLine rb = SDL.drawLine r (pRobot rb) pObjective
-    pRobot rb     = SDL.P . linearToSDLV2 $ getCenter rb
+    pRobot rb     = SDL.P . linearToSDLV2 . getCenter $ object rb
     pObjective    = SDL.P . linearToSDLV2 $ getCenter o
 
 drawArena :: SDL.Renderer -> GameState -> IO ()
@@ -76,10 +97,10 @@ getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
 drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
 drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle Nothing (SDL.V2 False False)
   where 
-        angle = CDouble . float2Double $ rotation robot
+        angle = CDouble . float2Double . rotation $ object robot
         dest  = SDL.Rectangle p s
-        p     = SDL.P . linearToSDLV2 $ position robot
-        s     = linearToSDLV2 $ size robot
+        p     = SDL.P . linearToSDLV2 . position $ object robot
+        s     = linearToSDLV2 . size $ object robot
 
 drawRobots :: SDL.Renderer -> SDL.Texture -> S.Seq Robot -> IO()
 drawRobots r t = mapM_ (drawRobot r t)
@@ -99,3 +120,16 @@ loadTextures robotImg renderer = do
           tex  <- SDL.createTextureFromSurface rend surf
           SDL.freeSurface surf 
           return tex
+
+
+loadFont :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
+loadFont r fontFile size color text = TTF.withInit $ do
+    inited <- TTF.wasInit
+    unless inited $ error "[Error] Cannot initialise font system." 
+    font <- TTF.openFont fontFile size
+    textSurface <- TTF.renderUTF8Solid font text color
+    textTexture <- SDL.createTextureFromSurface r textSurface
+    size <- SDL.surfaceDimensions textSurface
+    SDL.freeSurface textSurface
+    TTF.closeFont font
+    return (textTexture, size)

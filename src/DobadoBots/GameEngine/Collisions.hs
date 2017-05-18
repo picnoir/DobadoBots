@@ -19,11 +19,11 @@ import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList
 
 import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
                                                 Collider(..), Obstacle(..),
-                                                Objective(..), Object(..))
+                                                Objective(..), Object(..), Collision(..))
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
                                                 v2toSGVect, point2ToV2, degreeToRadian)
 
-nearestIntersection :: Robot -> GameState -> (Collider, V2 Float)
+nearestIntersection :: Robot -> GameState -> Collision 
 nearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)
   | otherwise         = error "no colliding point!"
@@ -70,7 +70,7 @@ arenaIntersection r st = case length filteredInsersections of
 
 robotIntersections :: Robot -> [Robot] -> [(Float,Float)]
 robotIntersections r rbs = mapMaybe (returnObjectIntersection r) otherRobots
-  where otherRobots = filter (/= r) rbs 
+  where otherRobots = object <$>  filter (/= r) rbs 
 
 returnObjectIntersection :: Robot -> Object -> Maybe (Float,Float)
 returnObjectIntersection robot obj = GS.intersectLineShape (getRobotFrontLine robot) shape
@@ -82,9 +82,9 @@ getRobotFrontLine robot = line
   where line        = G2.Line2 (G2.Point2 (xRobot,yRobot)) $ G2.makeRel2 (xFrontRobot,yFrontRobot)
         xRobot      = getXV2 centerRobot
         yRobot      = getYV2 centerRobot
-        centerRobot = position robot + size robot / 2
-        vRobot      = velocity robot
-        rot         = rotation robot
+        centerRobot = position (object robot) + size (object robot )/ 2
+        vRobot      = velocity $ object robot
+        rot         = rotation $ object robot
         xFrontRobot = vRobot * (cos . degreeToRadian $ rot)
         yFrontRobot = vRobot * (sin . degreeToRadian $ rot)
 

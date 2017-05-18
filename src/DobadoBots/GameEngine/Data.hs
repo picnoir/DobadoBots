@@ -10,7 +10,10 @@ module DobadoBots.GameEngine.Data (
 , Objective(..)
 , StartingPoint(..)
 , Robot(..)
+, RobotId(..)
 , Collider(..)
+, Collision(..)
+, Level(..)
 , getCenter
 ) where
 
@@ -19,6 +22,9 @@ import Data.Aeson (FromJSON(..), withObject, (.:))
 import Data.Sequence (Seq)
 import qualified Data.Aeson.Types as AT (Parser, Object(..), Value(..)) 
 import qualified Data.HashMap.Lazy as HS (lookup)
+import qualified Data.HashMap.Strict as HM (HashMap(..), empty)
+import Data.Hashable
+import Data.Text (Text(..))
 
 type Size = V2 Float 
 
@@ -30,14 +36,22 @@ data GameState = GameState   {obstacles      :: [Obstacle]
                             , arenaSize      :: Size
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
-                            , robots         :: Seq Robot} deriving (Show, Eq)
+                            , robots         :: Seq Robot
+                            , collisions     :: HM.HashMap RobotId Collision} deriving (Show, Eq)
+
+data Level = Level  {lObstacles :: [Obstacle],
+                     lArenaSize :: Size,
+                     lObjective :: Objective,
+                     lStartingPoints :: [StartingPoint]} deriving (Show, Eq)
 
 data Object = Object {position :: Position
                     , size     :: Size
                     , rotation :: Float
                     , velocity :: Velocity} deriving (Show, Eq)
 
-data Collider = Obstacle | Objective | Wall | Robot deriving (Show)
+type Collision = (Collider, V2 Float)
+
+data Collider = Obstacle | Objective | Wall | Robot deriving (Show, Eq)
 
 type Obstacle = Object
 
@@ -45,14 +59,18 @@ type Objective = Object
 
 type StartingPoint = Object
 
-type Robot = Object 
+type RobotId = Text
 
-instance FromJSON GameState where
-  parseJSON = withObject "GameState" $ \v -> GameState
+data Robot = Robot' { robotId :: RobotId,
+                      object  :: Object} deriving (Show, Eq)  
+
+type Id = Text
+
+instance FromJSON Level where
+  parseJSON = withObject "GameState" $ \v -> Level
     <$> v .: "obstacles"
     <*> pure (V2 640 480)
     <*> v .: "objective"
-    <*> v .: "startingpoints"
     <*> v .: "startingpoints"
 
 instance FromJSON Object where
