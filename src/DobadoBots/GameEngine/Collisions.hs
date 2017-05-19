@@ -54,11 +54,11 @@ objectiveIntersections :: Robot -> Objective -> [(Float,Float)]
 objectiveIntersections r obj = catMaybes [returnObjectIntersection r obj] 
 
 arenaIntersection :: Robot -> GameState -> Float
-arenaIntersection r st = case length filteredInsersections of
+arenaIntersection r st = case length filteredIntersections of
                               0 -> 0 
-                              _ -> minimum filteredInsersections
+                              _ -> minimum filteredIntersections
   where 
-        filteredInsersections = filter (>= 0) wallsIntersections
+        filteredIntersections = filter (>= 0) wallsIntersections
         wallsIntersections    = fst <$> catMaybes (G2.intersectLines2 (getRobotFrontLine r) <$> walls)
         walls                 = [leftWall,rightWall,topWall,bottomWall]
         leftWall              = G2.Line2 (G2.Point2 (0,0)) (G2.makeRel2 (0,aHeight))
