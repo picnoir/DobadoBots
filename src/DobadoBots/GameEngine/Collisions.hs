@@ -16,6 +16,7 @@ import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2',
 import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList,
                                                 listToMaybe, isJust, fromJust)
 
+import           Control.Monad                 (liftM2)
 
 import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
                                                 Collider(..), Obstacle(..),
@@ -32,18 +33,16 @@ nearestIntersection r st
     nearestCol              = nearestIntersectionDistance r st
 
 nearestIntersectionDistance :: Robot -> GameState -> Maybe (Collider, Float)
-nearestIntersectionDistance r st = case minCollider of
-      (col, Just dist)    -> Just (col, dist) 
-      (_, Nothing)        -> Nothing
-  where nearObs            = (Obstacle , minTupleArray . obstacleIntersections r $ obstacles st)
-        nearRob            = (Robot, minTupleArray . robotIntersections r . F.toList $ robots st)
-        nearObj            = (Objective, minTupleArray . objectiveIntersections r $ objective st)
-        nearWall           = (Wall, Just $ arenaIntersection r st)
-        colVector          = filter distanceFilter [nearObs, nearRob, nearObj, nearWall]
-        distanceFilter v   = isJust  (snd v) && ((>= 0) . fromJust $ snd v)
+nearestIntersectionDistance r st = minCollider 
+  where nearObs            = liftM2 (,) (Just Obstacle) . minTupleArray . obstacleIntersections r $ obstacles st
+        nearRob            = liftM2 (,) (Just Robot) . minTupleArray . robotIntersections r . F.toList $ robots st
+        nearObj            = liftM2 (,) (Just Objective) . minTupleArray . objectiveIntersections r $ objective st
+        nearWall           = Just (Wall, arenaIntersection r st)
+        collidersList      = catMaybes [nearObs, nearRob, nearObj, nearWall]
+        colVector          = filter ((>=0) . snd) collidersList
         minCollider        = case colVector of
-                                (x:xs) -> minimumBy (compare `on` snd) colVector
-                                []     -> (Wall, Nothing)
+                                (x:xs) -> Just $ minimumBy (compare `on` snd) colVector
+                                []     -> Nothing
 
 nearestDistance :: [(Float,Float)] -> Maybe Float
 nearestDistance = minTupleArray 
