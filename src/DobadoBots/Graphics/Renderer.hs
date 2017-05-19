@@ -37,13 +37,13 @@ mainGraphicsLoop renderer gameState tex = do
   drawArena renderer gameState 
   drawLines renderer gameState
   drawRobots renderer (robotTexture tex) $ robots gameState 
-  mapM (drawRobotDist renderer gameState ) $ robots gameState
+  mapM_ (drawRobotDist renderer gameState ) $ robots gameState
   SDL.present renderer
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
-  let middle = SDL.P $ linearToSDLV2 $ (posTarget + posRob)/ 2
-  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 20 (Raw.Color 255 255 255 0) $ show $ LM.distance posRob posTarget
+  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 16 (Raw.Color 255 255 255 0) . show . floor $ LM.distance posRob posTarget
+  let middle = SDL.P $ linearToSDLV2 $ ((posTarget + posRob)/ 2) - (sdlv2ToLinear size / 6)
   let loc = SDL.Rectangle middle size
   SDL.copy r fontTex Nothing (Just loc)
   where posRob = position $ object rb
@@ -112,6 +112,10 @@ drawRobots r t = mapM_ (drawRobot r t)
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt
 linearToSDLV2 (L.V2 x y) = SDL.V2 (toCint x) (toCint y)  
+
+sdlv2ToLinear :: SDL.V2 CInt -> L.V2 Float
+sdlv2ToLinear (SDL.V2 x y) = L.V2 (cIntToFloat x) (cIntToFloat y)
+  where cIntToFloat = fromIntegral . toInteger
 
 toCint :: Float -> CInt
 toCint x = CInt $ floor x
