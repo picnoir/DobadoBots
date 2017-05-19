@@ -2,13 +2,20 @@ module DobadoBots.Graphics.Window (
   createMainWindow
 , closeMainWindow
 ) where
-import Control.Monad (unless)
-import Data.Text (Text(..))
-import qualified SDL
-import SDL (($=))
-import SDL.Vect (V2(..), V4(..))
+import Control.Monad            (unless)
+import Data.Text                (Text(..))
+import qualified SDL            (Renderer(..), Window(..), InitFlag(..),
+                                 Hint(..), initialize, RenderScaleQuality(..),
+                                 RendererType (..), showWindow, quit,
+                                 createWindow, defaultWindow, RendererConfig(..),
+                                 createRenderer, RendererConfig, rendererType,
+                                 rendererTargetTexture, windowInitialSize,
+                                 rendererDrawColor, destroyRenderer, destroyWindow,
+                                 Event, pollEvents)
+import SDL                      (($=))
+import SDL.Vect                 (V2(..), V4(..))
 import qualified Linear.V2 as L (V2(..))
-import Foreign.C.Types (CInt(..))
+import Foreign.C.Types          (CInt(..))
 
 screenWidth, screenHeight :: CInt
 (screenWidth, screenHeight) = (640, 480)

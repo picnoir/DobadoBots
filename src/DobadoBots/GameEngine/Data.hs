@@ -17,14 +17,13 @@ module DobadoBots.GameEngine.Data (
 , getCenter
 ) where
 
-import Linear.V2 (V2(..))
-import Data.Aeson (FromJSON(..), withObject, (.:)) 
-import Data.Sequence (Seq)
-import qualified Data.Aeson.Types as AT (Parser, Object(..), Value(..)) 
-import qualified Data.HashMap.Lazy as HS (lookup)
+import Linear.V2                           (V2(..))
+import Data.Aeson                          (FromJSON(..), withObject, (.:)) 
+import Data.Sequence                       (Seq)
+import qualified Data.Aeson.Types as AT    (Parser, Object(..), Value(..)) 
+import qualified Data.HashMap.Lazy as HS   (lookup)
 import qualified Data.HashMap.Strict as HM (HashMap(..), empty)
-import Data.Hashable
-import Data.Text (Text(..))
+import Data.Text                           (Text(..))
 
 type Size = V2 Float 
 
@@ -39,9 +38,9 @@ data GameState = GameState   {obstacles      :: [Obstacle]
                             , robots         :: Seq Robot
                             , collisions     :: HM.HashMap RobotId Collision} deriving (Show, Eq)
 
-data Level = Level  {lObstacles :: [Obstacle],
-                     lArenaSize :: Size,
-                     lObjective :: Objective,
+data Level = Level  {lObstacles      :: [Obstacle],
+                     lArenaSize      :: Size,
+                     lObjective      :: Objective,
                      lStartingPoints :: [StartingPoint]} deriving (Show, Eq)
 
 data Object = Object {position :: Position
@@ -82,11 +81,11 @@ instance FromJSON Object where
 
 parsePosition :: Maybe AT.Value -> AT.Parser (V2 Float)
 parsePosition (Just (AT.Object v)) = V2 <$> v .: "x" <*> v .: "y"
-parsePosition _ = fail "No position object."
+parsePosition _                    = fail "No position object."
 
 parseSize :: Maybe AT.Value -> AT.Parser (V2 Float)
 parseSize (Just(AT.Object v)) = V2 <$> v .: "width" <*> v .: "height"
-parseSize _ = fail "No size object."
+parseSize _                   = fail "No size object."
 
 getCenter :: Object -> Position
 getCenter o = position o + (size o / 2)

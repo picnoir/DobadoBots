@@ -144,7 +144,6 @@ loadTextures robotImg renderer = do
           SDL.freeSurface surf 
           return tex
 
-
 loadFont :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
 loadFont r fontFile size color text = TTF.withInit $ do
     inited <- TTF.wasInit

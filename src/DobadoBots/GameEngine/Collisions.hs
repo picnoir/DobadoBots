@@ -22,6 +22,7 @@ import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
                                                 Objective(..), Object(..), Collision(..))
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
                                                 v2toSGVect, point2ToV2, degreeToRadian)
+
 nearestIntersection :: Robot -> GameState -> Collision 
 nearestIntersection r st
   | isJust nearestCol = (fst $ fromJust nearestCol, getV2IntersecPoint)

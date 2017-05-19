@@ -31,13 +31,13 @@ generateGameState l = GameState
 gameEngineTick :: GameState -> Cond -> GameState 
 gameEngineTick st (Token t) = applyAction t nst 
     where nst = computeCollisions st
-gameEngineTick st _ = undefined
+gameEngineTick st _         = undefined
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
 applyAction :: ActionToken -> GameState -> GameState 
 applyAction MoveForward = moveRobots
-applyAction _ = error "DAFUK IZ DAT TOKEN?"
+applyAction _           = error "DAFUK IZ DAT TOKEN?"
 
 moveRobots :: GameState -> GameState 
 moveRobots st = GameState
@@ -67,6 +67,6 @@ computeCollisions st = GameState
                           (startingPoints st)
                           (robots st)
                           newCols
-  where newCols = foldr computeCols (collisions st) (robots st)
-        computeCols rb = HM.insert (robotId rb) (rbCol rb) 
-        rbCol rb = nearestIntersection rb st
+  where newCols        = foldr computeCols (collisions st) (robots st)
+        computeCols rb = HM.insert (robotId rb) (rbCol rb)
+        rbCol rb       = nearestIntersection rb st

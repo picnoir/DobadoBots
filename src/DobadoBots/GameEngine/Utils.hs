@@ -9,7 +9,7 @@ module DobadoBots.GameEngine.Utils(
   point2ToV2 
 ) where
 
-import Linear.V2 (V2(..))
+import Linear.V2               (V2(..))
 import Data.SG.Geometry.TwoDim (Point2'(..))
 
 getXV2 :: V2 a -> a
@@ -20,7 +20,7 @@ getYV2 (V2 _ y) = y
 
 minTuple :: (Ord a) => (a,a) -> a
 minTuple (x,y)
-  | x > y = y
+  | x > y     = y
   | otherwise = x
 
 minTupleArray :: (Ord a) => [(a,a)] -> Maybe a
