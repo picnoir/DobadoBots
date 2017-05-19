@@ -4,26 +4,30 @@ module DobadoBots.Graphics.Renderer (
 , loadTextures
 ) where
 
-import DobadoBots.GameEngine.Data (GameState(..), Objective(..), Obstacle(..),
-  Object(..), Robot(..), Collider(..), getCenter)
+import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
+                                            Obstacle(..),
+                                            Object(..), Robot(..), Collider(..), 
+                                            getCenter)
 
-import GHC.Float (float2Double)
-import qualified SDL (Renderer, rendererDrawColor, clear,
-                      present, fillRects, fillRect, 
-                      Rectangle(..), Point(..), V2(..), 
-                      V4(..), Texture(..),
-                      loadBMP, createTextureFromSurface, 
-                      freeSurface, copyEx, drawLine, copy, surfaceDimensions)
-import qualified SDL.Raw as Raw (Color(..))
-import qualified SDL.TTF as TTF (withInit, wasInit, openFont, renderUTF8Solid,
-                                 renderUTF8Blended, closeFont)
-import SDL (($=))
-import qualified Linear.V2 as L (V2(..))
-import qualified Linear.Metric as LM (distance)
-import Foreign.C.Types (CInt(..), CDouble(..))
-import           Control.Monad (unless, when) 
+import GHC.Float                           (float2Double)
+import qualified SDL                       (Renderer, rendererDrawColor, clear,
+                                            present, fillRects, fillRect, 
+                                            Rectangle(..), Point(..), V2(..), 
+                                            V4(..), Texture(..),
+                                            loadBMP, createTextureFromSurface, 
+                                            freeSurface, copyEx, drawLine, copy,
+                                            surfaceDimensions)
+import qualified SDL.Raw as Raw            (Color(..))
+import qualified SDL.TTF as TTF            (withInit, wasInit,
+                                            openFont, renderUTF8Solid,
+                                            renderUTF8Blended, closeFont)
+import SDL                                 (($=))
+import qualified Linear.V2 as L            (V2(..))
+import qualified Linear.Metric as LM       (distance)
+import Foreign.C.Types                     (CInt(..), CDouble(..))
+import           Control.Monad             (unless, when) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
-import qualified Data.Sequence as S (Seq)
+import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup)
 
 newtype Textures = Textures {
@@ -53,14 +57,14 @@ drawRobotDist r st rb = do
   when (distance > 80) $ do
     SDL.fillRect r (Just $ SDL.Rectangle middle (size + padding * 2 ))
     SDL.copy r fontTex Nothing (Just $ SDL.Rectangle (textP middle) size)
-  where posRob = position $ object rb
-        target = case lookup of
-                     (Just val) -> val
-                     Nothing    -> (Wall, posRob)
-        posTarget = snd target
-        lookup = HM.lookup (robotId rb) $ collisions st
-        distance = LM.distance posRob posTarget
-        padding = 2
+  where posRob           = position $ object rb
+        target           = case lookup of
+                             (Just val) -> val
+                             Nothing    -> (Wall, posRob)
+        posTarget        = snd target
+        lookup           = HM.lookup (robotId rb) $ collisions st
+        distance         = LM.distance posRob posTarget
+        padding          = 2
         textP (SDL.P v)  = SDL.P (v + padding)
 
 drawLines :: SDL.Renderer -> GameState -> IO ()
