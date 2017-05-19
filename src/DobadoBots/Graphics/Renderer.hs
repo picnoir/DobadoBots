@@ -16,12 +16,12 @@ import qualified SDL (Renderer, rendererDrawColor, clear,
                       freeSurface, copyEx, drawLine, copy, surfaceDimensions)
 import qualified SDL.Raw as Raw (Color(..))
 import qualified SDL.TTF as TTF (withInit, wasInit, openFont, renderUTF8Solid,
-                                 closeFont)
+                                 renderUTF8Blended, closeFont)
 import SDL (($=))
 import qualified Linear.V2 as L (V2(..))
 import qualified Linear.Metric as LM (distance)
 import Foreign.C.Types (CInt(..), CDouble(..))
-import           Control.Monad (unless) 
+import           Control.Monad (unless, when) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S (Seq)
 import qualified Data.HashMap.Strict as HM (lookup)
@@ -42,16 +42,26 @@ mainGraphicsLoop renderer gameState tex = do
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
-  (fontTex, size) <- loadFont r "data/fonts/OSP-DIN.ttf" 16 (Raw.Color 255 255 255 0) . show . floor $ LM.distance posRob posTarget
-  let middle = SDL.P $ linearToSDLV2 $ ((posTarget + posRob)/ 2) - (sdlv2ToLinear size / 6)
+  (fontTex, size) <- loadFont r
+                        "data/fonts/Inconsolata-Regular.ttf"
+                        12
+                        (Raw.Color 255 255 255 0) 
+                        ( show (fst target)++ " | " ++ (show . floor $ distance ))
+  let middle = SDL.P $ linearToSDLV2 $ ((posTarget + posRob) / 2) - (sdlv2ToLinear size / 2)
   let loc = SDL.Rectangle middle size
-  SDL.copy r fontTex Nothing (Just loc)
+  SDL.rendererDrawColor r $= SDL.V4 171 11 11 maxBound
+  when (distance > 80) $ do
+    SDL.fillRect r (Just $ SDL.Rectangle middle (size + padding * 2 ))
+    SDL.copy r fontTex Nothing (Just $ SDL.Rectangle (textP middle) size)
   where posRob = position $ object rb
-        posTarget = case lookup of
-                     (Just val) -> snd val
-                     Nothing    -> posRob
+        target = case lookup of
+                     (Just val) -> val
+                     Nothing    -> (Wall, posRob)
+        posTarget = snd target
         lookup = HM.lookup (robotId rb) $ collisions st
-
+        distance = LM.distance posRob posTarget
+        padding = 2
+        textP (SDL.P v)  = SDL.P (v + padding)
 
 drawLines :: SDL.Renderer -> GameState -> IO ()
 drawLines r s = do
@@ -136,7 +146,7 @@ loadFont r fontFile size color text = TTF.withInit $ do
     inited <- TTF.wasInit
     unless inited $ error "[Error] Cannot initialise font system." 
     font <- TTF.openFont fontFile size
-    textSurface <- TTF.renderUTF8Solid font text color
+    textSurface <- TTF.renderUTF8Blended font text color
     textTexture <- SDL.createTextureFromSurface r textSurface
     size <- SDL.surfaceDimensions textSurface
     SDL.freeSurface textSurface
