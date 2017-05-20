@@ -31,7 +31,7 @@ library
                       ,SGplus
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
-                      ,DobadoBots.Interpreter.Interpreter
+                      ,DobadoBots.Interpreter.Parser
                       ,DobadoBots.GameEngine.Data
                       ,DobadoBots.GameEngine.LevelLoader
                       ,DobadoBots.GameEngine.GameEngine
