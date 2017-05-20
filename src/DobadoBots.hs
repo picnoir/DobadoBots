@@ -18,6 +18,6 @@ import DobadoBots.GameEngine.Data
 import DobadoBots.GameEngine.LevelLoader (loadLevel)
 import DobadoBots.GameEngine.GameEngine (gameEngineTick, generateGameState)
 import DobadoBots.GameEngine.Collisions (nearestIntersection)
-import DobadoBots.Interpreter.Interpreter (parseScript)
+import DobadoBots.Interpreter.Parser (parseScript)
 import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)
 import DobadoBots.Graphics.Renderer (mainGraphicsLoop, loadTextures, Textures(..))
