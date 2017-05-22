@@ -51,7 +51,7 @@ cmpCollider :: CharParser () LogicExpr
 cmpCollider = CmpCollider <$> 
                 (spaces *> sensorParser)
               <*>
-                (spaces *> string "==" *> spaces *> colliderParser)
+                (spaces *> string "=" *> spaces *> colliderParser)
 
 logicExprParser :: CharParser () LogicExpr
 logicExprParser = try cmpCollider
