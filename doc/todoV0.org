@@ -20,7 +20,7 @@ evolution.
       - [ ] We need to implement a function rotating robots.
 - [ ] We need to implement a function computing bullets.
 - [-] We need to implement a function computing collisions.
-      - [ ] We need to find a way to return the pointed object:
+      - [X] We need to find a way to return the pointed object:
         could be an obstacle, could be a robot, could be the
         objective.
       - [X] We need to implement a function computing robot collisions
@@ -59,3 +59,8 @@ evolution.
               - [ ] We want a visual marker for the path currently executed.
 
 * TODO Check weird hackage behaviour.
+* TODO Implement the interpreter
+  - [ ] The logic expression datatype is somehow wrong.
+        - [ ] We need a way to express a generic expression regardless if
+          it's checked against an integer or a collider.
+* 

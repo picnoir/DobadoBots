@@ -3,7 +3,9 @@ module DobadoBots.Interpreter.Parser(
 ) where
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..),
-                                    SensorToken(..), LogicExpr(..))
+                                    SensorToken(..), LogicExpr(..),
+                                    CmpInteger(..))
+import DobadoBots.GameEngine.Data  (Collider(..))
 
 import Data.Text (unpack, Text(..))
 import Text.ParserCombinators.Parsec (CharParser, ParseError, (<|>),
@@ -24,13 +26,13 @@ actionParser = MoveForward     <$ string "moveForward"
 
 sensorParser :: CharParser () SensorToken
 sensorParser = try (LaserDistance <$ string "laserDistance")
-           <|> ObjectiveDistance <$ string "objectiveDistance"
-           <|> try (LaserScan <$ string "laserScan")
+           <|> ObjectiveDistance  <$ string "objectiveDistance"
+           <|> try (LaserScan     <$ string "laserScan")
 
-logicExprParser :: CharParser () (LogicExpr SensorToken)
-logicExprParser = op '=' Eq
-              <|> op '<' Inf
-              <|> op '>' Sup
+cmpIntegerParser :: CharParser () (CmpInteger SensorToken)
+cmpIntegerParser = op '=' Eq
+               <|> op '<' Inf
+               <|> op '>' Sup
     where
       op c cons = try (cons <$>
                     (spaces *> sensorParser)
@@ -39,6 +41,21 @@ logicExprParser = op '=' Eq
                   <*> 
                     (spaces *> (read <$> many1 digit)))
 
+colliderParser :: CharParser () Collider
+colliderParser = try (Obstacle  <$ string "obstacle")
+             <|> try (Objective <$ string "objective")
+             <|> try (Wall      <$ string "wall")
+             <|> try (Robot     <$ string "robot")
+
+cmpCollider :: CharParser () LogicExpr
+cmpCollider = CmpCollider <$> 
+                (spaces *> sensorParser)
+              <*>
+                (spaces *> colliderParser)
+
+logicExprParser :: CharParser () LogicExpr
+logicExprParser = try cmpCollider
+              <|> try (CmpLogicInt <$> cmpIntegerParser)
 
 conditionParser :: CharParser () Cond
 conditionParser = Cond <$>
