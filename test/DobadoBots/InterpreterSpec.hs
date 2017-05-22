@@ -28,6 +28,8 @@ spec = describe "parseScript" $ do
            parseScript (decodeUtf8 $(embedFile "test/fixtures/script/simplecond2.script")) `shouldBe` Right (Cond (CmpLogicInt $ Sup LaserScan 1)(Token TurnLeft) (Token MoveForward))
          it "should parse simple cond <" $ 
            parseScript (decodeUtf8 $(embedFile "test/fixtures/script/simplecond3.script")) `shouldBe` Right (Cond (CmpLogicInt $ Inf LaserDistance 1)(Token TurnLeft) (Token MoveForward))
+         it "should parse collider " $
+           parseScript (decodeUtf8 $(embedFile "test/fixtures/script/simplecondcol.script")) `shouldBe` Right (Cond (CmpCollider LaserScan Wall) (Token TurnLeft) (Token MoveForward))
          it "should parse weirdly indented files" $ 
            parseScript (decodeUtf8 $(embedFile "test/fixtures/script/simpleBadIndented.script")) `shouldBe` Right (Cond (CmpLogicInt $ Inf LaserDistance 1)(Token TurnLeft) (Token MoveForward))
          it "should parse tab indented files" $ 

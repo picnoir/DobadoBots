@@ -1,0 +1,4 @@
+IF laserScan == wall
+   turnLeft
+ELSE
+   moveForward
