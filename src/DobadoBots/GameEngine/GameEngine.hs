@@ -18,7 +18,6 @@ import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestInte
                                                 nearestDistance)
 import DobadoBots.GameEngine.Utils             (getYV2, minTuple, degreeToRadian)
 
-
 generateGameState :: Level -> GameState
 generateGameState l = GameState
                             (lObstacles l)
