@@ -18,7 +18,10 @@ spec = describe "interpretScript" $ do
           interpretScript gameStateNotAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` MoveForward
         it "should turn the robot left" $
           interpretScript gameStateAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` TurnLeft 
-
+        it "should check front kind of obstacle correctly" $
+          interpretScript gameStateNotAgainstObstacle "UniqRobot" (Cond (CmpCollider LaserScan Objective) (Token MoveForward) (Token TurnLeft)) `shouldBe` TurnLeft
+        it "should handle objective distance" $
+          interpretScript gameStateNotAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Sup ObjectiveDistance 20) (Token MoveForward) (Token TurnLeft)) `shouldBe` MoveForward
 
 
 
