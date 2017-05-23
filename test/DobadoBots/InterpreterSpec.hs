@@ -15,9 +15,9 @@ import qualified Data.Sequence as S
 spec :: Spec
 spec = describe "interpretScript" $ do
         it "should move the robot forward" $
-          interpretScript gameStateNotAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` gameStateNotAgainstObstacleMovedForward
+          interpretScript gameStateNotAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` MoveForward
         it "should turn the robot left" $
-          interpretScript gameStateAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` gameStateTurnedLeft
+          interpretScript gameStateAgainstObstacle "UniqRobot" (Cond (CmpLogicInt $ Eq LaserDistance 1) (Token TurnLeft) (Token MoveForward)) `shouldBe` TurnLeft 
 
 
 
@@ -27,15 +27,9 @@ spec = describe "interpretScript" $ do
 
 
 
-
-gameStateTurnedLeft :: GameState
-gameStateTurnedLeft = GameState {obstacles = [Object {position = V2 200.0 250.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0},Object {position = V2 200.0 280.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0}], arenaSize = V2 640.0 480.0, objective = Object {position = V2 450.0 50.0, size = V2 10.0 12.0, rotation = 0.0, velocity = 0.0}, startingPoints = [Object {position = V2 300.0 450.0, size = V2 20.0 20.0, rotation = -90.0, velocity = 1.0}], robots = S.fromList [Robot' {robotId = "UniqRobot", object = Object {position = V2 300.0 300.0, size = V2 20.0 20.0, rotation = -91.0, velocity = 0.0}}], collisions = HM.fromList [("UniqRobot",(Obstacle,V2 310.0 300.0))]}
 
 gameStateAgainstObstacle :: GameState
 gameStateAgainstObstacle = GameState {obstacles = [Object {position = V2 200.0 250.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0},Object {position = V2 200.0 280.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0}], arenaSize = V2 640.0 480.0, objective = Object {position = V2 450.0 50.0, size = V2 10.0 12.0, rotation = 0.0, velocity = 0.0}, startingPoints = [Object {position = V2 300.0 450.0, size = V2 20.0 20.0, rotation = -90.0, velocity = 1.0}], robots = S.fromList [Robot' {robotId = "UniqRobot", object = Object {position = V2 300.0 300.0, size = V2 20.0 20.0, rotation = -90.0, velocity = 0.0}}], collisions = HM.fromList [("UniqRobot",(Obstacle,V2 310.0 300.0))]}
   
 gameStateNotAgainstObstacle :: GameState
 gameStateNotAgainstObstacle =  GameState {obstacles = [Object {position = V2 200.0 250.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0},Object {position = V2 200.0 280.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0}], arenaSize = V2 640.0 480.0, objective = Object {position = V2 450.0 50.0, size = V2 10.0 12.0, rotation = 0.0, velocity = 0.0}, startingPoints = [Object {position = V2 300.0 450.0, size= V2 20.0 20.0, rotation = -90.0, velocity = 1.0}], robots = S.fromList [Robot'{robotId = "UniqRobot", object = Object {position = V2 300.0 381.0, size = V2 20.0 20.0, rotation = -90.0, velocity = 1.0}}], collisions = HM.fromList [("UniqRobot",(Obstacle,V2 310.0 300.0))]}
-
-gameStateNotAgainstObstacleMovedForward :: GameState
-gameStateNotAgainstObstacleMovedForward =  GameState {obstacles = [Object {position = V2 200.0 250.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0},Object {position = V2 200.0 280.0, size = V2 200.0 20.0, rotation = 0.0, velocity = 0.0}], arenaSize = V2 640.0 480.0, objective = Object {position = V2 450.0 50.0, size = V2 10.0 12.0, rotation = 0.0, velocity = 0.0}, startingPoints = [Object {position = V2 300.0 450.0, size= V2 20.0 20.0, rotation = -90.0, velocity = 1.0}], robots = S.fromList [Robot'{robotId = "UniqRobot", object = Object {position = V2 300.0 382.0, size = V2 20.0 20.0, rotation = -90.0, velocity = 1.0}}], collisions = HM.fromList [("UniqRobot",(Obstacle,V2 310.0 300.0))]}
