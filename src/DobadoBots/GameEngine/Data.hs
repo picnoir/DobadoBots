@@ -35,7 +35,7 @@ data GameState = GameState   {obstacles      :: [Obstacle]
                             , arenaSize      :: Size
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
-                            , robots         :: Seq Robot
+                            , robots         :: HM.HashMap RobotId Robot 
                             , collisions     :: HM.HashMap RobotId Collision} deriving (Show, Eq)
 
 data Level = Level  {lObstacles      :: [Obstacle],

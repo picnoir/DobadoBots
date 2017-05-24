@@ -28,7 +28,7 @@ import Foreign.C.Types                     (CInt(..), CDouble(..))
 import           Control.Monad             (unless, when) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S        (Seq)
-import qualified Data.HashMap.Strict as HM (lookup)
+import qualified Data.HashMap.Strict as HM (lookup, elems)
 
 newtype Textures = Textures {
   robotTexture :: SDL.Texture
@@ -40,7 +40,7 @@ mainGraphicsLoop renderer gameState tex = do
   SDL.clear renderer
   drawArena renderer gameState 
   drawLines renderer gameState
-  drawRobots renderer (robotTexture tex) $ robots gameState 
+  drawRobots renderer (robotTexture tex) . HM.elems $ robots gameState 
   mapM_ (drawRobotDist renderer gameState ) $ robots gameState
   SDL.present renderer
 
@@ -69,11 +69,11 @@ drawRobotDist r st rb = do
 
 drawLines :: SDL.Renderer -> GameState -> IO ()
 drawLines r s = do
-  drawObjectiveLine r (robots s) (objective s)
+  drawObjectiveLine r (HM.elems $ robots s) (objective s)
   SDL.rendererDrawColor r $= SDL.V4 255 0 0 maxBound
-  drawRobotsFrontLine r (robots s) s
+  drawRobotsFrontLine r (HM.elems $ robots s) s
 
-drawRobotsFrontLine :: SDL.Renderer -> S.Seq Robot -> GameState -> IO ()
+drawRobotsFrontLine :: SDL.Renderer -> [Robot] -> GameState -> IO ()
 drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
     drawRbFrontLine :: Robot -> IO ()
@@ -84,7 +84,7 @@ drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
         (Just int) -> SDL.P . linearToSDLV2 . snd $ int
     nearestInt rbId = HM.lookup rbId $ collisions st
 
-drawObjectiveLine :: SDL.Renderer -> S.Seq Robot -> Objective -> IO ()
+drawObjectiveLine :: SDL.Renderer -> [Robot] -> Objective -> IO ()
 drawObjectiveLine r rbs o = mapM_ drawRbLine rbs
   where
     drawRbLine rb = SDL.drawLine r (pRobot rb) pObjective
@@ -121,7 +121,7 @@ drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle
         p     = SDL.P . linearToSDLV2 . position $ object robot
         s     = linearToSDLV2 . size $ object robot
 
-drawRobots :: SDL.Renderer -> SDL.Texture -> S.Seq Robot -> IO()
+drawRobots :: SDL.Renderer -> SDL.Texture -> [Robot] -> IO()
 drawRobots r t = mapM_ (drawRobot r t)
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt

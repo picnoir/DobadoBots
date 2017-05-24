@@ -8,7 +8,7 @@ import qualified Data.Sequence           as S  (update, index, singleton)
 import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
 import           Data.Maybe                    (maybeToList)
-import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty)
+import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList)
 
 import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
@@ -24,7 +24,7 @@ generateGameState l = GameState
                             (lArenaSize l)
                             (lObjective l)
                             (lStartingPoints l)
-                            (S.singleton $ Robot' "UniqRobot" (head $ lStartingPoints l))
+                            (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
                             HM.empty
 
 gameEngineTick :: GameState -> Cond -> GameState 

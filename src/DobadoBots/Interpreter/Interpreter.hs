@@ -22,8 +22,9 @@ interpretScript (Cond lExpr ifCond elseCond) rId st =
   if evaluateLogicExpr lExpr collision robot  
     then interpretScript ifCond rId st
     else interpretScript elseCond rId st
-  where collision = fromJust $ HM.lookup rId $ collisions st
-        robot = head . toList . S.filter ((rId ==) . robotId) $ robots st
+  where collision = fromJust . HM.lookup rId $ collisions st
+        robot :: Robot
+        robot = fromJust $ HM.lookup rId $ robots st
 
 evaluateLogicExpr :: LogicExpr -> Collision -> Robot -> Bool
 evaluateLogicExpr (CmpCollider LaserScan exCol) (col, _) rb = exCol == col
