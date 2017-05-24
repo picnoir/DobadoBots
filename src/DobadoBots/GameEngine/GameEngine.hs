@@ -7,8 +7,8 @@ module DobadoBots.GameEngine.GameEngine (
 import qualified Data.Sequence           as S  (update, index, singleton)
 import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
-import           Data.Maybe                    (maybeToList)
-import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList)
+import           Data.Maybe                    (maybeToList, fromJust)
+import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList, lookup)
 
 import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
@@ -17,6 +17,7 @@ import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot
 import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
                                                 nearestDistance)
 import DobadoBots.GameEngine.Utils             (getYV2, minTuple, degreeToRadian)
+import DobadoBots.Interpreter.Interpreter      (interpretScript) 
 
 generateGameState :: Level -> GameState
 generateGameState l = GameState
@@ -28,15 +29,32 @@ generateGameState l = GameState
                             HM.empty
 
 gameEngineTick :: GameState -> Cond -> GameState 
-gameEngineTick st (Token t) = applyAction t nst 
+gameEngineTick st ast       = applyAction actionToken "UniqRobot" nst 
     where nst = computeCollisions st
-gameEngineTick st _         = undefined
+          actionToken       = interpretScript ast "UniqRobot" nst 
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
-applyAction :: ActionToken -> GameState -> GameState 
-applyAction MoveForward = moveRobots
-applyAction _           = error "DAFUK IZ DAT TOKEN?"
+applyAction :: ActionToken -> RobotId -> GameState -> GameState 
+applyAction MoveForward rId = moveRobots 
+applyAction TurnLeft rId    = rotateRobot (-1) rId 
+applyAction TurnRight rId   = rotateRobot 1 rId
+applyAction _ _             = error "DAFUK IZ DAT TOKEN?"
+
+rotateRobot :: Float -> RobotId -> GameState -> GameState
+rotateRobot angle rId st = GameState 
+                            (obstacles st)
+                            (arenaSize st)
+                            (objective st)
+                            (startingPoints st)
+                            (HM.insert rId newRobot $ robots st)
+                            (collisions st)
+  where robot = fromJust . HM.lookup rId $ robots st
+        newRobot = Robot' (robotId robot) (Object
+                                      (position $ object robot)
+                                      (size $ object robot)
+                                      (angle + (rotation $ object robot))
+                                      (velocity $ object robot))
 
 moveRobots :: GameState -> GameState 
 moveRobots st = GameState

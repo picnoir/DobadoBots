@@ -32,6 +32,5 @@ evaluateLogicExpr (CmpLogicInt (Sup LaserDistance testDistance)) (_, colCoordina
 evaluateLogicExpr (CmpLogicInt (Eq LaserDistance testDistance)) (_, colCoordinates) rb = testDistance == distance rb colCoordinates
 evaluateLogicExpr (CmpLogicInt (Inf LaserDistance testDistance)) (_, colCoordinates) rb = testDistance < distance rb colCoordinates
 
-
 distance :: Robot -> V2 Float -> Integer
 distance rb colPos = floor $ LM.distance colPos (position $ object rb)
