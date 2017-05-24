@@ -31,8 +31,8 @@ sensorParser = try (LaserDistance <$ string "laserDistance")
 
 cmpIntegerParser :: CharParser () (CmpInteger SensorToken)
 cmpIntegerParser = op '=' Eq
-               <|> op '<' Inf
-               <|> op '>' Sup
+               <|> op '<' Sup
+               <|> op '>' Inf 
     where
       op c cons = try (cons <$>
                     (spaces *> sensorParser)

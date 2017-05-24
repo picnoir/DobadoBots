@@ -1,1 +1,4 @@
-moveForward
+IF laserDistance > 20
+  moveForward
+ELSE
+  turnLeft
