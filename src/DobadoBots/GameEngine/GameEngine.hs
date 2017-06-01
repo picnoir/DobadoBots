@@ -9,6 +9,7 @@ import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
 import           Data.Maybe                    (maybeToList, fromJust)
 import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList, lookup)
+import qualified Data.SG.Geometry.TwoDim as G2 (Rel2'(..), makeRel2, toAngle) 
 
 import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
@@ -16,10 +17,8 @@ import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot
                                                 Collision(..), Level(..))
 import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
                                                 nearestDistance)
-import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian)
+import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian, radianToDegree)
 import DobadoBots.Interpreter.Interpreter      (interpretScript) 
-
-import Debug.Trace
 
 generateGameState :: Level -> GameState
 generateGameState l = GameState
@@ -41,11 +40,14 @@ applyAction :: ActionToken -> RobotId -> GameState -> GameState
 applyAction MoveForward rId st   = moveRobots st
 applyAction TurnLeft rId st      = rotateRobot (-1) rId True st
 applyAction TurnRight rId st     = rotateRobot 1 rId True st
-applyAction FaceObjective rId st = trace ("Looking objective at " ++ show objRot) $ rotateRobot objRot rId False st
-  where objRot = atan $ y / x
+applyAction FaceObjective rId st = rotateRobot objRot rId False st
+  where objRot = radianToDegree $ G2.toAngle diffRel 
+        diffRel = G2.makeRel2 (x,y)
+        x = getXV2 diffVec
+        y = getYV2 diffVec
+        diffVec = objPos - robPos
         objPos = position $ objective st
-        x = getXV2 objPos
-        y = getYV2 objPos
+        robPos = position . object . fromJust . HM.lookup rId $ robots st
 applyAction _ _ _             = error "DAFUK IZ DAT TOKEN?"
 
 rotateRobot :: Float -> RobotId -> Bool -> GameState -> GameState
@@ -58,7 +60,7 @@ rotateRobot angle rId isRel st = GameState
                                   (collisions st)
   where robot = fromJust . HM.lookup rId $ robots st
         nAngle = if isRel
-                 then angle + (rotation $ object robot)
+                 then angle + rotation (object robot)
                  else angle
         newRobot = Robot' (robotId robot) (Object
                                     (position $ object robot)

@@ -6,6 +6,7 @@ module DobadoBots.GameEngine.Utils(
   v2toSGVect,
   sGVectToV2,
   degreeToRadian, 
+  radianToDegree,
   point2ToV2 
 ) where
 
@@ -36,6 +37,9 @@ sGVectToV2 (x,y) = V2 x y
 
 degreeToRadian :: Float -> Float
 degreeToRadian d = (d * pi) / 180 
+
+radianToDegree :: Float -> Float
+radianToDegree d = (d*180) / pi
 
 point2ToV2 :: Point2' a -> V2 a
 point2ToV2 (Point2 (x,y)) = V2 x y
