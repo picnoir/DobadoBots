@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Data.Text (Text(..))
 import qualified Data.Text.IO as TIO (readFile)
 import DobadoBots (createMainWindow, closeMainWindow,
                    mainGraphicsLoop, GameState(..),
                    loadLevel, loadTextures, Textures,
                    gameEngineTick, parseScript, Cond(..),
-                   generateGameState)
+                   generateGameState, GamePhase(..))
 import qualified SDL (EventPayload(..), eventPayload, pollEvents, Renderer)
 
 main :: IO ()
@@ -30,7 +30,9 @@ main = do
 mainLoop :: SDL.Renderer -> Cond -> GameState -> Textures -> IO ()
 mainLoop r ast st tex = do
   evts <- SDL.pollEvents
-  let nst = gameEngineTick st ast
+  let nst = if phase st == Running
+            then gameEngineTick st ast
+            else st
   mainGraphicsLoop r nst tex
   let quit = elem SDL.QuitEvent $ map SDL.eventPayload evts
   unless quit $ mainLoop r ast nst tex

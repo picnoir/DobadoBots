@@ -5,7 +5,7 @@ module DobadoBots.Graphics.Renderer (
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
-                                            Obstacle(..),
+                                            Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
 
@@ -38,11 +38,28 @@ mainGraphicsLoop :: SDL.Renderer -> GameState -> Textures -> IO ()
 mainGraphicsLoop renderer gameState tex = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
-  drawArena renderer gameState 
+  case phase gameState of
+    Running -> mainLoopRunning renderer gameState tex
+    Win -> mainLoopWin renderer gameState tex
+  SDL.present renderer
+
+mainLoopRunning :: SDL.Renderer -> GameState -> Textures -> IO ()
+mainLoopRunning renderer gameState tex = do
+  drawArena renderer gameState
   drawLines renderer gameState
   drawRobots renderer (robotTexture tex) . HM.elems $ robots gameState 
   mapM_ (drawRobotDist renderer gameState ) $ robots gameState
-  SDL.present renderer
+
+mainLoopWin :: SDL.Renderer -> GameState -> Textures -> IO ()
+mainLoopWin renderer gameState tex = do
+  (fontTex, size) <- loadFont renderer
+                        "data/fonts/Inconsolata-Regular.ttf"
+                        30
+                        (Raw.Color 255 255 255 0)
+                        "You won (TODO better splashscreen)"
+  let pos = SDL.P $ SDL.V2 100 200
+  SDL.rendererDrawColor renderer $= SDL.V4 171 11 11 maxBound
+  SDL.copy renderer fontTex Nothing (Just $ SDL.Rectangle pos size)
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
@@ -76,7 +93,6 @@ drawLines r s = do
 drawRobotsFrontLine :: SDL.Renderer -> [Robot] -> GameState -> IO ()
 drawRobotsFrontLine r rbs st = mapM_ drawRbFrontLine rbs
   where
-    drawRbFrontLine :: Robot -> IO ()
     drawRbFrontLine rb = SDL.drawLine r (pRobot rb) (pFront rb)
     pRobot rb = SDL.P . linearToSDLV2 . getCenter $ object rb
     pFront rb = case nearestInt $ robotId rb of

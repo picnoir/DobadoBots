@@ -1,4 +1,7 @@
 IF laserDistance > 20
   moveForward
 ELSE
-  faceObjective
+  IF laserScan = objective
+    moveForward
+  ELSE
+    faceObjective

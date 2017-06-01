@@ -14,7 +14,7 @@ import qualified Data.SG.Geometry.TwoDim as G2 (Rel2'(..), makeRel2, toAngle)
 import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
                                                 RobotId(..),Obstacle(..), Objective(..),
-                                                Collision(..), Level(..))
+                                                Collision(..), Level(..), GamePhase(..))
 import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
                                                 nearestDistance)
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian, radianToDegree)
@@ -27,6 +27,7 @@ generateGameState l = GameState
                             (lObjective l)
                             (lStartingPoints l)
                             (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
+                            Win
                             HM.empty
 
 gameEngineTick :: GameState -> Cond -> GameState 
@@ -57,6 +58,7 @@ rotateRobot angle rId isRel st = GameState
                                   (objective st)
                                   (startingPoints st)
                                   (HM.insert rId newRobot $ robots st)
+                                  (phase st)
                                   (collisions st)
   where robot = fromJust . HM.lookup rId $ robots st
         nAngle = if isRel
@@ -65,7 +67,7 @@ rotateRobot angle rId isRel st = GameState
         newRobot = Robot' (robotId robot) (Object
                                     (position $ object robot)
                                     (size $ object robot)
-                                    (nAngle)
+                                    nAngle
                                     (velocity $ object robot))
 
 moveRobots :: GameState -> GameState 
@@ -75,6 +77,7 @@ moveRobots st = GameState
                   (objective st)
                   (startingPoints st)
                   (moveRobot st <$> robots st)
+                  (phase st)
                   (collisions st)
 
 -- TODO: look at lenses, there is a way
@@ -95,6 +98,7 @@ computeCollisions st = GameState
                           (objective st)
                           (startingPoints st)
                           (robots st)
+                          (phase st)
                           newCols
   where newCols        = foldr computeCols (collisions st) (robots st)
         computeCols rb = HM.insert (robotId rb) (rbCol rb)

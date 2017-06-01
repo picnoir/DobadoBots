@@ -14,6 +14,7 @@ module DobadoBots.GameEngine.Data (
 , Collider(..)
 , Collision(..)
 , Level(..)
+, GamePhase(..)
 , getCenter
 ) where
 
@@ -36,6 +37,7 @@ data GameState = GameState   {obstacles      :: [Obstacle]
                             , objective      :: Objective
                             , startingPoints :: [StartingPoint]
                             , robots         :: HM.HashMap RobotId Robot 
+                            , phase          :: GamePhase
                             , collisions     :: HM.HashMap RobotId Collision} deriving (Show, Eq)
 
 data Level = Level  {lObstacles      :: [Obstacle],
@@ -49,6 +51,8 @@ data Object = Object {position :: Position
                     , velocity :: Velocity} deriving (Show, Eq)
 
 type Collision = (Collider, V2 Float)
+
+data GamePhase = SplashScreen | Running | Lose | Win deriving (Show, Eq)
 
 data Collider = Obstacle | Objective | Wall | Robot deriving (Show, Eq)
 

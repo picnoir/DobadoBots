@@ -17,7 +17,7 @@
       "velocity":0
     }
   ,"startingpoints" :  [
-    { "position":{"x":300,"y":450},
+    { "position":{"x":500,"y":450},
       "size": {"width":20 ,"height":20},
       "rotation": -90,
       "velocity": 1
