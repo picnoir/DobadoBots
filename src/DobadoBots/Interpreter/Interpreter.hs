@@ -45,4 +45,3 @@ testDistance (Inf token distTest) robot colCoord st = distTest < distance robot 
 testDistance (Eq token distTest) robot colCoord st = distTest == distance robot cmpCoord 
   where cmpCoord = case token of LaserDistance -> colCoord
                                  ObjectiveDistance -> position $ objective st
-

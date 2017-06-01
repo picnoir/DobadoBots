@@ -16,8 +16,10 @@ import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot
                                                 Collision(..), Level(..))
 import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
                                                 nearestDistance)
-import DobadoBots.GameEngine.Utils             (getYV2, minTuple, degreeToRadian)
+import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian)
 import DobadoBots.Interpreter.Interpreter      (interpretScript) 
+
+import Debug.Trace
 
 generateGameState :: Level -> GameState
 generateGameState l = GameState
@@ -36,25 +38,33 @@ gameEngineTick st ast       = applyAction actionToken "UniqRobot" nst
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
 applyAction :: ActionToken -> RobotId -> GameState -> GameState 
-applyAction MoveForward rId = moveRobots 
-applyAction TurnLeft rId    = rotateRobot (-1) rId 
-applyAction TurnRight rId   = rotateRobot 1 rId
-applyAction _ _             = error "DAFUK IZ DAT TOKEN?"
+applyAction MoveForward rId st   = moveRobots st
+applyAction TurnLeft rId st      = rotateRobot (-1) rId True st
+applyAction TurnRight rId st     = rotateRobot 1 rId True st
+applyAction FaceObjective rId st = trace ("Looking objective at " ++ show objRot) $ rotateRobot objRot rId False st
+  where objRot = atan $ y / x
+        objPos = position $ objective st
+        x = getXV2 objPos
+        y = getYV2 objPos
+applyAction _ _ _             = error "DAFUK IZ DAT TOKEN?"
 
-rotateRobot :: Float -> RobotId -> GameState -> GameState
-rotateRobot angle rId st = GameState 
-                            (obstacles st)
-                            (arenaSize st)
-                            (objective st)
-                            (startingPoints st)
-                            (HM.insert rId newRobot $ robots st)
-                            (collisions st)
+rotateRobot :: Float -> RobotId -> Bool -> GameState -> GameState
+rotateRobot angle rId isRel st = GameState 
+                                  (obstacles st)
+                                  (arenaSize st)
+                                  (objective st)
+                                  (startingPoints st)
+                                  (HM.insert rId newRobot $ robots st)
+                                  (collisions st)
   where robot = fromJust . HM.lookup rId $ robots st
+        nAngle = if isRel
+                 then angle + (rotation $ object robot)
+                 else angle
         newRobot = Robot' (robotId robot) (Object
-                                      (position $ object robot)
-                                      (size $ object robot)
-                                      (angle + (rotation $ object robot))
-                                      (velocity $ object robot))
+                                    (position $ object robot)
+                                    (size $ object robot)
+                                    (nAngle)
+                                    (velocity $ object robot))
 
 moveRobots :: GameState -> GameState 
 moveRobots st = GameState
