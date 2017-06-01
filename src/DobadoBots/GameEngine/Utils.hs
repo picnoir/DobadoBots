@@ -7,11 +7,16 @@ module DobadoBots.GameEngine.Utils(
   sGVectToV2,
   degreeToRadian, 
   radianToDegree,
-  point2ToV2 
+  point2ToV2,
+  objectToShape
 ) where
 
 import Linear.V2               (V2(..))
 import Data.SG.Geometry.TwoDim (Point2'(..))
+import qualified Data.SG.Shape as GS (Shape'(..))
+import qualified Data.SG.Geometry.TwoDim as G2 (Point2'(..))
+
+import DobadoBots.GameEngine.Data (Object(..))
 
 getXV2 :: V2 a -> a
 getXV2 (V2 x _) = x
@@ -43,3 +48,7 @@ radianToDegree d = (d*180) / pi
 
 point2ToV2 :: Point2' a -> V2 a
 point2ToV2 (Point2 (x,y)) = V2 x y
+
+objectToShape :: Object -> GS.Shape' Float
+objectToShape o = GS.Rectangle centerRectPoint . v2toSGVect $ size o / 2
+  where centerRectPoint = G2.Point2 . v2toSGVect $ size o / 2 + position o

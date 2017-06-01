@@ -2,12 +2,13 @@ module DobadoBots.GameEngine.Collisions (
  nearestIntersection
 ,nearestIntersectionDistance
 ,nearestDistance
+,robotObjectiveIntersection
 ) where
 
 import           Linear.V2                     (V2(..))
 import qualified Data.Foldable           as F  (toList)
 import qualified Data.SG.Geometry        as GG (alongLine)
-import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape)
+import qualified Data.SG.Shape           as GS (Shape'(..), intersectLineShape, overlap)
 import           Data.List                     (minimumBy)
 import           Data.Function                 (on)
 import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2', 
@@ -15,14 +16,23 @@ import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2',
                                                 intersectLines2)
 import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList,
                                                 listToMaybe, isJust, fromJust)
+import           Data.HashMap.Strict     as HM (lookup)
 
 import           Control.Monad                 (liftM2)
 
 import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
                                                 Collider(..), Obstacle(..),
-                                                Objective(..), Object(..), Collision(..))
+                                                Objective(..), Object(..), Collision(..),
+                                                RobotId(..))
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
-                                                v2toSGVect, point2ToV2, degreeToRadian)
+                                                v2toSGVect, point2ToV2, degreeToRadian,
+                                                objectToShape)
+
+robotObjectiveIntersection :: RobotId -> GameState -> Bool
+robotObjectiveIntersection rId st = isJust $ GS.overlap rb obj
+  where
+    rb  = objectToShape . object . fromJust . HM.lookup rId $ robots st
+    obj = objectToShape $ objective st
 
 nearestIntersection :: Robot -> GameState -> Collision 
 nearestIntersection r st
@@ -73,8 +83,7 @@ robotIntersections r rbs = mapMaybe (returnObjectIntersection r) otherRobots
 
 returnObjectIntersection :: Robot -> Object -> Maybe (Float,Float)
 returnObjectIntersection robot obj = GS.intersectLineShape (getRobotFrontLine robot) shape
-  where shape           = GS.Rectangle centerRectPoint . v2toSGVect $ size obj / 2
-        centerRectPoint = G2.Point2 . v2toSGVect $ size obj /2 + position obj 
+  where shape           = objectToShape obj
 
 getRobotFrontLine :: Robot -> G2.Line2' Float
 getRobotFrontLine robot = line 
