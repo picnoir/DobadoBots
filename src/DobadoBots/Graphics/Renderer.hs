@@ -1,14 +1,16 @@
 module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
-, Textures(..)
-, loadTextures
+, createRendererState 
+, loadFont
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
                                             Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
-import DobadoBots.Graphics.Editor          (drawEditor)
+import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
+import DobadoBots.Graphics.Utils           (loadFont)
+import DobadoBots.Graphics.Data            (RendererState(..))
 
 import GHC.Float                           (float2Double)
 import qualified SDL                       (Renderer, rendererDrawColor, clear,
@@ -18,11 +20,11 @@ import qualified SDL                       (Renderer, rendererDrawColor, clear,
                                             loadBMP, createTextureFromSurface, 
                                             freeSurface, copyEx, drawLine, copy,
                                             surfaceDimensions)
-import qualified SDL.Raw as Raw            (Color(..))
 import qualified SDL.TTF as TTF            (withInit, wasInit,
                                             openFont, renderUTF8Solid,
                                             renderUTF8Blended, closeFont)
 import SDL                                 (($=))
+import qualified SDL.Raw as Raw            (Color(..))
 import qualified Linear.V2 as L            (V2(..))
 import qualified Linear.Metric as LM       (distance)
 import Foreign.C.Types                     (CInt(..), CDouble(..))
@@ -31,11 +33,7 @@ import qualified Data.Vector.Storable as V (Vector(..), fromList, map)
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 
-newtype Textures = Textures {
-  robotTexture :: SDL.Texture
-}
-
-mainGraphicsLoop :: SDL.Renderer -> GameState -> Textures -> IO ()
+mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainGraphicsLoop renderer gameState tex = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
@@ -44,7 +42,7 @@ mainGraphicsLoop renderer gameState tex = do
     Win -> mainLoopWin renderer gameState tex
   SDL.present renderer
 
-mainLoopRunning :: SDL.Renderer -> GameState -> Textures -> IO ()
+mainLoopRunning :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopRunning renderer gameState tex = do
   drawEditor renderer gameState
   drawArena renderer gameState
@@ -52,8 +50,8 @@ mainLoopRunning renderer gameState tex = do
   drawRobots renderer (robotTexture tex) . HM.elems $ robots gameState 
   mapM_ (drawRobotDist renderer gameState ) $ robots gameState
 
-mainLoopWin :: SDL.Renderer -> GameState -> Textures -> IO ()
-mainLoopWin renderer gameState tex = do
+mainLoopWin :: SDL.Renderer -> GameState -> RendererState -> IO ()
+mainLoopWin renderer gameState rst = do
   (fontTex, size) <- loadFont renderer
                         "data/fonts/Inconsolata-Regular.ttf"
                         30
@@ -152,24 +150,14 @@ sdlv2ToLinear (SDL.V2 x y) = L.V2 (cIntToFloat x) (cIntToFloat y)
 toCint :: Float -> CInt
 toCint x = CInt $ floor x
 
-loadTextures :: FilePath -> SDL.Renderer -> IO Textures
-loadTextures robotImg renderer = do
+createRendererState :: FilePath -> SDL.Renderer -> GameState -> IO RendererState
+createRendererState robotImg renderer st = do
   robot <- rTex robotImg renderer 
-  return $ Textures robot 
+  return $ RendererState robot codeTex
   where rTex path rend = do
           surf <- SDL.loadBMP robotImg
           tex  <- SDL.createTextureFromSurface rend surf
           SDL.freeSurface surf 
           return tex
+        codeTex = renderCode renderer st 
 
-loadFont :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
-loadFont r fontFile size color text = TTF.withInit $ do
-    inited <- TTF.wasInit
-    unless inited $ error "[Error] Cannot initialise font system." 
-    font <- TTF.openFont fontFile size
-    textSurface <- TTF.renderUTF8Blended font text color
-    textTexture <- SDL.createTextureFromSurface r textSurface
-    size <- SDL.surfaceDimensions textSurface
-    SDL.freeSurface textSurface
-    TTF.closeFont font
-    return (textTexture, size)

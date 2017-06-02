@@ -25,6 +25,8 @@ import qualified Data.Aeson.Types as AT    (Parser, Object(..), Value(..))
 import qualified Data.HashMap.Lazy as HS   (lookup)
 import qualified Data.HashMap.Strict as HM (HashMap(..), empty)
 import Data.Text                           (Text(..))
+import Foreign.C.Types                     (CInt)
+import qualified SDL                       (V2, Texture)
 
 type Size = V2 Float 
 

@@ -5,7 +5,7 @@ import Data.Text (Text(..))
 import qualified Data.Text.IO as TIO (readFile)
 import DobadoBots (createMainWindow, closeMainWindow,
                    mainGraphicsLoop, GameState(..),
-                   loadLevel, loadTextures, Textures,
+                   loadLevel, createRendererState, RendererState,
                    gameEngineTick, parseScript, Cond(..),
                    generateGameState, GamePhase(..))
 import qualified SDL (EventPayload(..), eventPayload, pollEvents, Renderer)
@@ -18,7 +18,7 @@ main = do
   scriptStr <- TIO.readFile "data/script.script"
   ast <- getAst $ parseScript scriptStr
   (renderer, window) <- createMainWindow "DobadoBots" 
-  textures <- loadTextures "data/img/robot.bmp" renderer 
+  textures <- createRendererState "data/img/robot.bmp" renderer engineState 
   mainLoop renderer ast engineState textures
   closeMainWindow renderer window
   where
@@ -27,7 +27,7 @@ main = do
     getAst   (Right ast)   = return ast
     getAst   (Left err)    = fail $ show err
 
-mainLoop :: SDL.Renderer -> Cond -> GameState -> Textures -> IO ()
+mainLoop :: SDL.Renderer -> Cond -> GameState -> RendererState -> IO ()
 mainLoop r ast st tex = do
   evts <- SDL.pollEvents
   let nst = if phase st == Running
