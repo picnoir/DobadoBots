@@ -8,6 +8,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
+import DobadoBots.Graphics.Editor          (drawEditor)
 
 import GHC.Float                           (float2Double)
 import qualified SDL                       (Renderer, rendererDrawColor, clear,
@@ -45,6 +46,7 @@ mainGraphicsLoop renderer gameState tex = do
 
 mainLoopRunning :: SDL.Renderer -> GameState -> Textures -> IO ()
 mainLoopRunning renderer gameState tex = do
+  drawEditor renderer gameState
   drawArena renderer gameState
   drawLines renderer gameState
   drawRobots renderer (robotTexture tex) . HM.elems $ robots gameState 
