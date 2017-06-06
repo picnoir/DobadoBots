@@ -41,9 +41,9 @@ displayCode r st rst = do
 renderCode :: SDL.Renderer -> Cond -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r ast = mapM renderLine strs
   where renderLine = loadFontBlended r
-                                "data/fonts/Terminus.ttf"
+                                "data/fonts/Inconsolata-Regular.ttf"
                                 15
-                                (Raw.Color 255 255 255 0)
+                                (Raw.Color 0 255 0 0)
         strs = lines . unpack $ prettyPrint ast
 
 renderLines :: SDL.Renderer -> [(SDL.Texture, SDL.V2 CInt)] -> StateT CInt IO ()
@@ -55,7 +55,7 @@ renderLines r strs = do
     renderLine (tex, size) = do
           lineNb <- get
           modify (+1)
-          let pos = SDL.P $ SDL.V2 544 (lineNb * offset)
+          let pos = SDL.P $ SDL.V2 550 (lineNb * offset)
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
 
