@@ -35,7 +35,7 @@ evaluateLogicExpr (CmpLogicInt cmp) (_, colCoordinates) rb st = testDistance cmp
 distance :: Robot -> V2 Float -> Integer
 distance rb colPos = floor $ LM.distance colPos (position $ object rb)
 
-testDistance :: (CmpInteger SensorToken) -> Robot -> V2 Float -> GameState -> Bool
+testDistance :: CmpInteger SensorToken -> Robot -> V2 Float -> GameState -> Bool
 testDistance (Sup token distTest) robot colCoord st = distTest > distance robot cmpCoord 
   where cmpCoord = case token of LaserDistance -> colCoord
                                  ObjectiveDistance -> position $ objective st

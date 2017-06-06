@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (unless, when)
-import Data.Text (Text(..))
+import Control.Monad                 (unless, when)
+import Data.Text                     (Text(..))
 import qualified Data.Text.IO as TIO (readFile)
-import DobadoBots (createMainWindow, closeMainWindow,
-                   mainGraphicsLoop, GameState(..),
-                   loadLevel, createRendererState, RendererState,
-                   gameEngineTick, parseScript, Cond(..),
-                   generateGameState, GamePhase(..))
-import qualified SDL (EventPayload(..), eventPayload, pollEvents, Renderer)
+import DobadoBots                    (createMainWindow, closeMainWindow,
+                                      mainGraphicsLoop, GameState(..),
+                                      loadLevel, createRendererState, RendererState,
+                                      gameEngineTick, parseScript, Cond(..),
+                                      generateGameState, GamePhase(..))
+import qualified SDL                 (EventPayload(..), eventPayload,
+                                      pollEvents, Renderer)
 
 main :: IO ()
 main = do

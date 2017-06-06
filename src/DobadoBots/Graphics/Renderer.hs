@@ -1,7 +1,6 @@
 module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
 , createRendererState 
-, loadFont
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
@@ -9,7 +8,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
-import DobadoBots.Graphics.Utils           (loadFont)
+import DobadoBots.Graphics.Utils           (loadFontBlended)
 import DobadoBots.Graphics.Data            (RendererState(..))
 import DobadoBots.Interpreter.Data         (Cond)
 
@@ -53,7 +52,7 @@ mainLoopRunning renderer gameState rendererState = do
 
 mainLoopWin :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopWin renderer gameState rst = do
-  (fontTex, size) <- loadFont renderer
+  (fontTex, size) <- loadFontBlended renderer
                         "data/fonts/Inconsolata-Regular.ttf"
                         30
                         (Raw.Color 255 255 255 0)
@@ -64,7 +63,7 @@ mainLoopWin renderer gameState rst = do
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
-  (fontTex, size) <- loadFont r
+  (fontTex, size) <- loadFontBlended r
                         "data/fonts/Inconsolata-Regular.ttf"
                         12
                         (Raw.Color 255 255 255 0) 

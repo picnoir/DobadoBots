@@ -1,5 +1,5 @@
 module DobadoBots.Graphics.Utils (
- loadFont
+ loadFontBlended
 ) where
 
 import Control.Monad            (unless)
@@ -10,10 +10,11 @@ import qualified SDL            (Renderer, Texture(..), V2(..),
 import qualified SDL.Raw as Raw (Color(..))
 import qualified SDL.TTF as TTF (withInit, wasInit,
                                  openFont, renderUTF8Solid,
-                                 renderUTF8Blended, closeFont)
+                                 renderUTF8Blended, closeFont,
+                                 renderUTF8Solid)
 
-loadFont :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
-loadFont r fontFile size color text = TTF.withInit $ do
+loadFontBlended :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
+loadFontBlended r fontFile size color text = TTF.withInit $ do
     inited <- TTF.wasInit
     unless inited $ error "[Error] Cannot initialise font system." 
     font <- TTF.openFont fontFile size

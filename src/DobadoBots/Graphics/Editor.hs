@@ -5,24 +5,24 @@ module DobadoBots.Graphics.Editor(
   renderCode
 ) where
 
-import           Control.Monad.State(StateT(..), get,
-                                     modify, liftIO)
-import           Data.Text          (Text(..), unpack)
-import qualified SDL                (Renderer(..), Point(..), 
-                                     V2(..), Rectangle(..),
-                                     V4(..), Texture(..),
-                                     fillRect, rendererDrawColor,
-                                     copy)
-import           SDL                (($=))
-import Foreign.C.Types              (CInt(..)) 
-import qualified SDL.Raw as Raw     (Color(..))
-import           Text.PrettyPrint   (Doc(..))
+import           Control.Monad.State         (StateT(..), get,
+                                              modify, liftIO)
+import           Data.Text                   (Text(..), unpack)
+import qualified SDL                         (Renderer(..), Point(..), 
+                                             V2(..), Rectangle(..),
+                                             V4(..), Texture(..),
+                                             fillRect, rendererDrawColor,
+                                             copy)
+import           SDL                         (($=))
+import Foreign.C.Types                       (CInt(..)) 
+import qualified SDL.Raw as Raw              (Color(..))
+import           Text.PrettyPrint            (Doc(..))
 
-import DobadoBots.GameEngine.Data   (GameState(..))
-import DobadoBots.Interpreter.Data  (Cond(..))
-import DobadoBots.Interpreter.PrettyPrinter (prettyPrint)
-import DobadoBots.Graphics.Data     (RendererState(..))
-import DobadoBots.Graphics.Utils    (loadFont)
+import DobadoBots.GameEngine.Data            (GameState(..))
+import DobadoBots.Interpreter.Data           (Cond(..))
+import DobadoBots.Interpreter.PrettyPrinter  (prettyPrint)
+import DobadoBots.Graphics.Data              (RendererState(..))
+import DobadoBots.Graphics.Utils             (loadFontBlended)
 
 offset :: CInt
 offset = 15
@@ -40,16 +40,15 @@ displayCode r st rst = do
 
 renderCode :: SDL.Renderer -> Cond -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r ast = mapM renderLine strs
-  where renderLine str = do loadFont r
+  where renderLine = loadFontBlended r
                                 "data/fonts/Terminus.ttf"
                                 15
                                 (Raw.Color 255 255 255 0)
-                                str
         strs = lines . unpack $ prettyPrint ast
 
 renderLines :: SDL.Renderer -> [(SDL.Texture, SDL.V2 CInt)] -> StateT CInt IO ()
 renderLines r strs = do
-    mapM renderLine strs
+    mapM_ renderLine strs
     return ()
   where 
     renderLine :: (SDL.Texture, SDL.V2 CInt) -> StateT CInt IO ()

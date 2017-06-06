@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module DobadoBots.GameEngineSpec where
+module DobadoBots.GameEngineSpec (spec) where
 
 import DobadoBots (loadLevel, Object(..), Level(..), Size(..))
 

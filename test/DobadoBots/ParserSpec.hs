@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module DobadoBots.ParserSpec where
+module DobadoBots.ParserSpec (spec) where
 
 import DobadoBots
 
