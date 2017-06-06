@@ -29,6 +29,7 @@ library
                       ,vector
                       ,containers
                       ,SGplus
+                      ,mtl
   default-language:    Haskell2010
   other-modules:       DobadoBots.Interpreter.Data
                       ,DobadoBots.Interpreter.Parser

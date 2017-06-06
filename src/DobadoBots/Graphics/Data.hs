@@ -6,6 +6,6 @@ import qualified SDL            (Texture, V2)
 import Foreign.C.Types          (CInt) 
 
 data RendererState = RendererState {
-  robotTexture :: SDL.Texture,
-  codeTexture  :: [(SDL.Texture, SDL.V2 CInt)]
+  robotTexture  :: SDL.Texture,
+  codeTextures  :: [(SDL.Texture, SDL.V2 CInt)]
 }

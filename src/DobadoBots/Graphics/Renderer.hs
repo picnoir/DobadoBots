@@ -43,11 +43,11 @@ mainGraphicsLoop renderer gameState tex = do
   SDL.present renderer
 
 mainLoopRunning :: SDL.Renderer -> GameState -> RendererState -> IO ()
-mainLoopRunning renderer gameState tex = do
-  drawEditor renderer gameState
+mainLoopRunning renderer gameState rendererState = do
+  drawEditor renderer gameState rendererState
   drawArena renderer gameState
   drawLines renderer gameState
-  drawRobots renderer (robotTexture tex) . HM.elems $ robots gameState 
+  drawRobots renderer (robotTexture rendererState) . HM.elems $ robots gameState 
   mapM_ (drawRobotDist renderer gameState ) $ robots gameState
 
 mainLoopWin :: SDL.Renderer -> GameState -> RendererState -> IO ()
@@ -153,11 +153,11 @@ toCint x = CInt $ floor x
 createRendererState :: FilePath -> SDL.Renderer -> GameState -> IO RendererState
 createRendererState robotImg renderer st = do
   robot <- rTex robotImg renderer 
+  codeTex <- renderCode renderer st
   return $ RendererState robot codeTex
   where rTex path rend = do
           surf <- SDL.loadBMP robotImg
           tex  <- SDL.createTextureFromSurface rend surf
           SDL.freeSurface surf 
           return tex
-        codeTex = renderCode renderer st 
 
