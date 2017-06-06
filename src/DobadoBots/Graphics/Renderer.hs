@@ -11,6 +11,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFont)
 import DobadoBots.Graphics.Data            (RendererState(..))
+import DobadoBots.Interpreter.Data         (Cond)
 
 import GHC.Float                           (float2Double)
 import qualified SDL                       (Renderer, rendererDrawColor, clear,
@@ -150,10 +151,10 @@ sdlv2ToLinear (SDL.V2 x y) = L.V2 (cIntToFloat x) (cIntToFloat y)
 toCint :: Float -> CInt
 toCint x = CInt $ floor x
 
-createRendererState :: FilePath -> SDL.Renderer -> GameState -> IO RendererState
-createRendererState robotImg renderer st = do
+createRendererState :: FilePath -> SDL.Renderer -> GameState -> Cond -> IO RendererState
+createRendererState robotImg renderer st ast = do
   robot <- rTex robotImg renderer 
-  codeTex <- renderCode renderer st
+  codeTex <- renderCode renderer ast 
   return $ RendererState robot codeTex
   where rTex path rend = do
           surf <- SDL.loadBMP robotImg

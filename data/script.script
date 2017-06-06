@@ -4,4 +4,4 @@ ELSE
   IF laserScan = objective
     moveForward
   ELSE
-    turnLeft
+    faceObjective

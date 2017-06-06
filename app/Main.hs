@@ -18,7 +18,7 @@ main = do
   scriptStr <- TIO.readFile "data/script.script"
   ast <- getAst $ parseScript scriptStr
   (renderer, window) <- createMainWindow "DobadoBots" 
-  textures <- createRendererState "data/img/robot.bmp" renderer engineState 
+  textures <- createRendererState "data/img/robot.bmp" renderer engineState ast
   mainLoop renderer ast engineState textures
   closeMainWindow renderer window
   where
