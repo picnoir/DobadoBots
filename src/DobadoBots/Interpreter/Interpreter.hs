@@ -4,7 +4,8 @@ module DobadoBots.Interpreter.Interpreter (
 
 import DobadoBots.Interpreter.Data         (Cond(..), ActionToken(..),
                                             SensorToken(..), LogicExpr(..),
-                                            CmpInteger(..))
+                                            CmpInteger(..), CondEvaluated(..),
+                                            fillCondEval)
 import DobadoBots.GameEngine.Data          (GameState(..), RobotId(..),
                                             Collider(..), Collision(..),
                                             Robot(..), Object(..))
@@ -18,15 +19,26 @@ import qualified Linear.Metric       as LM (distance)
 
 import Debug.Trace
 
-interpretScript :: Cond -> RobotId -> GameState -> ActionToken 
+interpretScript :: Cond -> RobotId -> GameState -> ActionToken
 interpretScript (Token t) rbId st = t
 interpretScript (Cond lExpr ifCond elseCond) rId st = 
-  if evaluateLogicExpr lExpr collision robot st
-    then interpretScript ifCond rId st
+  if logicExprEvaluated
+    then  interpretScript ifCond rId st
     else interpretScript elseCond rId st
   where collision = fromJust . HM.lookup rId $ collisions st
-        robot :: Robot
-        robot = fromJust $ HM.lookup rId $ robots st
+        robot     = fromJust $ HM.lookup rId $ robots st
+        logicExprEvaluated = evaluateLogicExpr lExpr collision robot st
+
+evaluateAst :: Cond -> RobotId -> GameState -> CondEvaluated
+evaluateAst (Token t) rbId st = EvaluatedToken (t, True)
+evaluateAst (Cond lExpr ifCond elseCond) rId st = 
+  if logicExprEvaluated
+    then CondEvaluated lExpr (evaluateAst ifCond rId st, True) (fillCondEval False elseCond, False)
+  else
+    CondEvaluated lExpr (fillCondEval False ifCond, False) (evaluateAst elseCond rId st, True) 
+  where collision = fromJust . HM.lookup rId $ collisions st
+        robot     = fromJust $ HM.lookup rId $ robots st
+        logicExprEvaluated = evaluateLogicExpr lExpr collision robot st
 
 evaluateLogicExpr :: LogicExpr -> Collision -> Robot -> GameState -> Bool
 evaluateLogicExpr (CmpCollider LaserScan exCol) (col, _) rb st = exCol == col
