@@ -4,10 +4,10 @@ module DobadoBots.Interpreter.Data
 , Cond          ( ..)
 , LogicExpr     ( ..)
 , CmpInteger    ( ..)
-, CondEvaluated ( ..)
-, fillCondEval
 )
 where
+
+import Data.HashMap.Strict        (HashMap)
 
 import DobadoBots.GameEngine.Data (Collider(..))
 
@@ -34,10 +34,3 @@ data Cond = Token ActionToken | Cond { sensor    :: LogicExpr
                                      , ifValid   :: Cond
                                      , ifInvalid :: Cond
                                      } deriving (Show, Eq)
-
-data CondEvaluated = EvaluatedToken (ActionToken, Bool)
-                   | CondEvaluated LogicExpr (CondEvaluated, Bool) (CondEvaluated, Bool)
-
-fillCondEval :: Bool -> Cond -> CondEvaluated
-fillCondEval b (Token action) = EvaluatedToken (action, b)
-fillCondEval b (Cond sens valCond invalCond) = CondEvaluated sens (fillCondEval b valCond, b) (fillCondEval b valCond, b)

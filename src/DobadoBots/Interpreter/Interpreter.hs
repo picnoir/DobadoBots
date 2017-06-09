@@ -4,8 +4,7 @@ module DobadoBots.Interpreter.Interpreter (
 
 import DobadoBots.Interpreter.Data         (Cond(..), ActionToken(..),
                                             SensorToken(..), LogicExpr(..),
-                                            CmpInteger(..), CondEvaluated(..),
-                                            fillCondEval)
+                                            CmpInteger(..)) 
 import DobadoBots.GameEngine.Data          (GameState(..), RobotId(..),
                                             Collider(..), Collision(..),
                                             Robot(..), Object(..))
@@ -14,6 +13,7 @@ import           Data.Maybe                (fromJust)
 import qualified Data.HashMap.Strict as HM (lookup)
 import qualified Data.Sequence       as S  (filter)
 import           Data.Foldable             (toList)
+import qualified Data.Vector         as V  (Vector(..))
 import           Linear.V2           as LV2(V2(..))
 import qualified Linear.Metric       as LM (distance)
 
@@ -25,17 +25,6 @@ interpretScript (Cond lExpr ifCond elseCond) rId st =
   if logicExprEvaluated
     then  interpretScript ifCond rId st
     else interpretScript elseCond rId st
-  where collision = fromJust . HM.lookup rId $ collisions st
-        robot     = fromJust $ HM.lookup rId $ robots st
-        logicExprEvaluated = evaluateLogicExpr lExpr collision robot st
-
-evaluateAst :: Cond -> RobotId -> GameState -> CondEvaluated
-evaluateAst (Token t) rbId st = EvaluatedToken (t, True)
-evaluateAst (Cond lExpr ifCond elseCond) rId st = 
-  if logicExprEvaluated
-    then CondEvaluated lExpr (evaluateAst ifCond rId st, True) (fillCondEval False elseCond, False)
-  else
-    CondEvaluated lExpr (fillCondEval False ifCond, False) (evaluateAst elseCond rId st, True) 
   where collision = fromJust . HM.lookup rId $ collisions st
         robot     = fromJust $ HM.lookup rId $ robots st
         logicExprEvaluated = evaluateLogicExpr lExpr collision robot st
