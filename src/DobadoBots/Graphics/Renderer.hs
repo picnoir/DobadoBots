@@ -10,7 +10,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..))
-import DobadoBots.Graphics.Buttons         (createButtons)
+import DobadoBots.Graphics.Buttons         (createButtons, displayButtons)
 
 import DobadoBots.Interpreter.Data         (Cond)
 
@@ -50,6 +50,7 @@ mainLoopRunning renderer gameState rendererState = do
   drawArena renderer gameState
   drawLines renderer gameState
   drawRobots renderer (robotTexture rendererState) . HM.elems $ robots gameState 
+  displayButtons renderer (buttons rendererState)
   mapM_ (drawRobotDist renderer gameState ) $ robots gameState
 
 mainLoopWin :: SDL.Renderer -> GameState -> RendererState -> IO ()

@@ -1,10 +1,11 @@
 module DobadoBots.Graphics.Data (
   RendererState(..),
-  Buttons(..)
+  Buttons(..),
+  Button(..)
 ) where
 
 import qualified SDL   (Texture, V2,
-                        Rectangle)
+                        Rectangle, Point)
 import Foreign.C.Types (CInt) 
 
 data RendererState = RendererState {
@@ -13,6 +14,11 @@ data RendererState = RendererState {
   buttons       :: Buttons
 }
 
-newtype Buttons = Buttons {
-  startButton   :: (SDL.Texture, SDL.V2 CInt)
+data Buttons = Buttons {
+  startButton   :: Button
+}
+
+data Button = Button {
+  buttonTex     :: (SDL.Texture, SDL.V2 CInt),
+  buttonPos     :: SDL.Point SDL.V2 CInt
 }
