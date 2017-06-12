@@ -8,8 +8,10 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
-import DobadoBots.Graphics.Utils           (loadFontBlended)
+import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..))
+import DobadoBots.Graphics.Buttons         (createButtons)
+
 import DobadoBots.Interpreter.Data         (Cond)
 
 import GHC.Float                           (float2Double)
@@ -17,7 +19,7 @@ import qualified SDL                       (Renderer, rendererDrawColor, clear,
                                             present, fillRects, fillRect, 
                                             Rectangle(..), Point(..), V2(..), 
                                             V4(..), Texture(..),
-                                            loadBMP, createTextureFromSurface, 
+                                            createTextureFromSurface, 
                                             freeSurface, copyEx, drawLine, copy,
                                             surfaceDimensions)
 import qualified SDL.TTF as TTF            (withInit, wasInit,
@@ -129,15 +131,15 @@ getObjectiveRect obj  = SDL.Rectangle (pointRect obj) (sizeRect obj)
   where pointRect obj = SDL.P . linearToSDLV2 $ position obj
         sizeRect obj  = linearToSDLV2 $ size obj
   
-drawRobot :: SDL.Renderer -> SDL.Texture -> Robot -> IO ()
-drawRobot renderer tex robot = SDL.copyEx renderer tex Nothing (Just dest) angle Nothing (SDL.V2 False False)
+drawRobot :: SDL.Renderer -> (SDL.Texture, SDL.V2 CInt) -> Robot -> IO ()
+drawRobot renderer tex robot = SDL.copyEx renderer (fst tex) Nothing (Just dest) angle Nothing (SDL.V2 False False)
   where 
         angle = CDouble . float2Double . rotation $ object robot
         dest  = SDL.Rectangle p s
         p     = SDL.P . linearToSDLV2 . position $ object robot
         s     = linearToSDLV2 . size $ object robot
 
-drawRobots :: SDL.Renderer -> SDL.Texture -> [Robot] -> IO()
+drawRobots :: SDL.Renderer -> (SDL.Texture, SDL.V2 CInt) -> [Robot] -> IO()
 drawRobots r t = mapM_ (drawRobot r t)
 
 linearToSDLV2 :: L.V2 Float -> SDL.V2 CInt
@@ -152,12 +154,8 @@ toCint x = CInt $ floor x
 
 createRendererState :: FilePath -> SDL.Renderer -> GameState -> Cond -> IO RendererState
 createRendererState robotImg renderer st ast = do
-  robot <- rTex robotImg renderer 
+  robot <- getBmpTex robotImg renderer 
   codeTex <- renderCode renderer ast 
-  return $ RendererState robot codeTex
-  where rTex path rend = do
-          surf <- SDL.loadBMP robotImg
-          tex  <- SDL.createTextureFromSurface rend surf
-          SDL.freeSurface surf 
-          return tex
+  buttons <- createButtons renderer
+  return $ RendererState robot codeTex buttons
 

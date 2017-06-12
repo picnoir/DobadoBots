@@ -46,6 +46,7 @@ library
                       ,DobadoBots.Graphics.Editor
                       ,DobadoBots.Graphics.Utils
                       ,DobadoBots.Graphics.Data
+                      ,DobadoBots.Graphics.Buttons
                       
 executable DobadoBots-exe
   hs-source-dirs:      app

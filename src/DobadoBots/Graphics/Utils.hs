@@ -1,12 +1,13 @@
 module DobadoBots.Graphics.Utils (
- loadFontBlended
+ loadFontBlended,
+ getBmpTex
 ) where
 
 import Control.Monad            (unless)
 import Foreign.C.Types          (CInt(..), CDouble(..))
 import qualified SDL            (Renderer, Texture(..), V2(..),
                                  freeSurface, createTextureFromSurface,
-                                 surfaceDimensions)
+                                 surfaceDimensions, loadBMP)
 import qualified SDL.Raw as Raw (Color(..))
 import qualified SDL.TTF as TTF (withInit, wasInit,
                                  openFont, renderUTF8Solid,
@@ -24,3 +25,12 @@ loadFontBlended r fontFile size color text = TTF.withInit $ do
     SDL.freeSurface textSurface
     TTF.closeFont font
     return (textTexture, size)
+
+getBmpTex :: String -> SDL.Renderer -> IO (SDL.Texture, SDL.V2 CInt)
+getBmpTex path r = do
+          surf <- SDL.loadBMP path 
+          tex  <- SDL.createTextureFromSurface r surf
+          dim  <- SDL.surfaceDimensions surf
+          SDL.freeSurface surf 
+          return (tex, dim)
+
