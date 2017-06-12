@@ -1,7 +1,8 @@
 module DobadoBots.Graphics.Data (
   RendererState(..),
   Buttons(..),
-  Button(..)
+  Button(..),
+  ButtonEvent(..)
 ) where
 
 import qualified SDL   (Texture, V2,
@@ -20,5 +21,12 @@ data Buttons = Buttons {
 
 data Button = Button {
   buttonTex     :: (SDL.Texture, SDL.V2 CInt),
-  buttonPos     :: SDL.Point SDL.V2 CInt
+  buttonTexHover:: (SDL.Texture, SDL.V2 CInt),
+  buttonPos     :: SDL.Point SDL.V2 CInt,
+  isHover       :: Bool,
+  isActive      :: Bool,
+  event         :: ButtonEvent
 }
+
+data ButtonEvent = StartEvent
+                 | EditEvent

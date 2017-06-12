@@ -1,6 +1,7 @@
 module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
 , createRendererState 
+, handleEvents
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
@@ -21,7 +22,7 @@ import qualified SDL                       (Renderer, rendererDrawColor, clear,
                                             V4(..), Texture(..),
                                             createTextureFromSurface, 
                                             freeSurface, copyEx, drawLine, copy,
-                                            surfaceDimensions)
+                                            surfaceDimensions, Event)
 import qualified SDL.TTF as TTF            (withInit, wasInit,
                                             openFont, renderUTF8Solid,
                                             renderUTF8Blended, closeFont)
@@ -36,13 +37,14 @@ import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 
 mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
-mainGraphicsLoop renderer gameState tex = do 
+mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
   case phase gameState of
-    Running -> mainLoopRunning renderer gameState tex
-    Win -> mainLoopWin renderer gameState tex
+    Running -> mainLoopRunning renderer gameState rendererState
+    Win -> mainLoopWin renderer gameState rendererState
   SDL.present renderer
+  return ()
 
 mainLoopRunning :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopRunning renderer gameState rendererState = do
@@ -63,6 +65,9 @@ mainLoopWin renderer gameState rst = do
   let pos = SDL.P $ SDL.V2 100 200
   SDL.rendererDrawColor renderer $= SDL.V4 171 11 11 maxBound
   SDL.copy renderer fontTex Nothing (Just $ SDL.Rectangle pos size)
+
+handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
+handleEvents evts rst st = (rst, st)
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do

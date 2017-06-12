@@ -7,7 +7,8 @@ import DobadoBots                    (createMainWindow, closeMainWindow,
                                       mainGraphicsLoop, GameState(..),
                                       loadLevel, createRendererState, RendererState,
                                       gameEngineTick, parseScript, Cond(..),
-                                      generateGameState, GamePhase(..))
+                                      generateGameState, GamePhase(..),
+                                      handleEvents)
 import qualified SDL                 (EventPayload(..), eventPayload,
                                       pollEvents, Renderer)
 
@@ -29,11 +30,12 @@ main = do
     getAst   (Left err)    = fail $ show err
 
 mainLoop :: SDL.Renderer -> Cond -> GameState -> RendererState -> IO ()
-mainLoop r ast st tex = do
+mainLoop r ast st rst = do
   evts <- SDL.pollEvents
-  let nst = if phase st == Running
-            then gameEngineTick st ast
-            else st
-  mainGraphicsLoop r nst tex
+  let (nrst, nst) = handleEvents evts rst st
+  let nst2 = if phase nst == Running
+            then gameEngineTick nst ast
+            else nst
+  mainGraphicsLoop r nst2 nrst
   let quit = elem SDL.QuitEvent $ map SDL.eventPayload evts
-  unless quit $ mainLoop r ast nst tex
+  unless quit $ mainLoop r ast nst2 nrst
