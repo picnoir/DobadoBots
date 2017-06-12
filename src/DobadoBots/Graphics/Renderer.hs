@@ -12,7 +12,6 @@ import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
-
 import DobadoBots.Interpreter.Data         (Cond)
 
 import GHC.Float                           (float2Double)

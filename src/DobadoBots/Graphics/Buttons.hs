@@ -5,10 +5,11 @@ module DobadoBots.Graphics.Buttons (
 ) where
 
 import DobadoBots.Graphics.Data  (Buttons(..), Button(..), ButtonEvent(..),
-                                  RendererState(..))
-import DobadoBots.Graphics.Utils (getBmpTex)
+                                  RendererState(..), toList)
+import DobadoBots.Graphics.Utils (getBmpTex, isInRectangle)
 
 import           Data.Monoid     (Last(..))
+import           Data.Maybe      (listToMaybe, catMaybes)
 import           Data.Data       (toConstr)
 import           Data.List       (find)
 import qualified SDL             (Renderer(..), V2(..), Point(..),
@@ -48,7 +49,17 @@ handleMouseEvents evts rst = (nrst, bevt)
       _ -> mempty
 
 handleMouseClickEvents :: RendererState -> Maybe SDL.MouseButtonEventData -> Maybe ButtonEvent
-handleMouseClickEvents rst evt = Nothing
+handleMouseClickEvents rst Nothing    = Nothing
+handleMouseClickEvents rst (Just evt) = listToMaybe . catMaybes . fmap getAction $ getActiveButtons rst
+  where 
+        getAction b = if isInRectangle (getRect b) mousePoint
+                      then Just $ event b
+                      else Nothing
+        getRect b = SDL.Rectangle (buttonPos b) (snd $ buttonTex b)
+        mousePoint = SDL.mouseButtonEventPos evt
 
 handleMouseMoveEvents :: RendererState -> Maybe SDL.MouseMotionEventData -> Maybe RendererState
 handleMouseMoveEvents rst evt = Nothing
+
+getActiveButtons :: RendererState -> [Button]
+getActiveButtons rst = filter isActive (toList $ buttons rst)

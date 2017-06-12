@@ -2,7 +2,8 @@ module DobadoBots.Graphics.Data (
   RendererState(..),
   Buttons(..),
   Button(..),
-  ButtonEvent(..)
+  ButtonEvent(..),
+  toList
 ) where
 
 import qualified SDL   (Texture, V2,
@@ -14,10 +15,13 @@ data RendererState = RendererState {
   codeTextures  :: [(SDL.Texture, SDL.V2 CInt)],
   buttons       :: Buttons
 }
-
+ 
 data Buttons = Buttons {
   startButton   :: Button
 }
+
+toList :: Buttons -> [Button]
+toList b = [startButton b]
 
 data Button = Button {
   buttonTex     :: (SDL.Texture, SDL.V2 CInt),
