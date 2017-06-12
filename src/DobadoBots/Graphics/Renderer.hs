@@ -11,7 +11,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..))
-import DobadoBots.Graphics.Buttons         (createButtons, displayButtons)
+import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
 
 import DobadoBots.Interpreter.Data         (Cond)
 
@@ -35,6 +35,7 @@ import           Control.Monad             (unless, when)
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
+import           Data.Maybe                (fromMaybe)
 
 mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainGraphicsLoop renderer gameState rendererState = do 
@@ -67,7 +68,10 @@ mainLoopWin renderer gameState rst = do
   SDL.copy renderer fontTex Nothing (Just $ SDL.Rectangle pos size)
 
 handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
-handleEvents evts rst st = (rst, st)
+handleEvents evts rst st = (nrst, nst)
+  where (brst, bst) = handleMouseEvents evts rst
+        nst = st
+        nrst = fromMaybe rst brst
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
