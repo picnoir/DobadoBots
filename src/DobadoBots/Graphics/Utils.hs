@@ -54,5 +54,5 @@ isInRectangle (SDL.Rectangle (SDL.P (SDL.V2 xr yr)) (SDL.V2 w h)) (SDL.P (SDL.V2
         m = L.V2 (CInt xm) (CInt ym)
         ab = b - a
         am = m - a
-        bc = b - b
+        bc = b - c
         bm = b - m

@@ -33,4 +33,4 @@ data Button = Button {
 }
 
 data ButtonEvent = StartEvent
-                 | EditEvent
+                 | EditEvent deriving (Eq, Show)

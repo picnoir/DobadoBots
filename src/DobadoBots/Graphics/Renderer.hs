@@ -10,7 +10,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             getCenter)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
-import DobadoBots.Graphics.Data            (RendererState(..))
+import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
 import DobadoBots.Interpreter.Data         (Cond)
 
