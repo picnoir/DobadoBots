@@ -13,6 +13,8 @@ import Foreign.C.Types (CInt)
 data RendererState = RendererState {
   robotTexture  :: (SDL.Texture, SDL.V2 CInt),
   codeTextures  :: [(SDL.Texture, SDL.V2 CInt)],
+  running       :: (SDL.Texture, SDL.V2 CInt),
+  editing       :: (SDL.Texture, SDL.V2 CInt),
   buttons       :: Buttons
 }
  

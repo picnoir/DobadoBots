@@ -8,6 +8,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
+import DobadoBots.GameEngine.Utils         (setPhase)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..))
@@ -42,7 +43,8 @@ mainGraphicsLoop renderer gameState rendererState = do
   SDL.clear renderer
   case phase gameState of
     Running -> mainLoopRunning renderer gameState rendererState
-    Win -> mainLoopWin renderer gameState rendererState
+    Editing -> mainLoopEditing renderer gameState rendererState
+    Win     -> mainLoopWin renderer gameState rendererState
   SDL.present renderer
   return ()
 
@@ -66,10 +68,18 @@ mainLoopWin renderer gameState rst = do
   SDL.rendererDrawColor renderer $= SDL.V4 171 11 11 maxBound
   SDL.copy renderer fontTex Nothing (Just $ SDL.Rectangle pos size)
 
+mainLoopEditing :: SDL.Renderer -> GameState -> RendererState -> IO ()
+mainLoopEditing renderer gameState rendererState = do
+  drawEditor renderer gameState rendererState
+  drawArena renderer gameState
+  displayButtons renderer (buttons rendererState)
+
 handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
 handleEvents evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
-        nst = st
+        nst = case bst of
+                Just StartEvent -> setPhase Running st
+                otherwise -> st
         nrst = fromMaybe rst brst
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
@@ -166,5 +176,7 @@ createRendererState robotImg renderer st ast = do
   robot <- getBmpTex robotImg renderer 
   codeTex <- renderCode renderer ast 
   buttons <- createButtons renderer
-  return $ RendererState robot codeTex buttons
+  running <- getBmpTex "data/img/running.bmp" renderer
+  editing <- getBmpTex "data/img/editing.bmp" renderer
+  return $ RendererState robot codeTex running editing buttons
 

@@ -8,7 +8,8 @@ module DobadoBots.GameEngine.Utils(
   degreeToRadian, 
   radianToDegree,
   point2ToV2,
-  objectToShape
+  objectToShape,
+  setPhase
 ) where
 
 import Linear.V2               (V2(..))
@@ -16,7 +17,8 @@ import Data.SG.Geometry.TwoDim (Point2'(..))
 import qualified Data.SG.Shape as GS (Shape'(..))
 import qualified Data.SG.Geometry.TwoDim as G2 (Point2'(..))
 
-import DobadoBots.GameEngine.Data (Object(..))
+import DobadoBots.GameEngine.Data (Object(..), GamePhase(..),
+                                   GameState(..))
 
 getXV2 :: V2 a -> a
 getXV2 (V2 x _) = x
@@ -52,3 +54,13 @@ point2ToV2 (Point2 (x,y)) = V2 x y
 objectToShape :: Object -> GS.Shape' Float
 objectToShape o = GS.Rectangle centerRectPoint . v2toSGVect $ size o / 2
   where centerRectPoint = G2.Point2 . v2toSGVect $ size o / 2 + position o
+
+setPhase :: GamePhase -> GameState -> GameState
+setPhase newPhase st = GameState
+                         (obstacles st)
+                         (arenaSize st)
+                         (objective st)
+                         (startingPoints st)
+                         (robots st)
+                         newPhase
+                         (collisions st)

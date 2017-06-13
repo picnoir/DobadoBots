@@ -18,7 +18,7 @@ import Foreign.C.Types                       (CInt(..))
 import qualified SDL.Raw as Raw              (Color(..))
 import           Text.PrettyPrint            (Doc(..))
 
-import DobadoBots.GameEngine.Data            (GameState(..))
+import DobadoBots.GameEngine.Data            (GameState(..), GamePhase(..))
 import DobadoBots.Interpreter.Data           (Cond(..))
 import DobadoBots.Interpreter.PrettyPrinter  (prettyPrint)
 import DobadoBots.Graphics.Data              (RendererState(..))
@@ -32,6 +32,10 @@ drawEditor r st rst = do
   SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 540 0) (SDL.V2 300 480)
   displayCode r st rst
+  case phase st of
+    Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
+    Editing -> SDL.copy r (fst $ editing rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ editing rst))
+    _ -> return ()
 
 displayCode :: SDL.Renderer -> GameState -> RendererState -> IO ()
 displayCode r st rst = do

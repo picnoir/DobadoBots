@@ -27,7 +27,7 @@ generateGameState l = GameState
                             (lObjective l)
                             (lStartingPoints l)
                             (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
-                            Running
+                            Editing
                             HM.empty
 
 gameEngineTick :: GameState -> Cond -> GameState 

@@ -25,7 +25,7 @@ createButtons r = do
   let startButton = Button startButtonTex startButtonTexHover startButtonPos False True StartEvent
   return $ Buttons startButton
   where
-    startButtonPos = SDL.P $ SDL.V2 530 400
+    startButtonPos = SDL.P $ SDL.V2 550 413
 
 displayButtons :: SDL.Renderer -> Buttons -> IO ()
 displayButtons r b = displayButton r $ startButton b
