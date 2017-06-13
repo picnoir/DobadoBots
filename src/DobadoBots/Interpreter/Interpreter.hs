@@ -17,8 +17,6 @@ import qualified Data.Vector         as V  (Vector(..))
 import           Linear.V2           as LV2(V2(..))
 import qualified Linear.Metric       as LM (distance)
 
-import Debug.Trace
-
 interpretScript :: Cond -> RobotId -> GameState -> ActionToken
 interpretScript (Token t) rbId st = t
 interpretScript (Cond lExpr ifCond elseCond) rId st = 

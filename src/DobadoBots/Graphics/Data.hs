@@ -19,11 +19,12 @@ data RendererState = RendererState {
 }
  
 data Buttons = Buttons {
-  startButton   :: Button
+  startButton   :: Button,
+  editButton    :: Button
 }
 
 toList :: Buttons -> [Button]
-toList b = [startButton b]
+toList b = [startButton b, editButton b]
 
 data Button = Button {
   buttonTex     :: (SDL.Texture, SDL.V2 CInt),

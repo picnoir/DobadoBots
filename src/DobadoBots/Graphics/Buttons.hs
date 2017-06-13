@@ -12,26 +12,30 @@ import           Data.Monoid     (Last(..))
 import           Data.Maybe      (listToMaybe, catMaybes)
 import           Data.Data       (toConstr)
 import           Data.List       (find)
+import           Control.Monad   (when)
 import qualified SDL             (Renderer(..), V2(..), Point(..),
                                   Rectangle(..),  EventPayload(..),
                                   EventPayload(..), copy, Event(..),
-                                  MouseButtonEventData(..), MouseMotionEventData(..))
+                                  MouseButtonEventData(..), MouseMotionEventData(..),
+                                  InputMotion(..))
 import Foreign.C.Types (CInt) 
 
 createButtons :: SDL.Renderer -> IO Buttons
 createButtons r = do
   startButtonTex <- getBmpTex "data/img/start.bmp" r
+  editButtonTex  <- getBmpTex "data/img/edit.bmp"  r
   startButtonTexHover <- getBmpTex "data/img/start-hover.bmp" r
-  let startButton = Button startButtonTex startButtonTexHover startButtonPos False True StartEvent
-  return $ Buttons startButton
+  let startButton = Button startButtonTex startButtonTexHover controlButtonPos False True StartEvent
+  let editButton  = Button editButtonTex  editButtonTex       controlButtonPos False False EditEvent
+  return $ Buttons startButton editButton
   where
-    startButtonPos = SDL.P $ SDL.V2 550 413
+    controlButtonPos = SDL.P $ SDL.V2 550 413
 
-displayButtons :: SDL.Renderer -> Buttons -> IO ()
-displayButtons r b = displayButton r $ startButton b
+displayButtons :: SDL.Renderer -> Buttons -> IO [()]
+displayButtons r b = mapM (displayButton r) [startButton b, editButton b]
 
 displayButton :: SDL.Renderer -> Button -> IO ()
-displayButton r b = SDL.copy r (fst tex) Nothing (Just $ SDL.Rectangle (buttonPos b) (snd tex))
+displayButton r b = when (isActive b) $ SDL.copy r (fst tex) Nothing (Just $ SDL.Rectangle (buttonPos b) (snd tex))
   where tex = if isHover b
               then buttonTexHover b
               else buttonTex b
@@ -39,13 +43,16 @@ displayButton r b = SDL.copy r (fst tex) Nothing (Just $ SDL.Rectangle (buttonPo
 handleMouseEvents :: [SDL.Event] -> RendererState -> (Maybe RendererState, Maybe ButtonEvent)
 handleMouseEvents evts rst = (nrst, bevt)
   where
-    nrst = handleMouseMoveEvents rst moveEvent
+    nrst = case bevt of
+             (Just event) -> Just $ activateRunningButtons rst event
+             _            -> Nothing
     bevt = handleMouseClickEvents rst clickEvent
     (Last moveEvent, Last clickEvent) = 
       foldMap getEvent $ map SDL.eventPayload evts
     getEvent evt = case evt of
       SDL.MouseMotionEvent e -> (Last $ Just e, mempty)
-      SDL.MouseButtonEvent e -> (mempty, Last $ Just e)
+      SDL.MouseButtonEvent e
+        | SDL.mouseButtonEventMotion e == SDL.Pressed -> (mempty, Last $ Just e)
       _ -> mempty
 
 handleMouseClickEvents :: RendererState -> Maybe SDL.MouseButtonEventData -> Maybe ButtonEvent
@@ -58,8 +65,28 @@ handleMouseClickEvents rst (Just evt) = listToMaybe . catMaybes . fmap getAction
         getRect b = SDL.Rectangle (buttonPos b) (snd $ buttonTex b)
         mousePoint = SDL.mouseButtonEventPos evt
 
-handleMouseMoveEvents :: RendererState -> Maybe SDL.MouseMotionEventData -> Maybe RendererState
-handleMouseMoveEvents rst evt = Nothing
-
 getActiveButtons :: RendererState -> [Button]
 getActiveButtons rst = filter isActive (toList $ buttons rst)
+
+activateRunningButtons :: RendererState -> ButtonEvent -> RendererState
+activateRunningButtons rst p = RendererState
+                                (robotTexture rst)
+                                (codeTextures rst)
+                                (running rst)
+                                (editing rst)
+                                (Buttons nStartButton nEditButton)
+  where oldStartButton = startButton $ buttons rst
+        oldEditButton  = editButton  $ buttons rst
+        nStartButton   = setButtonActivity oldStartButton startActive
+        nEditButton    = setButtonActivity oldEditButton  (not startActive)
+        startActive    = case p of
+                          StartEvent -> False
+                          EditEvent  -> True
+
+setButtonActivity :: Button -> Bool -> Button 
+setButtonActivity b active = Button (buttonTex b)
+                              (buttonTexHover b)
+                              (buttonPos b)
+                              (isHover b)
+                              active
+                              (event b)

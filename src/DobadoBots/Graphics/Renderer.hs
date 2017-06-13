@@ -73,13 +73,15 @@ mainLoopEditing renderer gameState rendererState = do
   drawEditor renderer gameState rendererState
   drawArena renderer gameState
   displayButtons renderer (buttons rendererState)
+  return ()
 
 handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
 handleEvents evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
         nst = case bst of
                 Just StartEvent -> setPhase Running st
-                otherwise -> st
+                Just EditEvent  -> setPhase Editing st
+                _ -> st
         nrst = fromMaybe rst brst
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
