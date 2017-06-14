@@ -50,8 +50,9 @@ data EditorState = EditorState {
 
 data EditorEvent = AppendChar Char
                  | NewLine
-                 | Backspace
-                 | Delete
+                 | BackSpace
+                 | Space
+                 | Delete 
                  | Left
                  | Right
                  | Up

@@ -7,9 +7,13 @@ module DobadoBots.Graphics.Editor(
   handleEditorEvents
 ) where
 
+import           Prelude hiding (Left, Right)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
+import           Data.Char                   (toUpper)                                              
 import           Data.Text                   (Text(..), unpack)
+import           Data.Maybe                  (listToMaybe, catMaybes)
+import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
                                              V2(..), Rectangle(..),
                                              V4(..), Texture(..),
@@ -19,7 +23,7 @@ import qualified SDL                         (Renderer(..), Point(..),
                                              Keycode(..),
                                              fillRect, rendererDrawColor,
                                              copy)
-import           SDL                         (($=), pattern KeycodeA)
+import           SDL                         (($=))
 import Foreign.C.Types                       (CInt(..)) 
 import qualified SDL.Raw as Raw              (Color(..))
 import           Text.PrettyPrint            (Doc(..))
@@ -69,24 +73,75 @@ renderLines r strs = do
           let pos = SDL.P $ SDL.V2 550 (lineNb * offset)
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
-handleEditorEvents :: [SDL.Event] -> EditorEvent
-handleEditorEvents evts = undefined
+handleEditorEvents :: [SDL.Event] -> Maybe EditorEvent
+handleEditorEvents evts = listToMaybe . catMaybes $ (sdlEventTransco <$> filteredKeyboardPressEvents)
   where 
-        filteredKeyboardPressEvents = filter filterKeyboardPressEvents (auie <$> filteredKeyboardEventPayloads) 
+        filteredKeyboardPressEvents = filter filterKeyboardPressEvents 
+                                                (ked <$> filteredKeyboardEventPayloads) 
         filterKeyboardPressEvents e = case SDL.keyboardEventKeyMotion e of
                                           SDL.Pressed -> True
                                           _           -> False
-        auie e                      = case e of
+        ked  e                      = case e of
                                         SDL.KeyboardEvent d -> d
-                                        _                   -> error "NOT GOOOD NINJA"
+                                        _                   -> error 
+                                              "Problem while filtering keyboard events."
         filteredKeyboardEventPayloads = filter filterEventsPayload eventsPayloads 
         filterEventsPayload evt = case evt of
                                     SDL.KeyboardEvent _ -> True 
                                     _                   -> False 
         eventsPayloads          = map SDL.eventPayload evts
 
-sdlEventTransco :: SDL.KeyboardEventData -> EditorEvent
+sdlEventTransco :: SDL.KeyboardEventData -> Maybe EditorEvent
 sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
-  (SDL.Keysym _ keycodeA (SDL.KeyModifier False False _ _ _ _ _ _ _ _ _)) -> AppendChar 'a'
-  where code = SDL.keysymKeycode keySym
-        mods = SDL.keysymModifier keySym
+  (SDL.Keysym _ KeycodeA _)           -> handleCharMods 'a'
+  (SDL.Keysym _ KeycodeB _)           -> handleCharMods 'b'
+  (SDL.Keysym _ KeycodeC _)           -> handleCharMods 'c'
+  (SDL.Keysym _ KeycodeD _)           -> handleCharMods 'd'
+  (SDL.Keysym _ KeycodeE _)           -> handleCharMods 'e'
+  (SDL.Keysym _ KeycodeF _)           -> handleCharMods 'f'
+  (SDL.Keysym _ KeycodeG _)           -> handleCharMods 'g'
+  (SDL.Keysym _ KeycodeH _)           -> handleCharMods 'h'
+  (SDL.Keysym _ KeycodeI _)           -> handleCharMods 'i'
+  (SDL.Keysym _ KeycodeJ _)           -> handleCharMods 'j'
+  (SDL.Keysym _ KeycodeK _)           -> handleCharMods 'k'
+  (SDL.Keysym _ KeycodeL _)           -> handleCharMods 'l'
+  (SDL.Keysym _ KeycodeM _)           -> handleCharMods 'm'
+  (SDL.Keysym _ KeycodeN _)           -> handleCharMods 'n'
+  (SDL.Keysym _ KeycodeO _)           -> handleCharMods 'o'
+  (SDL.Keysym _ KeycodeP _)           -> handleCharMods 'p'
+  (SDL.Keysym _ KeycodeQ _)           -> handleCharMods 'q'
+  (SDL.Keysym _ KeycodeR _)           -> handleCharMods 'r'
+  (SDL.Keysym _ KeycodeS _)           -> handleCharMods 's'
+  (SDL.Keysym _ KeycodeT _)           -> handleCharMods 't'
+  (SDL.Keysym _ KeycodeU _)           -> handleCharMods 'u'
+  (SDL.Keysym _ KeycodeV _)           -> handleCharMods 'v'
+  (SDL.Keysym _ KeycodeW _)           -> handleCharMods 'w'
+  (SDL.Keysym _ KeycodeX _)           -> handleCharMods 'x'
+  (SDL.Keysym _ KeycodeY _)           -> handleCharMods 'y'
+  (SDL.Keysym _ KeycodeZ _)           -> handleCharMods 'z'
+  (SDL.Keysym _ Keycode1 _)           -> Just $ AppendChar '1'
+  (SDL.Keysym _ Keycode2 _)           -> Just $ AppendChar '2'
+  (SDL.Keysym _ Keycode3 _)           -> Just $ AppendChar '3'
+  (SDL.Keysym _ Keycode4 _)           -> Just $ AppendChar '4'
+  (SDL.Keysym _ Keycode5 _)           -> Just $ AppendChar '5'
+  (SDL.Keysym _ Keycode6 _)           -> Just $ AppendChar '6'
+  (SDL.Keysym _ Keycode7 _)           -> Just $ AppendChar '7'
+  (SDL.Keysym _ Keycode8 _)           -> Just $ AppendChar '8'
+  (SDL.Keysym _ Keycode9 _)           -> Just $ AppendChar '9'
+  (SDL.Keysym _ Keycode0 _)           -> Just $ AppendChar '0'
+  (SDL.Keysym _ KeycodeKPEnter _)     -> Just NewLine
+  (SDL.Keysym _ KeycodeKPBackspace _) -> Just BackSpace
+  (SDL.Keysym _ KeycodeDelete _)      -> Just Delete
+  (SDL.Keysym _ KeycodeUp _)          -> Just Up
+  (SDL.Keysym _ KeycodeDown _)        -> Just Down
+  (SDL.Keysym _ KeycodeLeft _)        -> Just Left
+  (SDL.Keysym _ KeycodeRight _)       -> Just Right
+  (SDL.Keysym _ KeycodeSpace _)       -> Just Space
+  _                                   -> Nothing
+  where 
+        handleCharMods c = if isUpper 
+                           then Just $ AppendChar $ toUpper c
+                           else Just $ AppendChar c
+        code           = SDL.keysymKeycode keySym
+        mods           = SDL.keysymModifier keySym
+        isUpper = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
