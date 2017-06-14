@@ -4,6 +4,7 @@ module DobadoBots.Graphics.Data (
   Button(..),
   ButtonEvent(..),
   EditorState(..),
+  EditorEvent(..),
   toList
 ) where
 
@@ -46,3 +47,12 @@ data EditorState = EditorState {
   cursorColumn  :: Int,
   cursorLine    :: Int
 } deriving (Eq, Show)
+
+data EditorEvent = AppendChar Char
+                 | NewLine
+                 | Backspace
+                 | Delete
+                 | Left
+                 | Right
+                 | Up
+                 | Down

@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms #-}
 
 module DobadoBots.Graphics.Editor(
   drawEditor,
-  renderCode
+  renderCode,
+  handleEditorEvents
 ) where
 
 import           Control.Monad.State         (StateT(..), get,
@@ -11,9 +13,13 @@ import           Data.Text                   (Text(..), unpack)
 import qualified SDL                         (Renderer(..), Point(..), 
                                              V2(..), Rectangle(..),
                                              V4(..), Texture(..),
+                                             Event(..), EventPayload(..),
+                                             KeyboardEventData(..), InputMotion(..),
+                                             Keysym(..), KeyModifier(..),
+                                             Keycode(..),
                                              fillRect, rendererDrawColor,
                                              copy)
-import           SDL                         (($=))
+import           SDL                         (($=), pattern KeycodeA)
 import Foreign.C.Types                       (CInt(..)) 
 import qualified SDL.Raw as Raw              (Color(..))
 import           Text.PrettyPrint            (Doc(..))
@@ -21,7 +27,8 @@ import           Text.PrettyPrint            (Doc(..))
 import DobadoBots.GameEngine.Data            (GameState(..), GamePhase(..))
 import DobadoBots.Interpreter.Data           (Cond(..))
 import DobadoBots.Interpreter.PrettyPrinter  (prettyPrint)
-import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..))
+import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..),
+                                              EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
 offset :: CInt
@@ -62,5 +69,24 @@ renderLines r strs = do
           let pos = SDL.P $ SDL.V2 550 (lineNb * offset)
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
-insertChar :: Char -> EditorState -> EditorState
-insertChar c est = undefined
+handleEditorEvents :: [SDL.Event] -> EditorEvent
+handleEditorEvents evts = undefined
+  where 
+        filteredKeyboardPressEvents = filter filterKeyboardPressEvents (auie <$> filteredKeyboardEventPayloads) 
+        filterKeyboardPressEvents e = case SDL.keyboardEventKeyMotion e of
+                                          SDL.Pressed -> True
+                                          _           -> False
+        auie e                      = case e of
+                                        SDL.KeyboardEvent d -> d
+                                        _                   -> error "NOT GOOOD NINJA"
+        filteredKeyboardEventPayloads = filter filterEventsPayload eventsPayloads 
+        filterEventsPayload evt = case evt of
+                                    SDL.KeyboardEvent _ -> True 
+                                    _                   -> False 
+        eventsPayloads          = map SDL.eventPayload evts
+
+sdlEventTransco :: SDL.KeyboardEventData -> EditorEvent
+sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
+  (SDL.Keysym _ keycodeA (SDL.KeyModifier False False _ _ _ _ _ _ _ _ _)) -> AppendChar 'a'
+  where code = SDL.keysymKeycode keySym
+        mods = SDL.keysymModifier keySym
