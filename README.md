@@ -18,12 +18,14 @@ In order to build the game, you will need:
 - SDL2-TTF
 
 In order to build the game, just use
-
+```
   stack build
+```
 
 In order to lauch the game, use
-
+```
   stack exec DobadoBots-exe
+```
 
 ## Language
 
