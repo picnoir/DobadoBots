@@ -75,6 +75,7 @@ activateRunningButtons rst p = RendererState
                                 (running rst)
                                 (editing rst)
                                 (Buttons nStartButton nEditButton)
+                                (editor rst)
   where oldStartButton = startButton $ buttons rst
         oldEditButton  = editButton  $ buttons rst
         nStartButton   = setButtonActivity oldStartButton startActive

@@ -3,19 +3,22 @@ module DobadoBots.Graphics.Data (
   Buttons(..),
   Button(..),
   ButtonEvent(..),
+  EditorState(..),
   toList
 ) where
 
-import qualified SDL   (Texture, V2,
-                        Rectangle, Point)
-import Foreign.C.Types (CInt) 
+import           Data.Text (Text(..))
+import qualified SDL       (Texture, V2,
+                            Rectangle, Point)
+import Foreign.C.Types     (CInt) 
 
 data RendererState = RendererState {
   robotTexture  :: (SDL.Texture, SDL.V2 CInt),
   codeTextures  :: [(SDL.Texture, SDL.V2 CInt)],
   running       :: (SDL.Texture, SDL.V2 CInt),
   editing       :: (SDL.Texture, SDL.V2 CInt),
-  buttons       :: Buttons
+  buttons       :: Buttons,
+  editor        :: EditorState
 }
  
 data Buttons = Buttons {
@@ -37,3 +40,9 @@ data Button = Button {
 
 data ButtonEvent = StartEvent
                  | EditEvent deriving (Eq, Show)
+
+data EditorState = EditorState {
+  text          :: Text,
+  cursorColumn  :: Int,
+  cursorLine    :: Int
+} deriving (Eq, Show)

@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
 , createRendererState 
@@ -11,7 +12,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
 import DobadoBots.GameEngine.Utils         (setPhase)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
-import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..))
+import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
 import DobadoBots.Interpreter.Data         (Cond)
 
@@ -180,5 +181,6 @@ createRendererState robotImg renderer st ast = do
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
-  return $ RendererState robot codeTex running editing buttons
+  let editorSt = EditorState "" 0 0
+  return $ RendererState robot codeTex running editing buttons editorSt
 

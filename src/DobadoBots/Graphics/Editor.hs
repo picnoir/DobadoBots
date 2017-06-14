@@ -21,7 +21,7 @@ import           Text.PrettyPrint            (Doc(..))
 import DobadoBots.GameEngine.Data            (GameState(..), GamePhase(..))
 import DobadoBots.Interpreter.Data           (Cond(..))
 import DobadoBots.Interpreter.PrettyPrinter  (prettyPrint)
-import DobadoBots.Graphics.Data              (RendererState(..))
+import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
 offset :: CInt
@@ -62,4 +62,5 @@ renderLines r strs = do
           let pos = SDL.P $ SDL.V2 550 (lineNb * offset)
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
-
+insertChar :: Char -> EditorState -> EditorState
+insertChar c est = undefined
