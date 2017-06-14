@@ -1,5 +1,8 @@
 # Use new container infrastructure to enable caching
 sudo: false
+dist: "trusty"
+os: "linux"
+
 
 # Do not choose a language; we provide our own build tools.
 language: generic
@@ -13,13 +16,11 @@ cache:
 addons:
   apt:
     packages:
+      - libsdl2-dev
       - libsdl-ttf2.0-dev
 
 before_install:
 # Download and unpack SDL2 and the stack executable
-- sudo add-apt-repository -y ppa:team-xbmc/ppa
-- sudo apt-get update -qq
-- sudo apt-get install -y  libsdl2-dev
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
