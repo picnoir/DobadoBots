@@ -16,11 +16,12 @@ cache:
 addons:
   apt:
     packages:
-      - libsdl2-dev
       - libsdl-ttf2.0-dev
 
 before_install:
 # Download and unpack SDL2 and the stack executable
+- wget http://libsdl.org/release/SDL2-2.0.4.tar.gz -O - | tar xz
+- cd SDL2-2.0.4 && ./configure && make -j && sudo make install && cd ..
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
