@@ -129,8 +129,8 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
   (SDL.Keysym _ Keycode8 _)           -> Just $ AppendChar '8'
   (SDL.Keysym _ Keycode9 _)           -> Just $ AppendChar '9'
   (SDL.Keysym _ Keycode0 _)           -> Just $ AppendChar '0'
-  (SDL.Keysym _ KeycodeKPEnter _)     -> Just NewLine
-  (SDL.Keysym _ KeycodeKPBackspace _) -> Just BackSpace
+  (SDL.Keysym _ KeycodeReturn _)      -> Just NewLine
+  (SDL.Keysym _ KeycodeBackspace _)   -> Just BackSpace
   (SDL.Keysym _ KeycodeDelete _)      -> Just Delete
   (SDL.Keysym _ KeycodeUp _)          -> Just Up
   (SDL.Keysym _ KeycodeDown _)        -> Just Down

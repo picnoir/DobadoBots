@@ -31,6 +31,12 @@ spec = describe "handleEditorEvents" $ do
              handleEditorEvents [leftEvent] `shouldBe` Just Left
           it "should return right" $
              handleEditorEvents [rightEvent] `shouldBe` Just Right 
+          it "should ignore key releases" $
+             handleEditorEvents [releaseEvent ] `shouldBe` Nothing 
+          it "should ignore key releases" $
+             handleEditorEvents [releaseEvent ] `shouldBe` Nothing 
+          it "should ignore unrelated events" $
+             handleEditorEvents [quitEvent] `shouldBe` Nothing 
 
         
 
@@ -66,3 +72,9 @@ upEvent = Event {eventTimestamp = 4084, eventPayload = KeyboardEvent (KeyboardEv
 
 downEvent :: Event
 downEvent = Event {eventTimestamp = 4084, eventPayload = KeyboardEvent (KeyboardEventData {keyboardEventWindow = Window nullPtr, keyboardEventKeyMotion = Pressed, keyboardEventRepeat = False, keyboardEventKeysym = Keysym {keysymScancode = Scancode {unwrapScancode = 81}, keysymKeycode = Keycode {unwrapKeycode = 1073741905}, keysymModifier = KeyModifier {keyModifierLeftShift = True, keyModifierRightShift = False, keyModifierLeftCtrl = False, keyModifierRightCtrl = False, keyModifierLeftAlt = False, keyModifierRightAlt = False, keyModifierLeftGUI = False, keyModifierRightGUI = False, keyModifierNumLock = False, keyModifierCapsLock = False, keyModifierAltGr = False}}})}
+
+releaseEvent :: Event
+releaseEvent = Event {eventTimestamp = 4084, eventPayload = KeyboardEvent (KeyboardEventData {keyboardEventWindow = Window nullPtr, keyboardEventKeyMotion = Released, keyboardEventRepeat = False, keyboardEventKeysym = Keysym {keysymScancode = Scancode {unwrapScancode = 81}, keysymKeycode = Keycode {unwrapKeycode = 1073741905}, keysymModifier = KeyModifier {keyModifierLeftShift = True, keyModifierRightShift = False, keyModifierLeftCtrl = False, keyModifierRightCtrl = False, keyModifierLeftAlt = False, keyModifierRightAlt = False, keyModifierLeftGUI = False, keyModifierRightGUI = False, keyModifierNumLock = False, keyModifierCapsLock = False, keyModifierAltGr = False}}})}
+
+quitEvent :: Event
+quitEvent = Event {eventTimestamp = 2203, eventPayload = QuitEvent}
