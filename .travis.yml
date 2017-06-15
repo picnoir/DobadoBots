@@ -14,10 +14,12 @@ before_install:
 - wget http://libsdl.org/release/SDL2-2.0.5.tar.gz -O - | tar xz
 - cd SDL2-2.0.5 && ./configure && make -j && sudo make install && cd ..
 - wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz -O - | tar xz
-- cd SDL2_ttf-2.0.14 && ./configure && make -j && sudo make install && cd ..
+- mkdir -p ~/.local/lib
+- cd SDL2_ttf-2.0.14 && ./configure --prefix=~/.local/lib && make -j && sudo make install && cd ..
 - mkdir -p ~/.local/bin
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
+- export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/.local/lib
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:

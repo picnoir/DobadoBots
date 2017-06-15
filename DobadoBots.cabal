@@ -62,7 +62,7 @@ test-suite DobadoBots-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  build-depends:       base
+  build-depends:       base >= 4.7 && < 5
                      , DobadoBots
                      , file-embed
                      , hspec
