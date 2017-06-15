@@ -24,6 +24,11 @@ In order to build the game, just use
   stack build
 ```
 
+In order to launch unit tests, use
+```
+  stack testtest
+```
+
 In order to lauch the game, use
 ```
   stack exec DobadoBots-exe

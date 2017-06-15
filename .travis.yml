@@ -6,19 +6,23 @@ os: "linux"
 language: generic
 
 # Caching so the next build will be fast too.
+#cache:
+#  directories:
+#    - $HOME/.stack
 
 before_install:
+- wget http://libsdl.org/release/SDL2-2.0.5.tar.gz -O - | tar xz
+- cd SDL2-2.0.5 && ./configure && make -j && sudo make install && cd ..
+- wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz -O - | tar xz
+- cd SDL2_ttf-2.0.14 && ./configure && make -j && sudo make install && cd ..
+- mkdir -p ~/.local/bin
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
-
-
 install:
 # Build dependencies
-- sudo apt-get update -qq
-- sudo apt-get install -q -y libsdl2-dev libsdl2-ttf-dev
-- stack --no-terminal --install-ghc build
+- stack --no-terminal --install-ghc test --only-dependencies
 
 script:
 # Build the package, its tests, and its docs and run the tests
