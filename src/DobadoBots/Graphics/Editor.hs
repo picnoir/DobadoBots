@@ -4,14 +4,18 @@
 module DobadoBots.Graphics.Editor(
   drawEditor,
   renderCode,
-  handleEditorEvents
+  handleEditorEvents,
+  appendEventEditor
 ) where
 
 import           Prelude hiding (Left, Right)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
 import           Data.Char                   (toUpper)                                              
-import           Data.Text                   (Text(..), unpack)
+import qualified Data.Text as T              (Text(..), unpack,
+                                              intercalate, concat,
+                                              splitAt, lines,
+                                              singleton)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
@@ -59,7 +63,7 @@ renderCode r ast = mapM renderLine strs
                                 "data/fonts/Inconsolata-Regular.ttf"
                                 15
                                 (Raw.Color 0 255 0 0)
-        strs = lines . unpack $ prettyPrint ast
+        strs = lines . T.unpack $ prettyPrint ast
 
 renderLines :: SDL.Renderer -> [(SDL.Texture, SDL.V2 CInt)] -> StateT CInt IO ()
 renderLines r strs = do
@@ -145,3 +149,16 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
         code           = SDL.keysymKeycode keySym
         mods           = SDL.keysymModifier keySym
         isUpper = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
+
+appendEventEditor :: EditorEvent -> EditorState -> EditorState
+appendEventEditor (AppendChar c) (EditorState t cc cl) = EditorState (T.intercalate (T.singleton '\n') newLines) (cc + 1) cl
+  where
+    newLines     = insertAt cl alteredLine editorLines
+    alteredLine  = T.concat [fst splittedLine, T.singleton c, snd splittedLine]
+    splittedLine = T.splitAt cc insertLine
+    insertLine   = editorLines !! cl 
+    editorLines  = T.lines t
+
+insertAt :: Int -> T.Text -> [T.Text] -> [T.Text] 
+insertAt i y xs = as ++ (y:bs)
+                  where (as,tr:bs) = splitAt i xs
