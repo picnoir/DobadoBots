@@ -57,3 +57,4 @@ data EditorEvent = AppendChar Char
                  | Right
                  | Up
                  | Down
+                 deriving (Eq, Show)

@@ -38,6 +38,9 @@ import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
 
+
+import Debug.Trace
+
 mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
@@ -78,7 +81,7 @@ mainLoopEditing renderer gameState rendererState = do
 
 handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
 handleEvents evts rst st = (nrst, nst)
-  where (brst, bst) = handleMouseEvents evts rst
+  where (brst, bst) = traceShow evts $ handleMouseEvents evts rst
         nst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing st

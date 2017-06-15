@@ -10,6 +10,7 @@ module DobadoBots(
 , generateGameState
 , interpretScript
 , handleEvents
+, handleEditorEvents
 , module DobadoBots.Interpreter.Data
 , module DobadoBots.GameEngine.Data
 , module DobadoBots.Graphics.Data
@@ -25,3 +26,4 @@ import DobadoBots.Interpreter.Parser (parseScript)
 import DobadoBots.Interpreter.Interpreter (interpretScript)
 import DobadoBots.Graphics.Window (createMainWindow, closeMainWindow)
 import DobadoBots.Graphics.Renderer (mainGraphicsLoop, createRendererState, handleEvents) 
+import DobadoBots.Graphics.Editor   (handleEditorEvents)
