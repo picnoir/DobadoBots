@@ -1,10 +1,8 @@
-# Use new container infrastructure to enable caching
 sudo: required
 dist: "trusty"
 os: "linux"
 
 
-# Do not choose a language; we provide our own build tools.
 language: generic
 
 # Caching so the next build will be fast too.
@@ -13,11 +11,7 @@ cache:
   - $HOME/.stack
 
 before_install:
-# Download and unpack SDL2 and the stack executable
-- wget http://libsdl.org/release/SDL2-2.0.4.tar.gz -O - | tar xz
-- cd SDL2-2.0.4 && ./configure && make -j && sudo make install && cd ..
-- wget https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz -O - | tar xz
-- cd SDL2_ttf-2.0.14 && ./configure && make -j && sudo make install && cd ..
+- sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots       # libsdl2
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
@@ -25,6 +19,8 @@ before_install:
 install:
 # Build dependencies
 - stack --no-terminal --install-ghc test --only-dependencies
+- sudo apt-get update -qq
+- sudo apt-get install -q -y libsdl2-dev libsdl2-ttf
 
 script:
 # Build the package, its tests, and its docs and run the tests
