@@ -16,8 +16,8 @@ In order to build the game, you will need:
 
 - GHC (Haskell2010 compatible)
 - Stack
-- SDL2
-- SDL2-TTF
+- SDL2 (> 2.0.5)
+- SDL2-TTF (> 2.0.14)
 
 In order to build the game, just use
 ```
@@ -26,7 +26,7 @@ In order to build the game, just use
 
 In order to launch unit tests, use
 ```
-  stack testtest
+  stack test
 ```
 
 In order to lauch the game, use
