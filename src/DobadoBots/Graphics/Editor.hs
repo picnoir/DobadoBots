@@ -39,6 +39,9 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
+
+import Debug.Trace
+
 offset :: CInt
 offset = 15
 
@@ -151,7 +154,14 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
         isUpper = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
 
 appendEventEditor :: EditorEvent -> EditorState -> EditorState
-appendEventEditor (AppendChar c) (EditorState t cc cl) = EditorState (T.intercalate (T.singleton '\n') newLines) (cc + 1) cl
+appendEventEditor (AppendChar c) est@(EditorState t cc cl) = EditorState (insertCharEditor c est) (cc + 1) cl 
+appendEventEditor NewLine est@(EditorState t cc cl) = EditorState (insertCharEditor '\n' est) 0 (cl+1)
+appendEventEditor Space est = appendEventEditor (AppendChar ' ') est
+
+insertCharEditor :: Char -> EditorState -> T.Text
+insertCharEditor c (EditorState t cc cl) 
+  | t == ""   = T.singleton c
+  | otherwise = T.intercalate (T.singleton '\n') newLines 
   where
     newLines     = insertAt cl alteredLine editorLines
     alteredLine  = T.concat [fst splittedLine, T.singleton c, snd splittedLine]
@@ -160,5 +170,7 @@ appendEventEditor (AppendChar c) (EditorState t cc cl) = EditorState (T.intercal
     editorLines  = T.lines t
 
 insertAt :: Int -> T.Text -> [T.Text] -> [T.Text] 
-insertAt i y xs = as ++ (y:bs)
-                  where (as,tr:bs) = splitAt i xs
+insertAt i y xs
+  | length xs > 1 = as ++ (y:bs)
+  | otherwise = xs
+  where (as,tr:bs) = splitAt i xs
