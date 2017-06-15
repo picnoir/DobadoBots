@@ -3,7 +3,7 @@
 
 module DobadoBots.ParserSpec (spec) where
 
-import DobadoBots
+import DobadoBots hiding (Right, Left)
 
 import Data.FileEmbed
 import Data.Text.Encoding
