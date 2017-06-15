@@ -18,9 +18,9 @@ before_install:
 
 install:
 # Build dependencies
-- stack --no-terminal --install-ghc test --only-dependencies
 - sudo apt-get update -qq
 - sudo apt-get install -q -y libsdl2-dev libsdl2-ttf
+- stack --no-terminal --install-ghc test --only-dependencies
 
 script:
 # Build the package, its tests, and its docs and run the tests
