@@ -19,7 +19,7 @@ before_install:
 - mkdir -p $HOME/.local/bin
 - mkdir -p $HOME/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
-- export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.local/lib
+- export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.local/lib/lib
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:
