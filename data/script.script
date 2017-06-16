@@ -4,7 +4,7 @@ ELSE
   IF laserScan = objective
     moveForward
   ELSE
-    IF laserScan = obstacle
+   IF laserScan = obstacle
        turnLeft
     ELSE
       faceObjective

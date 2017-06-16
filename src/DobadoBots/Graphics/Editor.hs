@@ -5,7 +5,8 @@ module DobadoBots.Graphics.Editor(
   drawEditor,
   renderCode,
   handleEditorEvents,
-  appendEventEditor
+  appendEventEditor,
+  prettyPrintAst
 ) where
 
 import           Prelude hiding (Left, Right)
@@ -16,7 +17,7 @@ import qualified Data.Text as T              (Text(..), unpack,
                                               intercalate, concat,
                                               splitAt, lines,
                                               singleton, drop,
-                                              length)
+                                              length, pack)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
@@ -61,13 +62,15 @@ displayCode r st rst = do
                     runStateT (renderLines r $ codeTextures rst) 1 
                     return ()
 
-renderCode :: SDL.Renderer -> Cond -> IO [(SDL.Texture, SDL.V2 CInt)]
-renderCode r ast = mapM renderLine strs
+renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
+renderCode r = mapM (renderLine . T.unpack)
   where renderLine = loadFontBlended r
                                 "data/fonts/Inconsolata-Regular.ttf"
                                 15
                                 (Raw.Color 0 255 0 0)
-        strs = lines . T.unpack $ prettyPrint ast
+
+prettyPrintAst :: Cond -> [T.Text]
+prettyPrintAst ast = T.lines $ prettyPrint ast
 
 renderLines :: SDL.Renderer -> [(SDL.Texture, SDL.V2 CInt)] -> StateT CInt IO ()
 renderLines r strs = do

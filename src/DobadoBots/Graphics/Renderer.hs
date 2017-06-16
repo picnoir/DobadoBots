@@ -10,7 +10,9 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
 import DobadoBots.GameEngine.Utils         (setPhase)
-import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
+import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
+                                            appendEventEditor, handleEditorEvents,
+                                            prettyPrintAst)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
@@ -32,7 +34,7 @@ import qualified SDL.Raw as Raw            (Color(..))
 import qualified Linear.V2 as L            (V2(..))
 import qualified Linear.Metric as LM       (distance)
 import Foreign.C.Types                     (CInt(..), CDouble(..))
-import           Control.Monad             (unless, when) 
+import           Control.Monad             (unless, when, liftM2) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
@@ -84,7 +86,10 @@ handleEvents evts rst st = (nrst, nst)
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing st
                 _ -> st
-        nrst = fromMaybe rst brst
+        nBrst = fromMaybe rst brst
+        nrst  = RendererState (robotTexture nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
+        nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
+        editorEvt    = handleEditorEvents evts
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
@@ -178,7 +183,7 @@ toCint x = CInt $ floor x
 createRendererState :: FilePath -> SDL.Renderer -> GameState -> Cond -> IO RendererState
 createRendererState robotImg renderer st ast = do
   robot <- getBmpTex robotImg renderer 
-  codeTex <- renderCode renderer ast 
+  codeTex <- renderCode renderer $ prettyPrintAst ast 
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
