@@ -64,10 +64,15 @@ displayCode r st rst = do
 
 renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r = mapM (renderLine . T.unpack)
-  where renderLine = loadFontBlended r
+  where 
+    handleEmptyLines t
+      | t == "" = " "
+      | otherwise = t
+    renderLine l = loadFontBlended r
                                 "data/fonts/Inconsolata-Regular.ttf"
                                 15
                                 (Raw.Color 0 255 0 0)
+                                (handleEmptyLines l)
 
 prettyPrintAst :: Cond -> [T.Text]
 prettyPrintAst ast = T.lines $ prettyPrint ast
