@@ -55,8 +55,12 @@ spec = do
              appendEventEditor Space (EditorState "" 0 0) `shouldBe` EditorState " " 1 0
           it "should delete a character" $
              appendEventEditor Delete (EditorState "hello\nWorld" 4 0) `shouldBe` EditorState "hell\nWorld" 4 0
+          it "should delete a character" $
+             appendEventEditor Delete (EditorState "hello\nWorld" 0 0) `shouldBe` EditorState "ello\nWorld" 0 0
           it "shouldn't delete an empty text" $
              appendEventEditor Delete (EditorState "" 0 0) `shouldBe` EditorState "" 0 0
+          it "shouldn't delete an almost empty text" $
+             appendEventEditor Delete (EditorState "r" 0 0) `shouldBe` EditorState "" 0 0
           it "should go left" $
              appendEventEditor Left (EditorState "hello\nWorld" 4 0) `shouldBe` EditorState "hello\nWorld" 3 0
           it "shouldn't go left if at beginning of line" $
