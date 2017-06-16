@@ -10,7 +10,9 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
 import DobadoBots.GameEngine.Utils         (setPhase)
-import DobadoBots.Graphics.Editor          (drawEditor, renderCode)
+import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
+                                            appendEventEditor, handleEditorEvents,
+                                            prettyPrintAst)
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
@@ -32,11 +34,14 @@ import qualified SDL.Raw as Raw            (Color(..))
 import qualified Linear.V2 as L            (V2(..))
 import qualified Linear.Metric as LM       (distance)
 import Foreign.C.Types                     (CInt(..), CDouble(..))
-import           Control.Monad             (unless, when) 
+import           Control.Monad             (unless, when, liftM2) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
+import qualified Data.Text as T            (lines, unlines)
+
+import Debug.Trace
 
 
 mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
@@ -77,14 +82,17 @@ mainLoopEditing renderer gameState rendererState = do
   displayButtons renderer (buttons rendererState)
   return ()
 
-handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
-handleEvents evts rst st = (nrst, nst)
+handleEvents :: SDL.Renderer -> [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
+handleEvents r evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
         nst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing st
                 _ -> st
-        nrst = fromMaybe rst brst
+        nBrst = fromMaybe rst brst
+        nrst  = RendererState (robotTexture nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
+        nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
+        editorEvt    = handleEditorEvents evts
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
@@ -178,10 +186,10 @@ toCint x = CInt $ floor x
 createRendererState :: FilePath -> SDL.Renderer -> GameState -> Cond -> IO RendererState
 createRendererState robotImg renderer st ast = do
   robot <- getBmpTex robotImg renderer 
-  codeTex <- renderCode renderer ast 
+  codeTex <- renderCode renderer $ prettyPrintAst ast 
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
-  let editorSt = EditorState "" 0 0
+  let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
   return $ RendererState robot codeTex running editing buttons editorSt
 

@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module DobadoBots.EditorSpec (spec) where
 import Test.Hspec (describe, it, Spec(..), shouldBe)
 import SDL
@@ -5,10 +6,12 @@ import SDL.Internal.Types
 import Foreign.Ptr
 import Prelude hiding (Left, Right)
 
-import DobadoBots (handleEditorEvents, EditorEvent(..))
+import DobadoBots (handleEditorEvents, appendEventEditor,
+                   EditorEvent(..), EditorState(..))
 
 spec :: Spec
-spec = describe "handleEditorEvents" $ do
+spec = do 
+        describe "handleEditorEvents" $ do
           it "should return append char a" $
              handleEditorEvents [charALowercaseEvent] `shouldBe` Just (AppendChar 'a')
           it "should return append char A" $
@@ -37,6 +40,47 @@ spec = describe "handleEditorEvents" $ do
              handleEditorEvents [releaseEvent ] `shouldBe` Nothing 
           it "should ignore unrelated events" $
              handleEditorEvents [quitEvent] `shouldBe` Nothing 
+        describe "appendEventEditor" $ do
+          it "should append a simple char" $
+             appendEventEditor (AppendChar 'D') (EditorState "hello\nWorld" 0 1) `shouldBe` EditorState "hello\nDWorld" 1 1
+          it "should append a simple char when the editor is empty" $
+             appendEventEditor (AppendChar 'D') (EditorState "" 0 0) `shouldBe` EditorState "D" 1 0
+          it "should append a new line" $
+             appendEventEditor NewLine (EditorState "hello\nWorld" 5 0) `shouldBe` EditorState "hello\n\nWorld" 0 1
+          it "should backspace a caracter" $
+             appendEventEditor BackSpace (EditorState "hello\nWorld" 5 0) `shouldBe` EditorState "hell\nWorld" 4 0
+          it "shouldn't backspace an empty text" $
+             appendEventEditor BackSpace (EditorState "" 0 0) `shouldBe` EditorState "" 0 0
+          it "should add a space" $
+             appendEventEditor Space (EditorState "" 0 0) `shouldBe` EditorState " " 1 0
+          it "should delete a character" $
+             appendEventEditor Delete (EditorState "hello\nWorld" 4 0) `shouldBe` EditorState "hell\nWorld" 4 0
+          it "should delete a character" $
+             appendEventEditor Delete (EditorState "hello\nWorld" 0 0) `shouldBe` EditorState "ello\nWorld" 0 0
+          it "shouldn't delete an empty text" $
+             appendEventEditor Delete (EditorState "" 0 0) `shouldBe` EditorState "" 0 0
+          it "shouldn't delete an almost empty text" $
+             appendEventEditor Delete (EditorState "r" 0 0) `shouldBe` EditorState "" 0 0
+          it "should go left" $
+             appendEventEditor Left (EditorState "hello\nWorld" 4 0) `shouldBe` EditorState "hello\nWorld" 3 0
+          it "shouldn't go left if at beginning of line" $
+             appendEventEditor Left (EditorState "hello\nWorld" 0 0) `shouldBe` EditorState "hello\nWorld" 0 0
+          it "should go right" $
+             appendEventEditor Right (EditorState "hello\nWorld" 4 0) `shouldBe` EditorState "hello\nWorld" 5 0
+          it "shouldn't go right if at end of line" $
+             appendEventEditor Right (EditorState "hello\nWorld" 5 0) `shouldBe` EditorState "hello\nWorld" 5 0
+          it "should go up" $
+             appendEventEditor Up (EditorState "hello\nWorld" 2 1) `shouldBe` EditorState "hello\nWorld" 2 0
+          it "shouldn't go up if already at top" $
+             appendEventEditor Up (EditorState "hello\nWorld" 0 0) `shouldBe` EditorState "hello\nWorld" 0 0
+          it "should go to the left if the upper line has less characters" $
+             appendEventEditor Up (EditorState "a\nab" 2 1) `shouldBe` EditorState "a\nab" 1 0
+          it "should go down" $
+             appendEventEditor Down (EditorState "hello\nWorld" 2 0) `shouldBe` EditorState "hello\nWorld" 2 1
+          it "shouldn't go down if already at bottom" $
+             appendEventEditor Down (EditorState "hello\nWorld" 2 1) `shouldBe` EditorState "hello\nWorld" 2 1
+          it "should go to the left if down line has less characters" $
+             appendEventEditor Down (EditorState "ab\na" 2 0) `shouldBe` EditorState "ab\na" 1 1
 
         
 
@@ -78,3 +122,5 @@ releaseEvent = Event {eventTimestamp = 4084, eventPayload = KeyboardEvent (Keybo
 
 quitEvent :: Event
 quitEvent = Event {eventTimestamp = 2203, eventPayload = QuitEvent}
+
+  

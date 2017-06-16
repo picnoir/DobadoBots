@@ -4,14 +4,20 @@
 module DobadoBots.Graphics.Editor(
   drawEditor,
   renderCode,
-  handleEditorEvents
+  handleEditorEvents,
+  appendEventEditor,
+  prettyPrintAst
 ) where
 
 import           Prelude hiding (Left, Right)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
 import           Data.Char                   (toUpper)                                              
-import           Data.Text                   (Text(..), unpack)
+import qualified Data.Text as T              (Text(..), unpack,
+                                              intercalate, concat,
+                                              splitAt, lines,
+                                              singleton, drop,
+                                              length, pack)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
@@ -35,6 +41,9 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
+
+import Debug.Trace
+
 offset :: CInt
 offset = 15
 
@@ -53,13 +62,15 @@ displayCode r st rst = do
                     runStateT (renderLines r $ codeTextures rst) 1 
                     return ()
 
-renderCode :: SDL.Renderer -> Cond -> IO [(SDL.Texture, SDL.V2 CInt)]
-renderCode r ast = mapM renderLine strs
+renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
+renderCode r = mapM (renderLine . T.unpack)
   where renderLine = loadFontBlended r
                                 "data/fonts/Inconsolata-Regular.ttf"
                                 15
                                 (Raw.Color 0 255 0 0)
-        strs = lines . unpack $ prettyPrint ast
+
+prettyPrintAst :: Cond -> [T.Text]
+prettyPrintAst ast = T.lines $ prettyPrint ast
 
 renderLines :: SDL.Renderer -> [(SDL.Texture, SDL.V2 CInt)] -> StateT CInt IO ()
 renderLines r strs = do
@@ -145,3 +156,53 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
         code           = SDL.keysymKeycode keySym
         mods           = SDL.keysymModifier keySym
         isUpper = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
+
+appendEventEditor :: EditorEvent -> EditorState -> EditorState
+appendEventEditor (AppendChar c) est@(EditorState t cc cl) = EditorState (insertCharEditor c est) (cc + 1) cl
+appendEventEditor NewLine est@(EditorState t cc cl)        = EditorState (insertCharEditor '\n' est) 0 (cl+1)
+appendEventEditor Space est                                = appendEventEditor (AppendChar ' ') est
+appendEventEditor Delete est@(EditorState t cc cl)         = EditorState (removeChar est) cc cl
+appendEventEditor BackSpace (EditorState t cc cl)          = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
+appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
+appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
+  where
+    lineLength = T.length $ T.lines t !! cl
+appendEventEditor Up    est@(EditorState t cc cl)
+  | cl == 0   = est
+  | otherwise = EditorState t (min cc upperLineLength) (max 0 (cl - 1))
+  where
+    upperLineLength = T.length $ T.lines t !! (cl - 1)
+appendEventEditor Down  est@(EditorState t cc cl)
+  | cl == endLine = est
+  | otherwise     = EditorState t (min cc downLineLength) (min endLine (cl + 1))
+  where
+    endLine = length (T.lines t) - 1
+    downLineLength = T.length $ T.lines t !! (cl + 1)
+
+insertCharEditor :: Char -> EditorState -> T.Text
+insertCharEditor c (EditorState t cc cl) 
+  | t == ""   = T.singleton c
+  | otherwise = T.intercalate (T.singleton '\n') newLines 
+  where
+    newLines     = insertAt cl alteredLine editorLines
+    alteredLine  = T.concat [fst splittedLine, T.singleton c, snd splittedLine]
+    splittedLine = T.splitAt cc insertLine
+    insertLine   = editorLines !! cl 
+    editorLines  = T.lines t
+
+removeChar :: EditorState -> T.Text 
+removeChar (EditorState t cc cl) 
+  | T.length t < 2 = ""
+  | otherwise      = T.intercalate (T.singleton '\n') newLines
+  where
+    newLines     = insertAt cl alteredLine editorLines
+    alteredLine  = T.concat [fst splittedLine, T.drop 1 $ snd splittedLine]
+    splittedLine = T.splitAt cc deleteLine
+    deleteLine   = editorLines !! cl
+    editorLines  = T.lines t
+
+insertAt :: Int -> T.Text -> [T.Text] -> [T.Text] 
+insertAt i y xs
+  | length xs > 1 = as ++ (y:bs)
+  | otherwise = xs
+  where (as,tr:bs) = splitAt i xs
