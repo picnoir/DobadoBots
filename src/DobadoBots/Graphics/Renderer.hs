@@ -39,6 +39,9 @@ import qualified Data.Vector.Storable as V (Vector(..), fromList, map)
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
+import qualified Data.Text as T            (lines, unlines)
+
+import Debug.Trace
 
 
 mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
@@ -79,8 +82,8 @@ mainLoopEditing renderer gameState rendererState = do
   displayButtons renderer (buttons rendererState)
   return ()
 
-handleEvents :: [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
-handleEvents evts rst st = (nrst, nst)
+handleEvents :: SDL.Renderer -> [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
+handleEvents r evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
         nst = case bst of
                 Just StartEvent -> setPhase Running st
@@ -187,6 +190,6 @@ createRendererState robotImg renderer st ast = do
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
-  let editorSt = EditorState "" 0 0
+  let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
   return $ RendererState robot codeTex running editing buttons editorSt
 

@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Monad                 (unless, when)
-import Data.Text                     (Text(..))
+import qualified Data.Text    as T   (Text(..), lines)
 import qualified Data.Text.IO as TIO (readFile)
 import DobadoBots                    (createMainWindow, closeMainWindow,
                                       mainGraphicsLoop, GameState(..),
+                                      RendererState(..), EditorState(..),
                                       loadLevel, createRendererState, RendererState,
                                       gameEngineTick, parseScript, Cond(..),
                                       generateGameState, GamePhase(..),
-                                      handleEvents)
+                                      handleEvents, renderCode)
 import qualified SDL                 (EventPayload(..), eventPayload,
                                       pollEvents, Renderer)
 
@@ -32,10 +33,17 @@ main = do
 mainLoop :: SDL.Renderer -> Cond -> GameState -> RendererState -> IO ()
 mainLoop r ast st rst = do
   evts <- SDL.pollEvents
-  let (nrst, nst) = handleEvents evts rst st
+  let (nrst, nst) = handleEvents r evts rst st
   let nst2 = if phase nst == Running
             then gameEngineTick nst ast
             else nst
-  mainGraphicsLoop r nst2 nrst
   let quit = elem SDL.QuitEvent $ map SDL.eventPayload evts
-  unless quit $ mainLoop r ast nst2 nrst
+  if editor nrst == editor rst
+  then do
+    mainGraphicsLoop r nst nrst
+    unless quit $ mainLoop r ast nst2 nrst
+  else do
+    newCodeTex <- renderCode r . T.lines . text $ editor nrst
+    let nnrst = RendererState (robotTexture nrst) newCodeTex (running nrst)(editing nrst)(buttons nrst) (editor nrst)
+    mainGraphicsLoop r nst $ nnrst
+    unless quit $ mainLoop r ast nst2 nnrst
