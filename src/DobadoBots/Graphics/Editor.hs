@@ -163,8 +163,18 @@ appendEventEditor BackSpace (EditorState t cc cl)          = EditorState (remove
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
   where
-    lineLength = T.length line
-    line = T.lines t !! cl
+    lineLength = T.length $ T.lines t !! cl
+appendEventEditor Up    est@(EditorState t cc cl)
+  | cl == 0   = est
+  | otherwise = EditorState t (min cc upperLineLength) (max 0 (cl - 1))
+  where
+    upperLineLength = T.length $ T.lines t !! (cl - 1)
+appendEventEditor Down  est@(EditorState t cc cl)
+  | cl == endLine = est
+  | otherwise     = EditorState t (min cc downLineLength) (min endLine (cl + 1))
+  where
+    endLine = length (T.lines t) - 1
+    downLineLength = T.length $ T.lines t !! (cl + 1)
 
 insertCharEditor :: Char -> EditorState -> T.Text
 insertCharEditor c (EditorState t cc cl) 
