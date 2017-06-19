@@ -18,6 +18,7 @@ import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
 import DobadoBots.Interpreter.Data         (Cond)
+import DobadoBots.Interpreter.Parser       (parseScript)
 
 import GHC.Float                           (float2Double)
 import qualified SDL                       (Renderer, rendererDrawColor, clear,
@@ -42,10 +43,6 @@ import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
 import qualified Data.Text as T            (lines, unlines)
 
-import Debug.Trace
-
-
-mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
@@ -92,6 +89,7 @@ handleEvents r evts rst st = (nrst, nst)
                 _ -> st
         nBrst = fromMaybe rst brst
         nrst  = RendererState (robotTexture nBrst) (editorCursor nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
+        nAst  = parseScript <$> text <$> nEditorState
         nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
         editorEvt    = if phase st == Editing
                        then handleEditorEvents evts
