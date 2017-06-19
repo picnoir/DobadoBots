@@ -42,7 +42,7 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
 offset :: CInt
-offset = 15
+offset = 14
 
 drawEditor :: SDL.Renderer -> GameState -> RendererState -> IO ()
 drawEditor r st rst = do
@@ -57,7 +57,12 @@ drawEditor r st rst = do
 displayCode :: SDL.Renderer -> GameState -> RendererState -> IO ()
 displayCode r st rst = do
                     runStateT (renderLines r $ codeTextures rst) 1 
-                    return ()
+                    SDL.copy r (fst $ editorCursor rst) Nothing (Just $ SDL.Rectangle cursorPos (snd $ editorCursor rst))
+  where
+    cursorPos = SDL.P $ SDL.V2 (640 + (ccC * 6 )) (clC * offset) 
+    clC = fromIntegral $ cl + 1
+    ccC = fromIntegral $ cc + 1
+    (EditorState t cc cl) = editor rst
 
 renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r = mapM (renderLine . T.unpack)
@@ -66,8 +71,8 @@ renderCode r = mapM (renderLine . T.unpack)
       | t == "" = " "
       | otherwise = t
     renderLine l = loadFontBlended r
-                                "data/fonts/Inconsolata-Regular.ttf"
-                                15
+                                "data/fonts/VT323-Regular.ttf"
+                                14
                                 (Raw.Color 0 255 0 0)
                                 (handleEmptyLines l)
 

@@ -71,6 +71,7 @@ getActiveButtons rst = filter isActive (toList $ buttons rst)
 activateRunningButtons :: RendererState -> ButtonEvent -> RendererState
 activateRunningButtons rst p = RendererState
                                 (robotTexture rst)
+                                (editorCursor rst)
                                 (codeTextures rst)
                                 (running rst)
                                 (editing rst)

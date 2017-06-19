@@ -44,6 +44,6 @@ mainLoop r ast st rst = do
     unless quit $ mainLoop r ast nst2 nrst
   else do
     newCodeTex <- renderCode r . T.lines . text $ editor nrst
-    let nnrst = RendererState (robotTexture nrst) newCodeTex (running nrst)(editing nrst)(buttons nrst) (editor nrst)
-    mainGraphicsLoop r nst $ nnrst
+    let nnrst = RendererState (robotTexture nrst) (editorCursor nrst) newCodeTex (running nrst)(editing nrst)(buttons nrst) (editor nrst)
+    mainGraphicsLoop r nst nnrst
     unless quit $ mainLoop r ast nst2 nnrst

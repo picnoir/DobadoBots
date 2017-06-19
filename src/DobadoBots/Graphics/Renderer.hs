@@ -90,7 +90,7 @@ handleEvents r evts rst st = (nrst, nst)
                 Just EditEvent  -> setPhase Editing st
                 _ -> st
         nBrst = fromMaybe rst brst
-        nrst  = RendererState (robotTexture nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
+        nrst  = RendererState (robotTexture nBrst) (editorCursor nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
         nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
         editorEvt    = if phase st == Editing
                        then handleEditorEvents evts
@@ -192,6 +192,7 @@ createRendererState robotImg renderer st ast = do
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
+  cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot codeTex running editing buttons editorSt
+  return $ RendererState robot cursor codeTex running editing buttons editorSt
 
