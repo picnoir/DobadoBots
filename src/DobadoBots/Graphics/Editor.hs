@@ -41,9 +41,6 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
-
-import Debug.Trace
-
 offset :: CInt
 offset = 15
 
@@ -167,7 +164,9 @@ appendEventEditor (AppendChar c) est@(EditorState t cc cl) = EditorState (insert
 appendEventEditor NewLine est@(EditorState t cc cl)        = EditorState (insertCharEditor '\n' est) 0 (cl+1)
 appendEventEditor Space est                                = appendEventEditor (AppendChar ' ') est
 appendEventEditor Delete est@(EditorState t cc cl)         = EditorState (removeChar est) cc cl
-appendEventEditor BackSpace (EditorState t cc cl)          = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
+appendEventEditor BackSpace est@(EditorState t cc cl)
+  | cc > 0 = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
+  | otherwise = est
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
   where

@@ -51,6 +51,8 @@ spec = do
              appendEventEditor BackSpace (EditorState "hello\nWorld" 5 0) `shouldBe` EditorState "hell\nWorld" 4 0
           it "shouldn't backspace an empty text" $
              appendEventEditor BackSpace (EditorState "" 0 0) `shouldBe` EditorState "" 0 0
+          it "shouldn't backspace when cursor is at the line beginning" $
+             appendEventEditor BackSpace (EditorState "Hello\nWorld" 0 0) `shouldBe` EditorState "Hello\nWorld" 0 0
           it "should add a space" $
              appendEventEditor Space (EditorState "" 0 0) `shouldBe` EditorState " " 1 0
           it "should delete a character" $
