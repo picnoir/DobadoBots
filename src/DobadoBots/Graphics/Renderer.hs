@@ -9,6 +9,7 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), Collider(..), 
                                             getCenter)
+import DobadoBots.GameEngine.GameEngine    (reinitGameState)
 import DobadoBots.GameEngine.Utils         (setPhase)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
                                             appendEventEditor, handleEditorEvents,
@@ -87,7 +88,7 @@ handleEvents r evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
         nst = case bst of
                 Just StartEvent -> setPhase Running st
-                Just EditEvent  -> setPhase Editing st
+                Just EditEvent  -> setPhase Editing $ reinitGameState st
                 _ -> st
         nBrst = fromMaybe rst brst
         nrst  = RendererState (robotTexture nBrst) (editorCursor nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)

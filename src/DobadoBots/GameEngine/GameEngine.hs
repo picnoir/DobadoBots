@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module DobadoBots.GameEngine.GameEngine (
   gameEngineTick,
-  generateGameState
+  generateGameState,
+  reinitGameState
 ) where
 
 import qualified Data.Sequence           as S  (update, index, singleton)
@@ -29,6 +30,16 @@ generateGameState l = GameState
                             (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
                             Editing
                             HM.empty
+
+reinitGameState :: GameState -> GameState
+reinitGameState st = GameState
+                        (obstacles st)
+                        (arenaSize st)
+                        (objective st)
+                        (startingPoints st)
+                        (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ startingPoints st))])
+                        (phase st)
+                        HM.empty
 
 gameEngineTick :: GameState -> Cond -> GameState 
 gameEngineTick st ast = if not $ robotObjectiveIntersection "UniqRobot" st
