@@ -47,7 +47,7 @@ offset = 15
 drawEditor :: SDL.Renderer -> GameState -> RendererState -> IO ()
 drawEditor r st rst = do
   SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
-  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 540 0) (SDL.V2 300 480)
+  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 0) (SDL.V2 300 480)
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
@@ -83,7 +83,7 @@ renderLines r strs = do
     renderLine (tex, size) = do
           lineNb <- get
           modify (+1)
-          let pos = SDL.P $ SDL.V2 550 (lineNb * offset)
+          let pos = SDL.P $ SDL.V2 650 (lineNb * offset)
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
 handleEditorEvents :: [SDL.Event] -> Maybe EditorEvent
