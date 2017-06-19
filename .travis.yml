@@ -17,6 +17,7 @@ before_install:
 - cd SDL2_ttf-2.0.14 && ./configure && make -j && sudo make install && cd ..
 - mkdir -p $HOME/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
+- export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:
