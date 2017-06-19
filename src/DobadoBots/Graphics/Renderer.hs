@@ -92,7 +92,9 @@ handleEvents r evts rst st = (nrst, nst)
         nBrst = fromMaybe rst brst
         nrst  = RendererState (robotTexture nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
         nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
-        editorEvt    = handleEditorEvents evts
+        editorEvt    = if phase st == Editing
+                       then handleEditorEvents evts
+                       else Nothing
 
 drawRobotDist :: SDL.Renderer -> GameState -> Robot -> IO ()
 drawRobotDist r st rb = do
