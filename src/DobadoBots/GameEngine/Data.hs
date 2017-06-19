@@ -47,10 +47,11 @@ data Level = Level  {lObstacles      :: [Obstacle],
                      lObjective      :: Objective,
                      lStartingPoints :: [StartingPoint]} deriving (Show, Eq)
 
-data Object = Object {position :: Position
-                    , size     :: Size
-                    , rotation :: Float
-                    , velocity :: Velocity} deriving (Show, Eq)
+data Object = Object {position        :: Position
+                    , size            :: Size
+                    , rotation        :: Float
+                    , currentVelocity :: Velocity
+                    , defaultVelocity :: Velocity} deriving (Show, Eq)
 
 type Collision = (Collider, V2 Float)
 
@@ -83,6 +84,7 @@ instance FromJSON Object where
       <$> parsePosition (HS.lookup "position" v) 
       <*> parseSize (HS.lookup "size" v) 
       <*> v .: "rotation"
+      <*> v .: "velocity"
       <*> v .: "velocity"
 
 parsePosition :: Maybe AT.Value -> AT.Parser (V2 Float)

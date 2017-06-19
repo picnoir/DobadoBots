@@ -8,7 +8,7 @@ module DobadoBots.GameEngine.GameEngine (
 import qualified Data.Sequence           as S  (update, index, singleton)
 import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
-import           Data.Maybe                    (maybeToList, fromJust)
+import           Data.Maybe                    (maybeToList, fromJust, fromMaybe)
 import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList, lookup)
 import qualified Data.SG.Geometry.TwoDim as G2 (Rel2'(..), makeRel2, toAngle) 
 
@@ -81,7 +81,8 @@ rotateRobot angle rId isRel st = GameState
                                     (position $ object robot)
                                     (size $ object robot)
                                     nAngle
-                                    (velocity $ object robot))
+                                    (currentVelocity $ object robot)
+                                    (defaultVelocity $ object robot))
 
 moveRobots :: GameState -> GameState 
 moveRobots st = GameState
@@ -96,10 +97,15 @@ moveRobots st = GameState
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
 moveRobot  :: GameState -> Robot -> Robot
-moveRobot st r = Robot' (robotId r) $ Object newPos (size $ object r) (rotation $ object r) rVel 
+moveRobot st r = Robot' (robotId r) $ Object newPos (size $ object r) (rotation $ object r) rVel (defaultVelocity $ object r)
   where newPos     = position (object r) + deltaPos
         deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
-        rVel       = minimum $ velocity (object r) : maybeToList nearestD 
+        -- We had a rounding problem here, this is why we are virtually
+        -- diminishing the default velocity in the check: we want to be 
+        -- sure to not collide anything, even after a bad rounding.
+        rVel       = if (defaultVelocity  (object r) - 1) > fromMaybe (defaultVelocity $ object r) nearestD
+                     then fromMaybe (defaultVelocity $ object r) nearestD
+                     else defaultVelocity $ object r 
         angle      = degreeToRadian . rotation $ object r
         nearestD   = max 0 . rmBotWidth . snd <$> nearestIntersectionDistance r st
         rmBotWidth = subtract . (/2) . getYV2 . size $ object r
