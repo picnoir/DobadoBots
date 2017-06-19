@@ -10,6 +10,7 @@ module DobadoBots.Graphics.Editor(
 ) where
 
 import           Prelude hiding (Left, Right)
+import           Control.Monad               (when)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
 import           Data.Char                   (toUpper)                                              
@@ -57,7 +58,11 @@ drawEditor r st rst = do
 displayCode :: SDL.Renderer -> GameState -> RendererState -> IO ()
 displayCode r st rst = do
                     runStateT (renderLines r $ codeTextures rst) 1 
-                    SDL.copy r (fst $ editorCursor rst) Nothing (Just $ SDL.Rectangle cursorPos (snd $ editorCursor rst))
+                    when (phase st == Editing) $ SDL.copy r
+                                                          (fst $ editorCursor rst) 
+                                                          Nothing 
+                                                          (Just $ SDL.Rectangle cursorPos (snd $ editorCursor rst))
+                    return ()
   where
     cursorPos = SDL.P $ SDL.V2 (640 + (ccC * 6 )) (clC * offset) 
     clC = fromIntegral $ cl + 1
