@@ -45,6 +45,8 @@ spec = do
              appendEventEditor (AppendChar 'D') (EditorState "hello\nWorld" 0 1) `shouldBe` EditorState "hello\nDWorld" 1 1
           it "should append a simple char when the editor is empty" $
              appendEventEditor (AppendChar 'D') (EditorState "" 0 0) `shouldBe` EditorState "D" 1 0
+          it "should append a simple char on last line" $
+             appendEventEditor (AppendChar 'D') (EditorState "Hello\n" 1 1) `shouldBe` EditorState "Hello\nD" 2 1
           it "should append a new line" $
              appendEventEditor NewLine (EditorState "hello\nWorld" 5 0) `shouldBe` EditorState "hello\n\nWorld" 0 1
           it "should backspace a caracter" $

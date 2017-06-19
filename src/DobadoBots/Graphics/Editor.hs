@@ -15,9 +15,9 @@ import           Control.Monad.State         (StateT(..), get,
 import           Data.Char                   (toUpper)                                              
 import qualified Data.Text as T              (Text(..), unpack,
                                               intercalate, concat,
-                                              splitAt, lines,
+                                              splitAt, split,
                                               singleton, drop,
-                                              length, pack)
+                                              length, pack, lines)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
@@ -175,18 +175,18 @@ appendEventEditor BackSpace est@(EditorState t cc cl)
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
   where
-    lineLength = T.length $ T.lines t !! cl
+    lineLength = T.length $ T.split (=='\n') t !! cl
 appendEventEditor Up    est@(EditorState t cc cl)
   | cl == 0   = est
   | otherwise = EditorState t (min cc upperLineLength) (max 0 (cl - 1))
   where
-    upperLineLength = T.length $ T.lines t !! (cl - 1)
+    upperLineLength = T.length $ T.split (=='\n') t !! (cl - 1)
 appendEventEditor Down  est@(EditorState t cc cl)
   | cl == endLine = est
   | otherwise     = EditorState t (min cc downLineLength) (min endLine (cl + 1))
   where
-    endLine = length (T.lines t) - 1
-    downLineLength = T.length $ T.lines t !! (cl + 1)
+    endLine = length (T.split (=='\n') t) - 1
+    downLineLength = T.length $ T.split (=='\n') t !! (cl + 1)
 
 insertCharEditor :: Char -> EditorState -> T.Text
 insertCharEditor c (EditorState t cc cl) 
@@ -197,7 +197,7 @@ insertCharEditor c (EditorState t cc cl)
     alteredLine  = T.concat [fst splittedLine, T.singleton c, snd splittedLine]
     splittedLine = T.splitAt cc insertLine
     insertLine   = editorLines !! cl 
-    editorLines  = T.lines t
+    editorLines  = T.split (=='\n') t
 
 removeChar :: EditorState -> T.Text 
 removeChar (EditorState t cc cl) 
@@ -208,7 +208,7 @@ removeChar (EditorState t cc cl)
     alteredLine  = T.concat [fst splittedLine, T.drop 1 $ snd splittedLine]
     splittedLine = T.splitAt cc deleteLine
     deleteLine   = editorLines !! cl
-    editorLines  = T.lines t
+    editorLines  = T.split (=='\n') t
 
 insertAt :: Int -> T.Text -> [T.Text] -> [T.Text] 
 insertAt i y xs
