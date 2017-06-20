@@ -78,6 +78,7 @@ mainLoopEditing :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopEditing renderer gameState rendererState = do
   drawEditor renderer gameState rendererState
   drawArena renderer gameState
+  drawRobots renderer (robotTexture rendererState) . HM.elems $ robots gameState 
   displayButtons renderer (buttons rendererState)
   return ()
 
