@@ -3,6 +3,7 @@ module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
 , createRendererState 
 , handleEvents
+, generateSyntaxErrorTex
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
@@ -36,7 +37,7 @@ import qualified SDL.Raw as Raw            (Color(..))
 import qualified Linear.V2 as L            (V2(..))
 import qualified Linear.Metric as LM       (distance)
 import Foreign.C.Types                     (CInt(..), CDouble(..))
-import           Control.Monad             (unless, when, liftM2) 
+import           Control.Monad             (unless, when, liftM2, mapM) 
 import qualified Data.Vector.Storable as V (Vector(..), fromList, map) 
 import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
@@ -231,5 +232,6 @@ createRendererState robotImg renderer st ast = do
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
   return $ RendererState robot cursor codeTex running editing buttons False [] editorSt (Right ast)
 
-generateSyntaxErrorTex :: ParseError -> IO ()
-generateSyntaxErrorTex = undefined
+generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
+generateSyntaxErrorTex r p = mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 12 (Raw.Color 255 255 255 0))  errTxt
+  where errTxt = lines $ show p

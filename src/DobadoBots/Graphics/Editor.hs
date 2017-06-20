@@ -10,7 +10,7 @@ module DobadoBots.Graphics.Editor(
 ) where
 
 import           Prelude hiding (Left, Right)
-import           Control.Monad               (when)
+import           Control.Monad               (when, unless)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
 import           Data.Char                   (toUpper)                                              
@@ -52,7 +52,8 @@ drawEditor r st rst = do
   if isSyntaxError rst
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
-  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 800 400) (SDL.V2 145 67)
+  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (SDL.V2 300 15)
+  unless (null $ parseErrorMess rst) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (snd . head $ parseErrorMess rst))
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))

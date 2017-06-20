@@ -57,6 +57,7 @@ executable DobadoBots-exe
                      , DobadoBots
                      , text
                      , sdl2
+                     , extra
   default-language:    Haskell2010
 
 test-suite DobadoBots-test
