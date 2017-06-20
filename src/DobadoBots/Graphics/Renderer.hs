@@ -82,6 +82,8 @@ mainLoopEditing renderer gameState rendererState = do
   displayButtons renderer (buttons rendererState)
   return ()
 
+-- NOTE this function is a real mess. It should be properly
+-- refactored. I think we first should about a proper stream model.
 handleEvents :: SDL.Renderer -> [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
 handleEvents r evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
@@ -93,15 +95,32 @@ handleEvents r evts rst st = (nrst, nst)
                 (robots bnst)
                 (phase bnst)
                 (collisions bnst)
-                (fromRight (ast st) (fromMaybe (Right (ast st)) nAst))
+                nAst
+        nrst  = RendererState 
+                  (robotTexture nBrst)
+                  (editorCursor nBrst)
+                  (codeTextures nBrst)
+                  (running nBrst)
+                  (editing nBrst) 
+                  (buttons nBrst)
+                  nEditorState
         bnst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing $ reinitGameState st
                 _ -> st
         nBrst = fromMaybe rst brst
-        nrst  = RendererState (robotTexture nBrst) (editorCursor nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
-        nAst  = parseScript . text <$> nEditorState
-        nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
+        nEditorState = if astChanged
+                       then EditorState 
+                              (T.unlines $ prettyPrintAst nAst) 
+                              (cursorColumn unformatedEdSt) 
+                              (cursorLine   unformatedEdSt)
+                       else unformatedEdSt
+        astChanged   = ast st /= nAst
+        nAst         = fromRight (ast st) parseResult
+        parseResult  = fromMaybe (Right $ ast st) $ parseScript . text <$> appEdSt
+        unformatedEdSt = fromMaybe (editor rst) appEdSt
+        appEdSt :: Maybe EditorState
+        appEdSt      = liftM2 appendEventEditor editorEvt (Just $ editor rst)
         editorEvt    = if phase st == Editing
                        then handleEditorEvents evts
                        else Nothing
