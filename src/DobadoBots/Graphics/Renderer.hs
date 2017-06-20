@@ -107,6 +107,7 @@ handleEvents r evts rst st = (nrst, nst)
                   isParseError
                   (parseErrorMess nBrst)
                   nEditorState
+                  parseResult
         bnst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing $ reinitGameState st
@@ -228,5 +229,7 @@ createRendererState robotImg renderer st ast = do
   editing <- getBmpTex "data/img/editing.bmp" renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons False [] editorSt
+  return $ RendererState robot cursor codeTex running editing buttons False [] editorSt (Right ast)
 
+generateSyntaxErrorTex :: ParseError -> IO ()
+generateSyntaxErrorTex = undefined

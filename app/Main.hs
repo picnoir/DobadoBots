@@ -54,5 +54,6 @@ mainLoop r st rst = do
                   (isSyntaxError nrst)
                   (parseErrorMess nrst)
                   (editor nrst)
+                  (currentParseResult nrst)
     mainGraphicsLoop r nst nnrst
     unless quit $ mainLoop r nst2 nnrst
