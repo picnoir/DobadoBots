@@ -42,7 +42,8 @@ import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
 import qualified Data.Text as T            (lines, unlines)
-import           Data.Either.Extra         (fromRight)
+import           Data.Either.Extra         (fromRight, isLeft)
+import           Text.Parsec               (ParseError)
 
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
@@ -103,6 +104,8 @@ handleEvents r evts rst st = (nrst, nst)
                   (running nBrst)
                   (editing nBrst) 
                   (buttons nBrst)
+                  isParseError
+                  (parseErrorMess nBrst)
                   nEditorState
         bnst = case bst of
                 Just StartEvent -> setPhase Running st
@@ -117,7 +120,9 @@ handleEvents r evts rst st = (nrst, nst)
                        else unformatedEdSt
         astChanged   = ast st /= nAst
         nAst         = fromRight (ast st) parseResult
-        parseResult  = fromMaybe (Right $ ast st) $ parseScript . text <$> appEdSt
+        isParseError = isLeft parseResult 
+        parseResult :: Either ParseError Cond
+        parseResult  =  parseScript . text $ unformatedEdSt
         unformatedEdSt = fromMaybe (editor rst) appEdSt
         appEdSt :: Maybe EditorState
         appEdSt      = liftM2 appendEventEditor editorEvt (Just $ editor rst)
@@ -223,5 +228,5 @@ createRendererState robotImg renderer st ast = do
   editing <- getBmpTex "data/img/editing.bmp" renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons editorSt
+  return $ RendererState robot cursor codeTex running editing buttons False [] editorSt
 

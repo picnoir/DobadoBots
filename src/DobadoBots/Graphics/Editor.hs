@@ -49,6 +49,10 @@ drawEditor :: SDL.Renderer -> GameState -> RendererState -> IO ()
 drawEditor r st rst = do
   SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 0) (SDL.V2 300 480)
+  if isSyntaxError rst
+  then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
+  else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
+  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 800 400) (SDL.V2 145 67)
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
