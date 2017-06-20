@@ -21,9 +21,10 @@ import           Data.HashMap.Strict     as HM (lookup)
 import           Control.Monad                 (liftM2)
 
 import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
-                                                Collider(..), Obstacle(..),
+                                                Obstacle(..),
                                                 Objective(..), Object(..), Collision(..),
                                                 RobotId(..))
+import DobadoBots.Interpreter.Data             (Collider(..))
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
                                                 v2toSGVect, point2ToV2, degreeToRadian,
                                                 objectToShape)

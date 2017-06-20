@@ -11,7 +11,6 @@ module DobadoBots.GameEngine.Data (
 , StartingPoint(..)
 , Robot(..)
 , RobotId(..)
-, Collider(..)
 , Collision(..)
 , Level(..)
 , GamePhase(..)
@@ -28,6 +27,8 @@ import Data.Text                           (Text(..))
 import Foreign.C.Types                     (CInt)
 import qualified SDL                       (V2, Texture)
 
+import DobadoBots.Interpreter.Data         (Collider(..), Cond(..))
+
 type Size = V2 Float 
 
 type Position = V2 Float
@@ -40,7 +41,8 @@ data GameState = GameState   {obstacles      :: [Obstacle]
                             , startingPoints :: [StartingPoint]
                             , robots         :: HM.HashMap RobotId Robot 
                             , phase          :: GamePhase
-                            , collisions     :: HM.HashMap RobotId Collision} deriving (Show, Eq)
+                            , collisions     :: HM.HashMap RobotId Collision
+                            , ast            :: Cond} deriving (Show, Eq)
 
 data Level = Level  {lObstacles      :: [Obstacle],
                      lArenaSize      :: Size,
@@ -57,7 +59,6 @@ type Collision = (Collider, V2 Float)
 
 data GamePhase = SplashScreen | Tutorial | Editing | Running | Lose | Win deriving (Show, Eq)
 
-data Collider = Obstacle | Objective | Wall | Robot deriving (Show, Eq)
 
 type Obstacle = Object
 

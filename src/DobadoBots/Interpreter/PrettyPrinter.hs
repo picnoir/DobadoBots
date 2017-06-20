@@ -8,8 +8,7 @@ import Text.PrettyPrint            (Doc(..), text, (<>), ($$),
 
 import DobadoBots.Interpreter.Data (Cond(..), LogicExpr(..),
                                     CmpInteger(..), SensorToken(..),
-                                    ActionToken(..))
-import DobadoBots.GameEngine.Data  (Collider(..))
+                                    ActionToken(..), Collider(..))
 prettyPrint :: Cond -> Text 
 prettyPrint = pack . render . generateDoc 
 

@@ -4,9 +4,9 @@ module DobadoBots.Interpreter.Interpreter (
 
 import DobadoBots.Interpreter.Data         (Cond(..), ActionToken(..),
                                             SensorToken(..), LogicExpr(..),
-                                            CmpInteger(..)) 
+                                            CmpInteger(..), Collider(..)) 
 import DobadoBots.GameEngine.Data          (GameState(..), RobotId(..),
-                                            Collider(..), Collision(..),
+                                            Collision(..),
                                             Robot(..), Object(..))
 
 import           Data.Maybe                (fromJust)

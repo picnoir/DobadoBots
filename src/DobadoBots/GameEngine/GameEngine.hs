@@ -21,7 +21,7 @@ import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestInte
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian, radianToDegree)
 import DobadoBots.Interpreter.Interpreter      (interpretScript) 
 
-generateGameState :: Level -> GameState
+generateGameState :: Level -> Cond -> GameState
 generateGameState l = GameState
                             (lObstacles l)
                             (lArenaSize l)
@@ -30,6 +30,7 @@ generateGameState l = GameState
                             (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
                             Editing
                             HM.empty
+
 
 reinitGameState :: GameState -> GameState
 reinitGameState st = GameState
@@ -40,6 +41,7 @@ reinitGameState st = GameState
                         (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ startingPoints st))])
                         (phase st)
                         HM.empty
+                        (ast st)
 
 gameEngineTick :: GameState -> Cond -> GameState 
 gameEngineTick st ast = if not $ robotObjectiveIntersection "UniqRobot" st
@@ -73,6 +75,7 @@ rotateRobot angle rId isRel st = GameState
                                   (HM.insert rId newRobot $ robots st)
                                   (phase st)
                                   (collisions st)
+                                  (ast st)
   where robot    = fromJust . HM.lookup rId $ robots st
         nAngle   = if isRel
                    then angle + rotation (object robot)
@@ -93,6 +96,7 @@ moveRobots st = GameState
                   (moveRobot st <$> robots st)
                   (phase st)
                   (collisions st)
+                  (ast st)
 
 -- TODO: look at lenses, there is a way
 -- to get rid of the first line using those.
@@ -119,6 +123,7 @@ computeCollisions st = GameState
                           (robots st)
                           (phase st)
                           newCols
+                          (ast st)
   where newCols        = foldr computeCols (collisions st) (robots st)
         computeCols rb = HM.insert (robotId rb) (rbCol rb)
         rbCol rb       = nearestIntersection rb st
@@ -132,3 +137,4 @@ setGameStateWin st = GameState
                        (robots st)
                        Win
                        (collisions st)
+                       (ast st)

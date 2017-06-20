@@ -64,3 +64,4 @@ setPhase newPhase st = GameState
                          (robots st)
                          newPhase
                          (collisions st)
+                         (ast st)

@@ -4,8 +4,7 @@ module DobadoBots.Interpreter.Parser(
 
 import DobadoBots.Interpreter.Data (Cond(..), ActionToken(..),
                                     SensorToken(..), LogicExpr(..),
-                                    CmpInteger(..))
-import DobadoBots.GameEngine.Data  (Collider(..))
+                                    CmpInteger(..), Collider(..))
 
 import Data.Text (unpack, Text(..))
 import Text.ParserCombinators.Parsec (CharParser, ParseError, (<|>),

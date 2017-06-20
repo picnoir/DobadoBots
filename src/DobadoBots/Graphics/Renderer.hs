@@ -7,7 +7,7 @@ module DobadoBots.Graphics.Renderer (
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
                                             Obstacle(..), GamePhase(..),
-                                            Object(..), Robot(..), Collider(..), 
+                                            Object(..), Robot(..), 
                                             getCenter)
 import DobadoBots.GameEngine.GameEngine    (reinitGameState)
 import DobadoBots.GameEngine.Utils         (setPhase)
@@ -17,7 +17,7 @@ import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
 import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
-import DobadoBots.Interpreter.Data         (Cond)
+import DobadoBots.Interpreter.Data         (Cond, Collider(..))
 import DobadoBots.Interpreter.Parser       (parseScript)
 
 import GHC.Float                           (float2Double)
@@ -42,6 +42,7 @@ import qualified Data.Sequence as S        (Seq)
 import qualified Data.HashMap.Strict as HM (lookup, elems)
 import           Data.Maybe                (fromMaybe)
 import qualified Data.Text as T            (lines, unlines)
+import           Data.Either.Extra         (fromRight)
 
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
@@ -83,13 +84,22 @@ mainLoopEditing renderer gameState rendererState = do
 handleEvents :: SDL.Renderer -> [SDL.Event] -> RendererState -> GameState -> (RendererState, GameState)
 handleEvents r evts rst st = (nrst, nst)
   where (brst, bst) = handleMouseEvents evts rst
-        nst = case bst of
+        nst  = GameState 
+                (obstacles bnst)
+                (arenaSize bnst)
+                (objective bnst)
+                (startingPoints bnst)
+                (robots bnst)
+                (phase bnst)
+                (collisions bnst)
+                (fromRight (ast st) (fromMaybe (Right (ast st)) nAst))
+        bnst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing $ reinitGameState st
                 _ -> st
         nBrst = fromMaybe rst brst
         nrst  = RendererState (robotTexture nBrst) (editorCursor nBrst) (codeTextures nBrst)(running nBrst)(editing nBrst) (buttons nBrst) (fromMaybe (editor rst) nEditorState)
-        nAst  = parseScript <$> text <$> nEditorState
+        nAst  = parseScript . text <$> nEditorState
         nEditorState = liftM2 appendEventEditor editorEvt (Just $ editor rst)
         editorEvt    = if phase st == Editing
                        then handleEditorEvents evts
