@@ -19,7 +19,7 @@ import qualified Data.Text as T              (Text(..), unpack,
                                               intercalate, concat,
                                               splitAt, split,
                                               singleton, drop,
-                                              length, pack, lines)
+                                              length, pack, lines, unlines)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           Data.Either.Extra           (isLeft, isRight, fromLeft')
 import           SDL.Input.Keyboard.Codes
@@ -219,8 +219,13 @@ appendEventEditor NewLine est@(EditorState t cc cl)        = EditorState (insert
 appendEventEditor Space est                                = appendEventEditor (AppendChar ' ') est
 appendEventEditor Delete est@(EditorState t cc cl)         = EditorState (removeChar est) cc cl
 appendEventEditor BackSpace est@(EditorState t cc cl)
+  | (cc == 0 && cl > 0) = EditorState ( sucklessUnlines . removeLine cl $ appendLineToPreviousLine cl splittedLines)  0 (cl - 1)
   | cc > 0 = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
   | otherwise = est
+  where
+    sucklessUnlines = T.intercalate (T.singleton '\n')
+    splittedLines = T.split (=='\n') t
+    customUnlines = T.intercalate (T.singleton '\n')
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
   where
@@ -264,3 +269,13 @@ insertAt i y xs
   | length xs > 1 = as ++ (y:bs)
   | otherwise = xs
   where (as,tr:bs) = splitAt i xs
+
+removeLine :: Int -> [T.Text] -> [T.Text]
+removeLine pos xs = (take pos xs) ++ (drop (pos + 1) xs)
+
+appendLineToPreviousLine :: Int -> [T.Text] -> [T.Text]
+appendLineToPreviousLine pos xs = insertAt (pos - 1) (T.concat (previousLine : [line])) xs 
+  where line :: T.Text
+        line = xs !! pos 
+        previousLine :: T.Text
+        previousLine = xs !! (pos - 1)
