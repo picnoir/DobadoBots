@@ -87,7 +87,7 @@ drawEditor r st rst = do
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 0 480) (SDL.V2 940 20)
-  unless ((null $ parseErrorMess rst) || (isRight $ currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
+  unless (null (parseErrorMess rst) || isRight (currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
@@ -219,7 +219,7 @@ appendEventEditor NewLine est@(EditorState t cc cl)        = EditorState (insert
 appendEventEditor Space est                                = appendEventEditor (AppendChar ' ') est
 appendEventEditor Delete est@(EditorState t cc cl)         = EditorState (removeChar est) cc cl
 appendEventEditor BackSpace est@(EditorState t cc cl)
-  | (cc == 0 && cl > 0) = EditorState ( sucklessUnlines . removeLine cl $ appendLineToPreviousLine cl splittedLines)  0 (cl - 1)
+  | cc == 0 && cl > 0 = EditorState ( sucklessUnlines . removeLine cl $ appendLineToPreviousLine cl splittedLines)  0 (cl - 1)
   | cc > 0 = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
   | otherwise = est
   where
@@ -271,7 +271,7 @@ insertAt i y xs
   where (as,tr:bs) = splitAt i xs
 
 removeLine :: Int -> [T.Text] -> [T.Text]
-removeLine pos xs = (take pos xs) ++ (drop (pos + 1) xs)
+removeLine pos xs = take pos xs ++ drop (pos + 1) xs
 
 appendLineToPreviousLine :: Int -> [T.Text] -> [T.Text]
 appendLineToPreviousLine pos xs = insertAt (pos - 1) (T.concat (previousLine : [line])) xs 
