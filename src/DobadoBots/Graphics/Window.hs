@@ -18,7 +18,7 @@ import qualified Linear.V2 as L (V2(..))
 import Foreign.C.Types          (CInt(..))
 
 screenWidth, screenHeight :: CInt
-(screenWidth, screenHeight) = (940, 480)
+(screenWidth, screenHeight) = (940, 500)
 
 createMainWindow :: Text -> IO (SDL.Renderer, SDL.Window)
 createMainWindow winName = do

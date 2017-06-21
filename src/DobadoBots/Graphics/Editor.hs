@@ -88,8 +88,8 @@ drawEditor r st rst = do
   if isLeft $ currentParseResult rst
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
-  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (SDL.V2 300 15)
-  unless ((null $ parseErrorMess rst) || (isRight $ currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (snd . head $ parseErrorMess rst))
+  SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 0 480) (SDL.V2 940 20)
+  unless ((null $ parseErrorMess rst) || (isRight $ currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
@@ -111,7 +111,7 @@ displayCode r st rst = do
     (EditorState t cc cl) = editor rst
 
 generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
-generateSyntaxErrorTex r p = traceShow errTxt $ mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 12 (Raw.Color 255 255 255 0))  [errTxt]
+generateSyntaxErrorTex r p = traceShow errTxt $ mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 14 (Raw.Color 255 255 255 0))  [errTxt]
   where 
     errTxt     = unwords $ drop 1 errTxtList
     errTxtList = lines $ show p
