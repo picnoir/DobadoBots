@@ -9,7 +9,7 @@ import DobadoBots                    (createMainWindow, closeMainWindow,
                                       loadLevel, createRendererState, RendererState,
                                       gameEngineTick, parseScript, Cond(..),
                                       generateGameState, GamePhase(..),
-                                      handleEvents, renderCode, generateSyntaxErrorTex)
+                                      handleEvents, generateEditorTextures) 
 import qualified SDL                 (EventPayload(..), eventPayload,
                                       pollEvents, Renderer)
 import Data.Either.Extra             (isLeft, fromLeft')
@@ -42,34 +42,8 @@ mainLoop r st rst = do
   if editor nrst == editor rst
   then do
     mainGraphicsLoop r nst nrst
-    when (isLeft $ currentParseResult nrst) $ do
-      tex <- generateSyntaxErrorTex r . fromLeft' $ currentParseResult nrst
-      let updatedRendererState = RendererState
-                                  (robotTexture nrst)
-                                  (editorCursor nrst)
-                                  (codeTextures nrst)
-                                  (running nrst)
-                                  (editing nrst)
-                                  (buttons nrst)
-                                  (isSyntaxError nrst)
-                                  tex
-                                  (editor nrst)
-                                  (currentParseResult nrst)
-      unless quit $ mainLoop r nst2 updatedRendererState
     unless quit $ mainLoop r nst2 nrst
   else do
-    newCodeTex <- renderCode r . T.lines . text $ editor nrst
-
-    let nnrst = RendererState
-                  (robotTexture nrst) 
-                  (editorCursor nrst)
-                  newCodeTex 
-                  (running nrst)
-                  (editing nrst)
-                  (buttons nrst)
-                  (isSyntaxError nrst)
-                  (parseErrorMess nrst)
-                  (editor nrst)
-                  (currentParseResult nrst)
-    mainGraphicsLoop r nst nnrst
-    unless quit $ mainLoop r nst2 nnrst
+    nrst2 <- generateEditorTextures r nrst
+    mainGraphicsLoop r nst nrst2
+    unless quit $ mainLoop r nst2 nrst2

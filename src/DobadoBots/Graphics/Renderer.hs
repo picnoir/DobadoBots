@@ -3,7 +3,6 @@ module DobadoBots.Graphics.Renderer (
   mainGraphicsLoop
 , createRendererState 
 , handleEvents
-, generateSyntaxErrorTex
 ) where
 
 import DobadoBots.GameEngine.Data          (GameState(..), Objective(..), 
@@ -105,7 +104,6 @@ handleEvents r evts rst st = (nrst, nst)
                   (running nBrst)
                   (editing nBrst) 
                   (buttons nBrst)
-                  isParseError
                   (parseErrorMess nBrst)
                   nEditorState
                   parseResult
@@ -230,8 +228,5 @@ createRendererState robotImg renderer st ast = do
   editing <- getBmpTex "data/img/editing.bmp" renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons False [] editorSt (Right ast)
+  return $ RendererState robot cursor codeTex running editing buttons [] editorSt (Right ast)
 
-generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
-generateSyntaxErrorTex r p = mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 12 (Raw.Color 255 255 255 0))  errTxt
-  where errTxt = lines $ show p

@@ -23,7 +23,6 @@ data RendererState = RendererState {
   running            :: (SDL.Texture, SDL.V2 CInt),
   editing            :: (SDL.Texture, SDL.V2 CInt),
   buttons            :: Buttons,
-  isSyntaxError      :: Bool,
   parseErrorMess     :: [(SDL.Texture, SDL.V2 CInt)],
   editor             :: EditorState,
   currentParseResult :: Either ParseError Cond

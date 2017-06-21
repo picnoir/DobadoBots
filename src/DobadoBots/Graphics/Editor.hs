@@ -6,7 +6,8 @@ module DobadoBots.Graphics.Editor(
   renderCode,
   handleEditorEvents,
   appendEventEditor,
-  prettyPrintAst
+  prettyPrintAst,
+  generateEditorTextures
 ) where
 
 import           Prelude hiding (Left, Right)
@@ -20,6 +21,7 @@ import qualified Data.Text as T              (Text(..), unpack,
                                               singleton, drop,
                                               length, pack, lines)
 import           Data.Maybe                  (listToMaybe, catMaybes)
+import           Data.Either.Extra           (isLeft, fromLeft')
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
                                              V2(..), Rectangle(..),
@@ -34,6 +36,7 @@ import           SDL                         (($=))
 import Foreign.C.Types                       (CInt(..)) 
 import qualified SDL.Raw as Raw              (Color(..))
 import           Text.PrettyPrint            (Doc(..))
+import           Text.Parsec                 (ParseError)
 
 import DobadoBots.GameEngine.Data            (GameState(..), GamePhase(..))
 import DobadoBots.Interpreter.Data           (Cond(..))
@@ -42,6 +45,38 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
+
+generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
+generateEditorTextures r rst = do
+  codeTex <- renderCode r . T.lines . text $ editor rst 
+  if isLeft $ currentParseResult rst
+    then do
+      errorTex <- generateSyntaxErrorTex r . fromLeft' $ currentParseResult rst 
+      return $ RendererState
+                 (robotTexture rst)
+                 (editorCursor rst)
+                 codeTex
+                 (running rst)
+                 (editing rst)
+                 (buttons rst)
+                 errorTex
+                 (editor rst)
+                 (currentParseResult rst)
+  else
+    return $ RendererState
+                 (robotTexture rst)
+                 (editorCursor rst)
+                 codeTex
+                 (running rst)
+                 (editing rst)
+                 (buttons rst)
+                 (parseErrorMess rst)  
+                 (editor rst)
+                 (currentParseResult rst)
+
+    
+
+
 offset :: CInt
 offset = 14
 
@@ -49,7 +84,7 @@ drawEditor :: SDL.Renderer -> GameState -> RendererState -> IO ()
 drawEditor r st rst = do
   SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 0) (SDL.V2 300 480)
-  if isSyntaxError rst
+  if isLeft $ currentParseResult rst
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (SDL.V2 300 15)
@@ -73,6 +108,10 @@ displayCode r st rst = do
     clC = fromIntegral $ cl + 1
     ccC = fromIntegral $ cc + 1
     (EditorState t cc cl) = editor rst
+
+generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
+generateSyntaxErrorTex r p = mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 12 (Raw.Color 255 255 255 0))  errTxt
+  where errTxt = lines $ show p
 
 renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r = mapM (renderLine . T.unpack)
