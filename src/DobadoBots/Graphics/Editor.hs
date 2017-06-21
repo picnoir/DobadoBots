@@ -45,8 +45,6 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
-import Debug.Trace
-
 generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
 generateEditorTextures r rst = do
   codeTex <- renderCode r . T.lines . text $ editor rst 
@@ -111,7 +109,7 @@ displayCode r st rst = do
     (EditorState t cc cl) = editor rst
 
 generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
-generateSyntaxErrorTex r p = traceShow errTxt $ mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 14 (Raw.Color 255 255 255 0))  [errTxt]
+generateSyntaxErrorTex r p = mapM (loadFontBlended r "data/fonts/VT323-Regular.ttf" 14 (Raw.Color 255 255 255 0))  [errTxt]
   where 
     errTxt     = unwords $ drop 1 errTxtList
     errTxtList = lines $ show p
