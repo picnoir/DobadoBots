@@ -21,7 +21,7 @@ import qualified Data.Text as T              (Text(..), unpack,
                                               singleton, drop,
                                               length, pack, lines)
 import           Data.Maybe                  (listToMaybe, catMaybes)
-import           Data.Either.Extra           (isLeft, fromLeft')
+import           Data.Either.Extra           (isLeft, isRight, fromLeft')
 import           SDL.Input.Keyboard.Codes
 import qualified SDL                         (Renderer(..), Point(..), 
                                              V2(..), Rectangle(..),
@@ -88,7 +88,7 @@ drawEditor r st rst = do
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (SDL.V2 300 15)
-  unless (null $ parseErrorMess rst) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (snd . head $ parseErrorMess rst))
+  unless ((null $ parseErrorMess rst) || (isRight $ currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 642 375) (snd . head $ parseErrorMess rst))
   displayCode r st rst
   case phase st of
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
