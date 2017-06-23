@@ -103,17 +103,19 @@ moveRobots st = GameState
 moveRobot  :: GameState -> Robot -> Robot
 moveRobot st r = Robot' (robotId r) $ Object newPos (size $ object r) (rotation $ object r) rVel (defaultVelocity $ object r)
   where newPos     = position (object r) + deltaPos
-        deltaPos   = V2 (rVel * cos angle) $ rVel * sin angle
-        -- We had a rounding problem here, this is why we are virtually
-        -- diminishing the default velocity in the check: we want to be 
-        -- sure to not collide anything, even after a bad rounding.
-        rVel       = if (defaultVelocity  (object r) - 1) > nearestD
-                     then nearestD
+        deltaPos   = if rVel == 0
+                     then V2 0 0
+                     else V2 (rVel * cos angle) $ rVel * sin angle
+        -- We have a collision detection problem here. If we are too
+        -- close of the obstacle, the collision engine considers it
+        -- as if it was behind the robot. It is probably related to 
+        -- how we generate the robot front line. The -4 here is a dirtyHack
+        -- good enough for now.
+        rVel       = if defaultVelocity (object r) > (nearestD - 4)
+                     then 0
                      else defaultVelocity $ object r 
         angle      = degreeToRadian . rotation $ object r
-        nearestD :: Float
         nearestD   = fromIntegral $ robotColliderDistance r col
-        rmBotWidth = subtract . (/2) . getYV2 . size $ object r
         col        = snd . fromJust . HM.lookup rId $ collisions st
         rId        = robotId r
 

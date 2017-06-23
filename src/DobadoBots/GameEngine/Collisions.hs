@@ -30,7 +30,10 @@ import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
                                                 objectToShape)
 
 robotColliderDistance :: Robot -> V2 Float -> Integer
-robotColliderDistance rb col = floor $ LM.distance col (position $ object rb)
+robotColliderDistance rb col = floor $ LM.distance col robotPos - (robotWidth / 2)
+  where
+    robotWidth = getYV2 . size $ object rb
+    robotPos   = position $ object rb
 
 robotObjectiveIntersection :: RobotId -> GameState -> Bool
 robotObjectiveIntersection rId st = isJust $ GS.overlap rb obj

@@ -41,9 +41,9 @@ mainLoop r st rst = do
   let quit = elem SDL.QuitEvent $ map SDL.eventPayload evts
   if editor nrst == editor rst
   then do
-    mainGraphicsLoop r nst nrst
+    mainGraphicsLoop r nst2 nrst
     unless quit $ mainLoop r nst2 nrst
   else do
     nrst2 <- generateEditorTextures r nrst
-    mainGraphicsLoop r nst nrst2
+    mainGraphicsLoop r nst2 nrst2
     unless quit $ mainLoop r nst2 nrst2
