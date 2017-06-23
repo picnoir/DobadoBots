@@ -16,7 +16,7 @@ import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
                                                 RobotId(..),Obstacle(..), Objective(..),
                                                 Collision(..), Level(..), GamePhase(..))
-import DobadoBots.GameEngine.Collisions        (nearestIntersection, nearestIntersectionDistance,
+import DobadoBots.GameEngine.Collisions        (nearestIntersection, robotColliderDistance,
                                                 nearestDistance, robotObjectiveIntersection)
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian, radianToDegree)
 import DobadoBots.Interpreter.Interpreter      (interpretScript) 
@@ -107,12 +107,15 @@ moveRobot st r = Robot' (robotId r) $ Object newPos (size $ object r) (rotation 
         -- We had a rounding problem here, this is why we are virtually
         -- diminishing the default velocity in the check: we want to be 
         -- sure to not collide anything, even after a bad rounding.
-        rVel       = if (defaultVelocity  (object r) - 1) > fromMaybe (defaultVelocity $ object r) nearestD
-                     then fromMaybe (defaultVelocity $ object r) nearestD
+        rVel       = if (defaultVelocity  (object r) - 1) > nearestD
+                     then nearestD
                      else defaultVelocity $ object r 
         angle      = degreeToRadian . rotation $ object r
-        nearestD   = max 0 . rmBotWidth . snd <$> nearestIntersectionDistance r st
+        nearestD :: Float
+        nearestD   = fromIntegral $ robotColliderDistance r col
         rmBotWidth = subtract . (/2) . getYV2 . size $ object r
+        col        = snd . fromJust . HM.lookup rId $ collisions st
+        rId        = robotId r
 
 computeCollisions :: GameState -> GameState
 computeCollisions st = GameState

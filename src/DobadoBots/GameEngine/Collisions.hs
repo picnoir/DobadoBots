@@ -1,8 +1,8 @@
 module DobadoBots.GameEngine.Collisions (
  nearestIntersection
-,nearestIntersectionDistance
 ,nearestDistance
 ,robotObjectiveIntersection
+,robotColliderDistance 
 ) where
 
 import           Linear.V2                     (V2(..))
@@ -17,7 +17,7 @@ import qualified Data.SG.Geometry.TwoDim as G2 (Line2'(..), Rel2', Line2',
 import           Data.Maybe                    (catMaybes, mapMaybe, maybeToList,
                                                 listToMaybe, isJust, fromJust)
 import           Data.HashMap.Strict     as HM (lookup)
-
+import qualified Linear.Metric       as LM (distance)
 import           Control.Monad                 (liftM2)
 
 import DobadoBots.GameEngine.Data              (Robot(..), GameState(..),
@@ -28,6 +28,9 @@ import DobadoBots.Interpreter.Data             (Collider(..))
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTupleArray,
                                                 v2toSGVect, point2ToV2, degreeToRadian,
                                                 objectToShape)
+
+robotColliderDistance :: Robot -> V2 Float -> Integer
+robotColliderDistance rb col = floor $ LM.distance col (position $ object rb)
 
 robotObjectiveIntersection :: RobotId -> GameState -> Bool
 robotObjectiveIntersection rId st = isJust $ GS.overlap rb obj
