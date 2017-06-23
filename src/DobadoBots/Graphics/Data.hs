@@ -24,6 +24,7 @@ data RendererState = RendererState {
   editing            :: (SDL.Texture, SDL.V2 CInt),
   buttons            :: Buttons,
   parseErrorMess     :: [(SDL.Texture, SDL.V2 CInt)],
+  parseErrorCursor   :: (SDL.Texture, SDL.V2 CInt),
   editor             :: EditorState,
   currentParseResult :: Either ParseError Cond
 }

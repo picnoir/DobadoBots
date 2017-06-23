@@ -77,6 +77,7 @@ activateRunningButtons rst p = RendererState
                                 (editing rst)
                                 (Buttons nStartButton nEditButton)
                                 (parseErrorMess rst)
+                                (parseErrorCursor rst)
                                 (editor rst)
                                 (currentParseResult rst)
   where oldStartButton = startButton $ buttons rst

@@ -36,7 +36,8 @@ import           SDL                         (($=))
 import Foreign.C.Types                       (CInt(..)) 
 import qualified SDL.Raw as Raw              (Color(..))
 import           Text.PrettyPrint            (Doc(..))
-import           Text.Parsec                 (ParseError)
+import           Text.Parsec                 (ParseError, sourceColumn, sourceLine,
+                                              errorPos)
 
 import DobadoBots.GameEngine.Data            (GameState(..), GamePhase(..))
 import DobadoBots.Interpreter.Data           (Cond(..))
@@ -59,6 +60,7 @@ generateEditorTextures r rst = do
                  (editing rst)
                  (buttons rst)
                  errorTex
+                 (parseErrorCursor rst)
                  (editor rst)
                  (currentParseResult rst)
   else
@@ -70,6 +72,7 @@ generateEditorTextures r rst = do
                  (editing rst)
                  (buttons rst)
                  (parseErrorMess rst)  
+                 (parseErrorCursor rst)
                  (editor rst)
                  (currentParseResult rst)
 
@@ -86,6 +89,9 @@ drawEditor r st rst = do
   if isLeft $ currentParseResult rst
   then SDL.rendererDrawColor r $= SDL.V4 255 0 0 0
   else SDL.rendererDrawColor r $= SDL.V4 0 255 0 0
+  when (isLeft $ currentParseResult rst) $ do
+    SDL.fillRect r . Just . errorCursorPosition . fromLeft' $ currentParseResult rst
+    SDL.copy r (fst errorCursor) Nothing (Just . errorCursorPosition . fromLeft' $ currentParseResult rst) 
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 0 480) (SDL.V2 940 20)
   unless (null (parseErrorMess rst) || isRight (currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
   displayCode r st rst
@@ -93,6 +99,14 @@ drawEditor r st rst = do
     Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
     Editing -> SDL.copy r (fst $ editing rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ editing rst))
     _ -> return ()
+  where
+    errorCursor = parseErrorCursor rst
+    errorCursorPosition :: ParseError -> SDL.Rectangle CInt
+    errorCursorPosition err = SDL.Rectangle  (SDL.P $ SDL.V2 (640 + (errorColumn err * 6 )) (errorLine err * offset)) (snd $ parseErrorCursor rst)
+    errorColumn :: ParseError -> CInt
+    errorColumn err = fromIntegral $ sourceColumn $ errorPos err 
+    errorLine :: ParseError -> CInt
+    errorLine err = fromIntegral $ sourceLine $ errorPos err
 
 displayCode :: SDL.Renderer -> GameState -> RendererState -> IO ()
 displayCode r st rst = do

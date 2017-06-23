@@ -105,6 +105,7 @@ handleEvents r evts rst st = (nrst, nst)
                   (editing nBrst) 
                   (buttons nBrst)
                   (parseErrorMess nBrst)
+                 (parseErrorCursor nBrst)
                   nEditorState
                   parseResult
         bnst = case bst of
@@ -120,7 +121,6 @@ handleEvents r evts rst st = (nrst, nst)
                        else unformatedEdSt
         astChanged   = ast st /= nAst
         nAst         = fromRight (ast st) parseResult
-        isParseError = isLeft parseResult 
         parseResult :: Either ParseError Cond
         parseResult  =  parseScript . text $ unformatedEdSt
         unformatedEdSt = fromMaybe (editor rst) appEdSt
@@ -227,6 +227,7 @@ createRendererState robotImg renderer st ast = do
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
+  errorCursor <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 255 255 255 0) "!"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons [] editorSt (Right ast)
+  return $ RendererState robot cursor codeTex running editing buttons [] errorCursor editorSt (Right ast)
 
