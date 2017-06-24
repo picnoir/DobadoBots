@@ -18,7 +18,7 @@ import           Data.Char                   (toUpper)
 import qualified Data.Text as T              (Text(..), unpack,
                                               intercalate, concat,
                                               splitAt, split,
-                                              singleton, drop,
+                                              singleton, drop, head,
                                               length, pack, lines, unlines)
 import           Data.Maybe                  (listToMaybe, catMaybes)
 import           Data.Either.Extra           (isLeft, isRight, fromLeft')
@@ -31,7 +31,7 @@ import qualified SDL                         (Renderer(..), Point(..),
                                              Keysym(..), KeyModifier(..),
                                              Keycode(..),
                                              fillRect, rendererDrawColor,
-                                             copy)
+                                             copy, TextInputEventData(..)) 
 import           SDL                         (($=))
 import Foreign.C.Types                       (CInt(..)) 
 import qualified SDL.Raw as Raw              (Color(..))
@@ -45,8 +45,6 @@ import DobadoBots.Interpreter.PrettyPrinter  (prettyPrint)
 import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..),
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
-
-import Debug.Trace
 
 generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
 generateEditorTextures r rst = do
@@ -157,64 +155,36 @@ renderLines r strs = do
           liftIO $ SDL.copy r tex Nothing (Just $ SDL.Rectangle pos size)
 
 handleEditorEvents :: [SDL.Event] -> Maybe EditorEvent
-handleEditorEvents evts = listToMaybe . catMaybes $ (sdlEventTransco <$> filteredKeyboardPressEvents)
+handleEditorEvents evts = listToMaybe . catMaybes $  (Just . handleTextEvent <$> filteredTextInputEvents) ++ (sdlEventTransco <$> filteredKeyboardPressEvents)
   where 
-        filteredKeyboardPressEvents = filter filterKeyboardPressEvents 
-                                                (ked <$> filteredKeyboardEventPayloads) 
-        filterKeyboardPressEvents e = case SDL.keyboardEventKeyMotion e of
+        filteredKeyboardPressEvents     = filter filterKeyboardPressEvents (keyBoardPressEventsExtractor <$> filteredKeyboardEventPayloads) 
+        filteredTextInputEvents         = textInputEventExtractor <$> filteredTextEventPayloads
+        keyBoardPressEventsExtractor e  = case e of
+                                          SDL.KeyboardEvent d  -> d
+                                          _                    -> error 
+                                              "Problem while filtering keyboard events."
+        textInputEventExtractor      e  = case e of
+                                          SDL.TextInputEvent d -> d
+                                          _                    -> error
+                                              "Problem while filtering text input event."
+        filteredTextEventPayloads       = filter filterTextEventsPayload eventsPayloads
+        filteredKeyboardEventPayloads   = filter filterKeyboardEventsPayload eventsPayloads 
+        filterTextEventsPayload evt     = case evt of
+                                          SDL.TextInputEvent _ -> True
+                                          _                    -> False
+        filterKeyboardPressEvents e     = case SDL.keyboardEventKeyMotion e of
                                           SDL.Pressed -> True
                                           _           -> False
-        ked  e                      = case e of
-                                        SDL.KeyboardEvent d -> d
-                                        _                   -> error 
-                                              "Problem while filtering keyboard events."
-        filteredKeyboardEventPayloads = filter filterEventsPayload eventsPayloads 
-        filterEventsPayload evt = case evt of
-                                    SDL.KeyboardEvent _ -> True 
-                                    _                   -> False 
-        eventsPayloads          = map SDL.eventPayload evts
+        filterKeyboardEventsPayload evt = case evt of
+                                          SDL.KeyboardEvent  _ -> True 
+                                          _                    -> False 
+        eventsPayloads                  = map SDL.eventPayload evts
+
+handleTextEvent :: SDL.TextInputEventData -> EditorEvent
+handleTextEvent e = AppendChar . T.head $ SDL.textInputEventText e
 
 sdlEventTransco :: SDL.KeyboardEventData -> Maybe EditorEvent
-sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = traceShow keySym $ case keySym of
-  (SDL.Keysym _ KeycodeA _)           -> handleCharMods 'a'
-  (SDL.Keysym _ KeycodeB _)           -> handleCharMods 'b'
-  (SDL.Keysym _ KeycodeC _)           -> handleCharMods 'c'
-  (SDL.Keysym _ KeycodeD _)           -> handleCharMods 'd'
-  (SDL.Keysym _ KeycodeE _)           -> handleCharMods 'e'
-  (SDL.Keysym _ KeycodeF _)           -> handleCharMods 'f'
-  (SDL.Keysym _ KeycodeG _)           -> handleCharMods 'g'
-  (SDL.Keysym _ KeycodeH _)           -> handleCharMods 'h'
-  (SDL.Keysym _ KeycodeI _)           -> handleCharMods 'i'
-  (SDL.Keysym _ KeycodeJ _)           -> handleCharMods 'j'
-  (SDL.Keysym _ KeycodeK _)           -> handleCharMods 'k'
-  (SDL.Keysym _ KeycodeL _)           -> handleCharMods 'l'
-  (SDL.Keysym _ KeycodeM _)           -> handleCharMods 'm'
-  (SDL.Keysym _ KeycodeN _)           -> handleCharMods 'n'
-  (SDL.Keysym _ KeycodeO _)           -> handleCharMods 'o'
-  (SDL.Keysym _ KeycodeP _)           -> handleCharMods 'p'
-  (SDL.Keysym _ KeycodeQ _)           -> handleCharMods 'q'
-  (SDL.Keysym _ KeycodeR _)           -> handleCharMods 'r'
-  (SDL.Keysym _ KeycodeS _)           -> handleCharMods 's'
-  (SDL.Keysym _ KeycodeT _)           -> handleCharMods 't'
-  (SDL.Keysym _ KeycodeU _)           -> handleCharMods 'u'
-  (SDL.Keysym _ KeycodeV _)           -> handleCharMods 'v'
-  (SDL.Keysym _ KeycodeW _)           -> handleCharMods 'w'
-  (SDL.Keysym _ KeycodeX _)           -> handleCharMods 'x'
-  (SDL.Keysym _ KeycodeY _)           -> handleCharMods 'y'
-  (SDL.Keysym _ KeycodeZ _)           -> handleCharMods 'z'
-  (SDL.Keysym _ Keycode1 _)           -> Just $ AppendChar '1'
-  (SDL.Keysym _ Keycode2 _)           -> Just $ AppendChar '2'
-  (SDL.Keysym _ Keycode3 _)           -> Just $ AppendChar '3'
-  (SDL.Keysym _ Keycode4 _)           -> Just $ AppendChar '4'
-  (SDL.Keysym _ Keycode5 _)           -> Just $ AppendChar '5'
-  (SDL.Keysym _ Keycode6 _)           -> Just $ AppendChar '6'
-  (SDL.Keysym _ Keycode7 _)           -> Just $ AppendChar '7'
-  (SDL.Keysym _ Keycode8 _)           -> Just $ AppendChar '8'
-  (SDL.Keysym _ Keycode9 _)           -> Just $ AppendChar '9'
-  (SDL.Keysym _ Keycode0 _)           -> Just $ AppendChar '0'
-  (SDL.Keysym _ KeycodeEquals _)      -> Just $ AppendChar '='
-  (SDL.Keysym _ KeycodeGreater _)     -> Just $ AppendChar '>'
-  (SDL.Keysym _ KeycodeLess _)        -> Just $ AppendChar '<'
+sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
   (SDL.Keysym _ KeycodeReturn _)      -> Just NewLine
   (SDL.Keysym _ KeycodeBackspace _)   -> Just BackSpace
   (SDL.Keysym _ KeycodeDelete _)      -> Just Delete
