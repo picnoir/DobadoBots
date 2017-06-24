@@ -208,28 +208,32 @@ appendEventEditor NewLine est@(EditorState t cc cl)        = EditorState (insert
 appendEventEditor Space est                                = appendEventEditor (AppendChar ' ') est
 appendEventEditor Delete est@(EditorState t cc cl)         = EditorState (removeChar est) cc cl
 appendEventEditor BackSpace est@(EditorState t cc cl)
-  | cc == 0 && cl > 0 = EditorState ( sucklessUnlines . removeLine cl $ appendLineToPreviousLine cl splittedLines)  0 (cl - 1)
+  | cc == 0 && cl > 0 = EditorState ( sucklessUnlines . removeLine cl $ appendLineToPreviousLine cl splittedLines)  endPreviousLine (cl - 1)
   | cc > 0 = EditorState (removeChar $ EditorState t (cc - 1) cl) (max (cc-1) 0) cl
   | otherwise = est
   where
     sucklessUnlines = T.intercalate (T.singleton '\n')
     splittedLines = T.split (=='\n') t
     customUnlines = T.intercalate (T.singleton '\n')
+    endPreviousLine = getLineLength (cl - 1) t
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
   where
-    lineLength = T.length $ T.split (=='\n') t !! cl
+    lineLength = getLineLength cl t
 appendEventEditor Up    est@(EditorState t cc cl)
   | cl == 0   = est
   | otherwise = EditorState t (min cc upperLineLength) (max 0 (cl - 1))
   where
-    upperLineLength = T.length $ T.split (=='\n') t !! (cl - 1)
+    upperLineLength = getLineLength (cl - 1) t
 appendEventEditor Down  est@(EditorState t cc cl)
   | cl == endLine = est
   | otherwise     = EditorState t (min cc downLineLength) (min endLine (cl + 1))
   where
     endLine = length (T.split (=='\n') t) - 1
-    downLineLength = T.length $ T.split (=='\n') t !! (cl + 1)
+    downLineLength = getLineLength (cl + 1) t 
+
+getLineLength :: Int -> T.Text -> Int
+getLineLength i t = T.length $ T.split (=='\n') t !! i
 
 insertCharEditor :: Char -> EditorState -> T.Text
 insertCharEditor c (EditorState t cc cl) 

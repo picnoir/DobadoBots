@@ -1,10 +1,4 @@
-IF laserDistance > 20
-  moveForward
+IF laserDistance < 10
+  turnLeft
 ELSE
-  IF laserScan = objective
-    moveForward
-  ELSE
-   IF laserScan = obstacle
-       turnLeft
-    ELSE
-      faceObjective
+  moveForward
