@@ -12,12 +12,6 @@ import DobadoBots (handleEditorEvents, appendEventEditor,
 spec :: Spec
 spec = do 
         describe "handleEditorEvents" $ do
-          it "should return append char a" $
-             handleEditorEvents [charALowercaseEvent] `shouldBe` Just (AppendChar 'a')
-          it "should return append char A" $
-             handleEditorEvents [charAUppercaseEvent1] `shouldBe` Just (AppendChar 'A')
-          it "should return append char A" $
-             handleEditorEvents [charAUppercaseEvent2] `shouldBe` Just (AppendChar 'A')
           it "should return space" $
              handleEditorEvents [spaceEvent] `shouldBe` Just Space
           it "should return newLine" $
