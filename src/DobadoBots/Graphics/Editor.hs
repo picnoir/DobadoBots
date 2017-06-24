@@ -46,6 +46,8 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
+import Debug.Trace
+
 generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
 generateEditorTextures r rst = do
   codeTex <- renderCode r . T.lines . text $ editor rst 
@@ -173,7 +175,7 @@ handleEditorEvents evts = listToMaybe . catMaybes $ (sdlEventTransco <$> filtere
         eventsPayloads          = map SDL.eventPayload evts
 
 sdlEventTransco :: SDL.KeyboardEventData -> Maybe EditorEvent
-sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
+sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = traceShow keySym $ case keySym of
   (SDL.Keysym _ KeycodeA _)           -> handleCharMods 'a'
   (SDL.Keysym _ KeycodeB _)           -> handleCharMods 'b'
   (SDL.Keysym _ KeycodeC _)           -> handleCharMods 'c'
@@ -210,6 +212,9 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
   (SDL.Keysym _ Keycode8 _)           -> Just $ AppendChar '8'
   (SDL.Keysym _ Keycode9 _)           -> Just $ AppendChar '9'
   (SDL.Keysym _ Keycode0 _)           -> Just $ AppendChar '0'
+  (SDL.Keysym _ KeycodeEquals _)      -> Just $ AppendChar '='
+  (SDL.Keysym _ KeycodeGreater _)     -> Just $ AppendChar '>'
+  (SDL.Keysym _ KeycodeLess _)        -> Just $ AppendChar '<'
   (SDL.Keysym _ KeycodeReturn _)      -> Just NewLine
   (SDL.Keysym _ KeycodeBackspace _)   -> Just BackSpace
   (SDL.Keysym _ KeycodeDelete _)      -> Just Delete
