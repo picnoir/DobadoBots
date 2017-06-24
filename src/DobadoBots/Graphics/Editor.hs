@@ -10,7 +10,7 @@ module DobadoBots.Graphics.Editor(
   generateEditorTextures
 ) where
 
-import           Prelude hiding (Left, Right)
+import           Prelude              hiding (Left, Right)
 import           Control.Monad               (when, unless)
 import           Control.Monad.State         (StateT(..), get,
                                               modify, liftIO)
@@ -46,6 +46,7 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
+
 generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
 generateEditorTextures r rst = do
   codeTex <- renderCode r . T.lines . text $ editor rst 
@@ -76,9 +77,6 @@ generateEditorTextures r rst = do
                  (editor rst)
                  (currentParseResult rst)
 
-    
-
-
 offset :: CInt
 offset = 14
 
@@ -93,20 +91,23 @@ drawEditor r st rst = do
     SDL.fillRect r . Just . errorCursorPosition . fromLeft' $ currentParseResult rst
     SDL.copy r (fst errorCursor) Nothing (Just . errorCursorPosition . fromLeft' $ currentParseResult rst) 
   SDL.fillRect r . Just $ SDL.Rectangle (SDL.P $ SDL.V2 0 480) (SDL.V2 940 20)
-  unless (null (parseErrorMess rst) || isRight (currentParseResult rst)) $ SDL.copy r (fst . head $ parseErrorMess rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
+  unless (null (parseErrorMess rst) || isRight (currentParseResult rst)) $ 
+    SDL.copy r (fst . head $ parseErrorMess rst) Nothing 
+    (Just $ SDL.Rectangle (SDL.P $ SDL.V2 10 481) (snd . head $ parseErrorMess rst))
   displayCode r st rst
   case phase st of
-    Running -> SDL.copy r (fst $ running rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
-    Editing -> SDL.copy r (fst $ editing rst) Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ editing rst))
+    Running -> SDL.copy r (fst $ running rst) Nothing 
+                (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ running rst))
+    Editing -> SDL.copy r (fst $ editing rst) Nothing 
+                (Just $ SDL.Rectangle (SDL.P $ SDL.V2 640 400)(snd $ editing rst))
     _ -> return ()
   where
-    errorCursor = parseErrorCursor rst
-    errorCursorPosition :: ParseError -> SDL.Rectangle CInt
-    errorCursorPosition err = SDL.Rectangle  (SDL.P $ SDL.V2 (640 + (errorColumn err * 6 )) (errorLine err * offset)) (snd $ parseErrorCursor rst)
-    errorColumn :: ParseError -> CInt
-    errorColumn err = fromIntegral $ sourceColumn $ errorPos err 
-    errorLine :: ParseError -> CInt
-    errorLine err = fromIntegral $ sourceLine $ errorPos err
+    errorCursor             = parseErrorCursor rst
+    errorCursorPosition err = SDL.Rectangle 
+                                (SDL.P $ SDL.V2 (640 + (errorColumn err * 6 )) (errorLine err * offset)) 
+                                (snd $ parseErrorCursor rst)
+    errorColumn err         = fromIntegral $ sourceColumn $ errorPos err
+    errorLine err           = fromIntegral $ sourceLine $ errorPos err
 
 displayCode :: SDL.Renderer -> GameState -> RendererState -> IO ()
 displayCode r st rst = do
@@ -117,9 +118,9 @@ displayCode r st rst = do
                                                           (Just $ SDL.Rectangle cursorPos (snd $ editorCursor rst))
                     return ()
   where
-    cursorPos = SDL.P $ SDL.V2 (640 + (ccC * 6 )) (clC * offset) 
-    clC = fromIntegral $ cl + 1
-    ccC = fromIntegral $ cc + 1
+    cursorPos             = SDL.P $ SDL.V2 (640 + (ccC * 6 )) (clC * offset)
+    clC                   = fromIntegral $ cl + 1
+    ccC                   = fromIntegral $ cc + 1
     (EditorState t cc cl) = editor rst
 
 generateSyntaxErrorTex :: SDL.Renderer -> ParseError -> IO [(SDL.Texture, SDL.V2 CInt)]
@@ -127,6 +128,7 @@ generateSyntaxErrorTex r p = mapM (loadFontBlended r "data/fonts/VT323-Regular.t
   where 
     errTxt     = unwords $ drop 1 errTxtList
     errTxtList = lines $ show p
+
 renderCode :: SDL.Renderer -> [T.Text] -> IO [(SDL.Texture, SDL.V2 CInt)]
 renderCode r = mapM (renderLine . T.unpack)
   where 
@@ -198,9 +200,9 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
         handleCharMods c = if isUpper 
                            then Just $ AppendChar $ toUpper c
                            else Just $ AppendChar c
-        code           = SDL.keysymKeycode keySym
-        mods           = SDL.keysymModifier keySym
-        isUpper = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
+        code             = SDL.keysymKeycode keySym
+        mods             = SDL.keysymModifier keySym
+        isUpper          = SDL.keyModifierLeftShift mods || SDL.keyModifierRightShift mods 
 
 appendEventEditor :: EditorEvent -> EditorState -> EditorState
 appendEventEditor (AppendChar c) est@(EditorState t cc cl) = EditorState (insertCharEditor c est) (cc + 1) cl
@@ -213,8 +215,8 @@ appendEventEditor BackSpace est@(EditorState t cc cl)
   | otherwise = est
   where
     sucklessUnlines = T.intercalate (T.singleton '\n')
-    splittedLines = T.split (=='\n') t
-    customUnlines = T.intercalate (T.singleton '\n')
+    splittedLines   = T.split (=='\n') t
+    customUnlines   = T.intercalate (T.singleton '\n')
     endPreviousLine = getLineLength (cl - 1) t
 appendEventEditor Left      (EditorState t cc cl)          = EditorState t (max (cc - 1) 0) cl
 appendEventEditor Right     (EditorState t cc cl)          = EditorState t (min (cc + 1) lineLength) cl
@@ -268,7 +270,5 @@ removeLine pos xs = take pos xs ++ drop (pos + 1) xs
 
 appendLineToPreviousLine :: Int -> [T.Text] -> [T.Text]
 appendLineToPreviousLine pos xs = insertAt (pos - 1) (T.concat (previousLine : [line])) xs 
-  where line :: T.Text
-        line = xs !! pos 
-        previousLine :: T.Text
+  where line         = xs !! pos 
         previousLine = xs !! (pos - 1)
