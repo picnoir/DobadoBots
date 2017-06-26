@@ -28,7 +28,7 @@ generateGameState l = GameState
                             (lObjective l)
                             (lStartingPoints l)
                             (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints l))])
-                            Editing
+                            SplashScreen
                             HM.empty
 
 

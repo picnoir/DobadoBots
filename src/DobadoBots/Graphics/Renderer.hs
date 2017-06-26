@@ -27,7 +27,7 @@ import qualified SDL                       (Renderer, rendererDrawColor, clear,
                                             V4(..), Texture(..),
                                             createTextureFromSurface, 
                                             freeSurface, copyEx, drawLine, copy,
-                                            surfaceDimensions, Event)
+                                            surfaceDimensions, Event, ticks)
 import qualified SDL.TTF as TTF            (withInit, wasInit,
                                             openFont, renderUTF8Solid,
                                             renderUTF8Blended, closeFont)
@@ -48,12 +48,27 @@ import           Text.Parsec               (ParseError)
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
+  ticks <- SDL.ticks
   case phase gameState of
-    Running -> mainLoopRunning renderer gameState rendererState
-    Editing -> mainLoopEditing renderer gameState rendererState
-    Win     -> mainLoopWin renderer gameState rendererState
+    SplashScreen   -> mainLoopSplash  renderer gameState rendererState
+    LevelSelection -> mainLoopLevelSelection renderer gameState rendererState
+    Running        -> mainLoopRunning renderer gameState rendererState
+    Editing        -> mainLoopEditing renderer gameState rendererState
+    Win            -> mainLoopWin renderer gameState rendererState
   SDL.present renderer
   return ()
+
+mainLoopLevelSelection :: SDL.Renderer -> GameState -> RendererState -> IO ()
+mainLoopLevelSelection = undefined
+
+mainLoopSplash :: SDL.Renderer -> GameState -> RendererState -> IO ()
+mainLoopSplash r gst rst = do 
+  SDL.copy r spTex Nothing (Just $ SDL.Rectangle (SDL.P $ SDL.V2 0 0) sizeTex)
+  displayButtons r (buttons rst)
+  return ()
+  where
+    spTex   = fst $ splashScreen rst
+    sizeTex = snd $ splashScreen rst
 
 mainLoopRunning :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopRunning renderer gameState rendererState = do
@@ -105,12 +120,14 @@ handleEvents r evts rst st = (nrst, nst)
                   (editing nBrst) 
                   (buttons nBrst)
                   (parseErrorMess nBrst)
-                 (parseErrorCursor nBrst)
+                  (parseErrorCursor nBrst)
+                  (splashScreen nBrst)
                   nEditorState
                   parseResult
         bnst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing $ reinitGameState st
+                Just PlayEvent  -> setPhase Editing $ reinitGameState st
                 _ -> st
         nBrst = fromMaybe rst brst
         nEditorState = if astChanged
@@ -121,10 +138,8 @@ handleEvents r evts rst st = (nrst, nst)
                        else unformatedEdSt
         astChanged   = ast st /= nAst
         nAst         = fromRight (ast st) parseResult
-        parseResult :: Either ParseError Cond
         parseResult  =  parseScript . text $ unformatedEdSt
         unformatedEdSt = fromMaybe (editor rst) appEdSt
-        appEdSt :: Maybe EditorState
         appEdSt      = liftM2 appendEventEditor editorEvt (Just $ editor rst)
         editorEvt    = if phase st == Editing
                        then handleEditorEvents evts
@@ -226,8 +241,9 @@ createRendererState robotImg renderer st ast = do
   buttons <- createButtons renderer
   running <- getBmpTex "data/img/running.bmp" renderer
   editing <- getBmpTex "data/img/editing.bmp" renderer
+  splash  <- getBmpTex "data/img/splash.bmp"  renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   errorCursor <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 255 255 255 0) "!"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons [] errorCursor editorSt (Right ast)
+  return $ RendererState robot cursor codeTex running editing buttons [] errorCursor splash editorSt (Right ast)
 

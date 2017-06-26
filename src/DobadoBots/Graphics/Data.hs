@@ -25,17 +25,19 @@ data RendererState = RendererState {
   buttons            :: Buttons,
   parseErrorMess     :: [(SDL.Texture, SDL.V2 CInt)],
   parseErrorCursor   :: (SDL.Texture, SDL.V2 CInt),
+  splashScreen       :: (SDL.Texture, SDL.V2 CInt),
   editor             :: EditorState,
   currentParseResult :: Either ParseError Cond
 }
  
 data Buttons = Buttons {
   startButton   :: Button,
-  editButton    :: Button
+  editButton    :: Button,
+  playButton    :: Button
 }
 
 toList :: Buttons -> [Button]
-toList b = [startButton b, editButton b]
+toList b = [startButton b, editButton b, playButton b]
 
 data Button = Button {
   buttonTex     :: (SDL.Texture, SDL.V2 CInt),
@@ -47,7 +49,8 @@ data Button = Button {
 }
 
 data ButtonEvent = StartEvent
-                 | EditEvent deriving (Eq, Show)
+                 | EditEvent 
+                 | PlayEvent deriving (Eq, Show)
 
 data EditorState = EditorState {
   text               :: Text,

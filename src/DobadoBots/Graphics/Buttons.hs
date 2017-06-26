@@ -24,15 +24,17 @@ createButtons :: SDL.Renderer -> IO Buttons
 createButtons r = do
   startButtonTex <- getBmpTex "data/img/start.bmp" r
   editButtonTex  <- getBmpTex "data/img/edit.bmp"  r
+  playButtonTex  <- getBmpTex "data/img/play.bmp"  r
   startButtonTexHover <- getBmpTex "data/img/start-hover.bmp" r
-  let startButton = Button startButtonTex startButtonTexHover controlButtonPos False True StartEvent
+  let startButton = Button startButtonTex startButtonTexHover controlButtonPos False False StartEvent
   let editButton  = Button editButtonTex  editButtonTex       controlButtonPos False False EditEvent
-  return $ Buttons startButton editButton
+  let playButton  = Button playButtonTex  playButtonTex       (SDL.P $ SDL.V2 700 380) False True PlayEvent
+  return $ Buttons startButton editButton playButton
   where
     controlButtonPos = SDL.P $ SDL.V2 550 413
 
 displayButtons :: SDL.Renderer -> Buttons -> IO [()]
-displayButtons r b = mapM (displayButton r) [startButton b, editButton b]
+displayButtons r b = mapM (displayButton r) (toList b) 
 
 displayButton :: SDL.Renderer -> Button -> IO ()
 displayButton r b = when (isActive b) $ SDL.copy r (fst tex) Nothing (Just $ SDL.Rectangle (buttonPos b) (snd tex))
@@ -75,18 +77,31 @@ activateRunningButtons rst p = RendererState
                                 (codeTextures rst)
                                 (running rst)
                                 (editing rst)
-                                (Buttons nStartButton nEditButton)
+                                (Buttons nStartButton nEditButton nPlayButton)
                                 (parseErrorMess rst)
                                 (parseErrorCursor rst)
+                                (splashScreen rst)
                                 (editor rst)
                                 (currentParseResult rst)
   where oldStartButton = startButton $ buttons rst
         oldEditButton  = editButton  $ buttons rst
+        oldPlayButton  = playButton  $ buttons rst
         nStartButton   = setButtonActivity oldStartButton startActive
-        nEditButton    = setButtonActivity oldEditButton  (not startActive)
+        nEditButton    = setButtonActivity oldEditButton  editActive
+        nPlayButton    = setButtonActivity oldPlayButton  playActive
         startActive    = case p of
                           StartEvent -> False
                           EditEvent  -> True
+                          PlayEvent  -> True
+        editActive     = case p of
+                          StartEvent -> True
+                          EditEvent  -> False
+                          PlayEvent  -> False
+        playActive     = case p of
+                          StartEvent -> False
+                          EditEvent  -> False
+                          PlayEvent  -> False
+       
 
 setButtonActivity :: Button -> Bool -> Button 
 setButtonActivity b active = Button (buttonTex b)

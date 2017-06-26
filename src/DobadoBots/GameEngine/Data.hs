@@ -57,7 +57,7 @@ data Object = Object {position        :: Position
 
 type Collision = (Collider, V2 Float)
 
-data GamePhase = SplashScreen | Tutorial | Editing | Running | Lose | Win deriving (Show, Eq)
+data GamePhase = SplashScreen | LevelSelection | Tutorial | Editing | Running | Lose | Win deriving (Show, Eq)
 
 type Obstacle = Object
 
