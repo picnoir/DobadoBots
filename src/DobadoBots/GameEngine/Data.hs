@@ -59,7 +59,6 @@ type Collision = (Collider, V2 Float)
 
 data GamePhase = SplashScreen | Tutorial | Editing | Running | Lose | Win deriving (Show, Eq)
 
-
 type Obstacle = Object
 
 type Objective = Object

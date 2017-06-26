@@ -64,4 +64,6 @@ data EditorEvent = AppendChar Char
                  | Right
                  | Up
                  | Down
+                 | EndOfLine
+                 | BeginningOfLine
                  deriving (Eq, Show)

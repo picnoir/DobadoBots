@@ -46,7 +46,6 @@ import DobadoBots.Graphics.Data              (RendererState(..), EditorState(..)
                                               EditorEvent(..))
 import DobadoBots.Graphics.Utils             (loadFontBlended)
 
-
 generateEditorTextures :: SDL.Renderer -> RendererState -> IO RendererState
 generateEditorTextures r rst = do
   codeTex <- renderCode r . T.lines . text $ editor rst 
@@ -195,6 +194,8 @@ sdlEventTransco (SDL.KeyboardEventData _ _ _ keySym) = case keySym of
   (SDL.Keysym _ KeycodeLeft _)        -> Just Left
   (SDL.Keysym _ KeycodeRight _)       -> Just Right
   (SDL.Keysym _ KeycodeSpace _)       -> Just Space
+  (SDL.Keysym _ KeycodeEnd _)         -> Just EndOfLine
+  (SDL.Keysym _ KeycodeHome _)        -> Just BeginningOfLine
   _                                   -> Nothing
   where 
         handleCharMods c = if isUpper 
@@ -233,6 +234,8 @@ appendEventEditor Down  est@(EditorState t cc cl)
   where
     endLine = length (T.split (=='\n') t) - 1
     downLineLength = getLineLength (cl + 1) t 
+appendEventEditor EndOfLine (EditorState t cc cl)         = EditorState t (getLineLength cl t) cl
+appendEventEditor BeginningOfLine (EditorState t cc cl)   = EditorState t 0 cl 
 
 getLineLength :: Int -> T.Text -> Int
 getLineLength i t = T.length $ T.split (=='\n') t !! i
@@ -262,7 +265,7 @@ removeChar (EditorState t cc cl)
 insertAt :: Int -> T.Text -> [T.Text] -> [T.Text] 
 insertAt i y xs
   | length xs > 1 = as ++ (y:bs)
-  | otherwise = xs
+  | otherwise = [y]
   where (as,tr:bs) = splitAt i xs
 
 removeLine :: Int -> [T.Text] -> [T.Text]
