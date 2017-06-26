@@ -2,15 +2,22 @@
 module DobadoBots.GameEngine.GameEngine (
   gameEngineTick,
   generateGameState,
-  reinitGameState
+  reinitGameState,
+  getAvailableLevels 
 ) where
 
 import qualified Data.Sequence           as S  (update, index, singleton)
 import           Linear.V2                     (V2(..))
 import qualified Linear.Metric           as LM (distance)
-import           Data.Maybe                    (maybeToList, fromJust, fromMaybe)
+import           Data.Maybe                    (maybeToList, fromJust, fromMaybe, catMaybes)
 import qualified Data.HashMap.Strict     as HM (insert, HashMap, empty, fromList, lookup)
 import qualified Data.SG.Geometry.TwoDim as G2 (Rel2'(..), makeRel2, toAngle) 
+import           Data.Either.Extra             (eitherToMaybe)
+import           Data.Text                     (Text)
+import qualified Data.Text.IO            as TIO(readFile)
+import qualified System.Directory        as SD (listDirectory)
+import           System.FilePath               ((</>))
+import           System.IO                     (FilePath(..))
 
 import DobadoBots.Interpreter.Data             (Cond(..), ActionToken(..))
 import DobadoBots.GameEngine.Data              (GameState(..), Object(..), Robot(..),
@@ -20,6 +27,15 @@ import DobadoBots.GameEngine.Collisions        (nearestIntersection, robotCollid
                                                 nearestDistance, robotObjectiveIntersection)
 import DobadoBots.GameEngine.Utils             (getXV2, getYV2, minTuple, degreeToRadian, radianToDegree)
 import DobadoBots.Interpreter.Interpreter      (interpretScript) 
+import DobadoBots.GameEngine.LevelLoader       (loadLevel)
+
+getAvailableLevels :: FilePath -> IO [Level]
+getAvailableLevels dir = do
+  levelFilesNames <- SD.listDirectory dir
+  levelFilesContent <- mapM TIO.readFile (map (dir </>) levelFilesNames)
+  let parsedLevelsMaybes = eitherToMaybe . loadLevel <$> levelFilesContent
+  let parsedLevels = catMaybes parsedLevelsMaybes
+  return parsedLevels
 
 generateGameState :: Level -> Cond -> GameState
 generateGameState l = GameState
