@@ -32,10 +32,9 @@ import DobadoBots.GameEngine.LevelLoader       (loadLevel)
 getAvailableLevels :: FilePath -> IO [Level]
 getAvailableLevels dir = do
   levelFilesNames <- SD.listDirectory dir
-  levelFilesContent <- mapM TIO.readFile (map (dir </>) levelFilesNames)
+  levelFilesContent <- mapM (TIO.readFile . (dir </>)) levelFilesNames
   let parsedLevelsMaybes = eitherToMaybe . loadLevel <$> levelFilesContent
-  let parsedLevels = catMaybes parsedLevelsMaybes
-  return parsedLevels
+  return $ catMaybes parsedLevelsMaybes
 
 generateGameState :: Level -> Cond -> GameState
 generateGameState l = GameState
