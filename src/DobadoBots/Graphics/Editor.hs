@@ -53,6 +53,8 @@ generateEditorTextures r rst = do
     then do
       errorTex <- generateSyntaxErrorTex r . fromLeft' $ currentParseResult rst 
       return $ RendererState
+                 (levels rst)
+                 (currentSelectedLvl rst)
                  (robotTexture rst)
                  (editorCursor rst)
                  codeTex
@@ -66,6 +68,8 @@ generateEditorTextures r rst = do
                  (currentParseResult rst)
   else
     return $ RendererState
+                 (levels rst)
+                 (currentSelectedLvl rst)
                  (robotTexture rst)
                  (editorCursor rst)
                  codeTex

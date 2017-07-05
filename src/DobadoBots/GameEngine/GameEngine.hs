@@ -46,7 +46,6 @@ generateGameState l = GameState
                             SplashScreen
                             HM.empty
 
-
 reinitGameState :: GameState -> GameState
 reinitGameState st = GameState
                         (obstacles st)

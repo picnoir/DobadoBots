@@ -1,7 +1,8 @@
 module DobadoBots.Graphics.Utils (
  loadFontBlended,
  getBmpTex,
- isInRectangle
+ isInRectangle,
+ changeLevel
 ) where
 
 import Control.Monad            (unless)
@@ -18,6 +19,8 @@ import qualified SDL.TTF as TTF (withInit, wasInit,
                                  openFont, renderUTF8Solid,
                                  renderUTF8Blended, closeFont,
                                  renderUTF8Solid)
+
+import DobadoBots.Graphics.Data (RendererState(..))
 
 loadFontBlended :: SDL.Renderer -> String -> Int -> Raw.Color -> String -> IO (SDL.Texture, SDL.V2 CInt)
 loadFontBlended r fontFile size color text = TTF.withInit $ do
@@ -56,3 +59,6 @@ isInRectangle (SDL.Rectangle (SDL.P (SDL.V2 xr yr)) (SDL.V2 w h)) (SDL.P (SDL.V2
         am = m - a
         bc = b - c
         bm = b - m
+
+changeLevel :: Int -> RendererState -> Int
+changeLevel i rst = ((currentSelectedLvl rst) + i) `mod` (length (levels rst))

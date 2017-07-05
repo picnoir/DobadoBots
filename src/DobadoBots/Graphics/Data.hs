@@ -15,8 +15,11 @@ import Foreign.C.Types     (CInt)
 import Text.Parsec         (ParseError)
 
 import DobadoBots.Interpreter.Data (Cond)
+import DobadoBots.GameEngine.Data  (Level)
 
 data RendererState = RendererState {
+  levels             :: [Level],
+  currentSelectedLvl :: Int,
   robotTexture       :: (SDL.Texture, SDL.V2 CInt),
   editorCursor       :: (SDL.Texture, SDL.V2 CInt),
   codeTextures       :: [(SDL.Texture, SDL.V2 CInt)],
@@ -31,13 +34,17 @@ data RendererState = RendererState {
 }
  
 data Buttons = Buttons {
-  startButton   :: Button,
-  editButton    :: Button,
-  playButton    :: Button
-}
+  startButton     :: Button,
+  editButton      :: Button,
+  playButton      :: Button,
+  levelSelectionL :: Button,
+  levelSelectionR :: Button,
+  selectLevel     :: Button
+} 
 
 toList :: Buttons -> [Button]
-toList b = [startButton b, editButton b, playButton b]
+toList b = [startButton b, editButton b, playButton b, levelSelectionL b,
+            levelSelectionR b, selectLevel b]
 
 data Button = Button {
   buttonTex     :: (SDL.Texture, SDL.V2 CInt),
@@ -50,7 +57,11 @@ data Button = Button {
 
 data ButtonEvent = StartEvent
                  | EditEvent 
-                 | PlayEvent deriving (Eq, Show)
+                 | PlayEvent
+                 | LeftEvent
+                 | RightEvent
+                 | ChoseLevelEvent
+                   deriving (Eq, Show)
 
 data EditorState = EditorState {
   text               :: Text,

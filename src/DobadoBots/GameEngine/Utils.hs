@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module DobadoBots.GameEngine.Utils(
   getXV2,
   getYV2,
@@ -9,16 +10,18 @@ module DobadoBots.GameEngine.Utils(
   radianToDegree,
   point2ToV2,
   objectToShape,
-  setPhase
+  setPhase,
+  setLevel
 ) where
 
 import Linear.V2               (V2(..))
 import Data.SG.Geometry.TwoDim (Point2'(..))
 import qualified Data.SG.Shape as GS (Shape'(..))
 import qualified Data.SG.Geometry.TwoDim as G2 (Point2'(..))
+import qualified Data.HashMap.Strict   as HM (fromList)
 
 import DobadoBots.GameEngine.Data (Object(..), GamePhase(..),
-                                   GameState(..))
+                                   GameState(..), Level(..), Robot(..))
 
 getXV2 :: V2 a -> a
 getXV2 (V2 x _) = x
@@ -63,5 +66,16 @@ setPhase newPhase st = GameState
                          (startingPoints st)
                          (robots st)
                          newPhase
+                         (collisions st)
+                         (ast st)
+
+setLevel :: Level -> GameState -> GameState
+setLevel lvl st = GameState
+                         (lObstacles lvl)
+                         (lArenaSize lvl)
+                         (lObjective lvl)
+                         (lStartingPoints lvl)
+                         (HM.fromList[("UniqRobot",Robot' "UniqRobot" (head $ lStartingPoints lvl))])
+                         (phase st)
                          (collisions st)
                          (ast st)

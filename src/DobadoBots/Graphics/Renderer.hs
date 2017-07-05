@@ -9,8 +9,8 @@ import DobadoBots.GameEngine.Data          (GameState(..), Objective(..),
                                             Obstacle(..), GamePhase(..),
                                             Object(..), Robot(..), 
                                             getCenter)
-import DobadoBots.GameEngine.GameEngine    (reinitGameState)
-import DobadoBots.GameEngine.Utils         (setPhase)
+import DobadoBots.GameEngine.GameEngine    (reinitGameState, getAvailableLevels)
+import DobadoBots.GameEngine.Utils         (setPhase, setLevel)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
                                             appendEventEditor, handleEditorEvents,
                                             prettyPrintAst)
@@ -59,7 +59,12 @@ mainGraphicsLoop renderer gameState rendererState = do
   return ()
 
 mainLoopLevelSelection :: SDL.Renderer -> GameState -> RendererState -> IO ()
-mainLoopLevelSelection = undefined
+mainLoopLevelSelection renderer gameState rendererState = do
+  drawEditor renderer gameState rendererState
+  drawArena renderer gameState
+  drawRobots renderer (robotTexture rendererState) . HM.elems $ robots gameState 
+  displayButtons renderer (buttons rendererState)
+  return ()
 
 mainLoopSplash :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopSplash r gst rst = do 
@@ -113,6 +118,8 @@ handleEvents r evts rst st = (nrst, nst)
                 (collisions bnst)
                 nAst
         nrst  = RendererState 
+                  (levels nBrst)
+                  (currentSelectedLvl nBrst)
                   (robotTexture nBrst)
                   (editorCursor nBrst)
                   (codeTextures nBrst)
@@ -127,7 +134,10 @@ handleEvents r evts rst st = (nrst, nst)
         bnst = case bst of
                 Just StartEvent -> setPhase Running st
                 Just EditEvent  -> setPhase Editing $ reinitGameState st
-                Just PlayEvent  -> setPhase Editing $ reinitGameState st
+                Just PlayEvent  -> setPhase LevelSelection st
+                Just ChoseLevelEvent -> setPhase Editing $ reinitGameState st
+                Just LeftEvent  -> setLevel (levels nBrst !! currentSelectedLvl nBrst) st
+                Just RightEvent -> setLevel (levels nBrst !! currentSelectedLvl nBrst) st
                 _ -> st
         nBrst = fromMaybe rst brst
         nEditorState = if astChanged
@@ -244,6 +254,6 @@ createRendererState robotImg renderer st ast = do
   splash  <- getBmpTex "data/img/splash.bmp"  renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   errorCursor <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 255 255 255 0) "!"
+  levels <- getAvailableLevels "data/levels"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState robot cursor codeTex running editing buttons [] errorCursor splash editorSt (Right ast)
-
+  return $ RendererState levels 0 robot cursor codeTex running editing buttons [] errorCursor splash editorSt (Right ast)
