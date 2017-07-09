@@ -64,6 +64,7 @@ generateEditorTextures r rst = do
                  errorTex
                  (parseErrorCursor rst)
                  (splashScreen rst)
+                 (levelNumber rst)
                  (editor rst)
                  (currentParseResult rst)
   else
@@ -79,6 +80,7 @@ generateEditorTextures r rst = do
                  (parseErrorMess rst)  
                  (parseErrorCursor rst)
                  (splashScreen rst)
+                 (levelNumber rst)
                  (editor rst)
                  (currentParseResult rst)
 

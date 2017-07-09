@@ -88,6 +88,7 @@ modifyButtonsStates rst p = RendererState
                                 (parseErrorMess rst)
                                 (parseErrorCursor rst)
                                 (splashScreen rst)
+                                (levelNumber rst)
                                 (editor rst)
                                 (currentParseResult rst)
   where oldStartButton     = startButton $ buttons rst

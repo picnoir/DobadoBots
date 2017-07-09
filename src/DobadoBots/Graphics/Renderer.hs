@@ -14,7 +14,7 @@ import DobadoBots.GameEngine.Utils         (setPhase, setLevel)
 import DobadoBots.Graphics.Editor          (drawEditor, renderCode,
                                             appendEventEditor, handleEditorEvents,
                                             prettyPrintAst)
-import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex)
+import DobadoBots.Graphics.Utils           (loadFontBlended, getBmpTex, setLevelNumber)
 import DobadoBots.Graphics.Data            (RendererState(..), ButtonEvent(..), EditorState(..))
 import DobadoBots.Graphics.Buttons         (createButtons, displayButtons, handleMouseEvents)
 import DobadoBots.Interpreter.Data         (Cond, Collider(..))
@@ -45,6 +45,7 @@ import qualified Data.Text as T            (lines, unlines)
 import           Data.Either.Extra         (fromRight, isLeft)
 import           Text.Parsec               (ParseError)
 
+mainGraphicsLoop :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainGraphicsLoop renderer gameState rendererState = do 
   SDL.rendererDrawColor renderer $= SDL.V4 14 36 57 maxBound
   SDL.clear renderer
@@ -62,8 +63,11 @@ mainLoopLevelSelection :: SDL.Renderer -> GameState -> RendererState -> IO ()
 mainLoopLevelSelection renderer gameState rendererState = do
   drawEditor renderer gameState rendererState
   drawArena renderer gameState
-  drawRobots renderer (robotTexture rendererState) . HM.elems $ robots gameState 
-  displayButtons renderer (buttons rendererState)
+  nrst <- setLevelNumber renderer rendererState 
+  let pos = SDL.P $ SDL.V2 290 365
+  SDL.copy renderer (fst $ levelNumber nrst) Nothing (Just $ SDL.Rectangle pos (snd $ levelNumber nrst))
+  drawRobots renderer (robotTexture nrst) . HM.elems $ robots gameState 
+  displayButtons renderer (buttons nrst)
   return ()
 
 mainLoopSplash :: SDL.Renderer -> GameState -> RendererState -> IO ()
@@ -129,6 +133,7 @@ handleEvents r evts rst st = (nrst, nst)
                   (parseErrorMess nBrst)
                   (parseErrorCursor nBrst)
                   (splashScreen nBrst)
+                  (levelNumber nBrst)
                   nEditorState
                   parseResult
         bnst = case bst of
@@ -254,6 +259,7 @@ createRendererState robotImg renderer st ast = do
   splash  <- getBmpTex "data/img/splash.bmp"  renderer
   cursor  <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 0 255 0 0) "|"
   errorCursor <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 12 (Raw.Color 255 255 255 0) "!"
+  levelNumber <- loadFontBlended renderer "data/fonts/Inconsolata-Regular.ttf" 14 (Raw.Color 255 255 255 0) "Level 1"
   levels <- getAvailableLevels "data/levels"
   let editorSt = EditorState (T.unlines $ prettyPrintAst ast) 0 0
-  return $ RendererState levels 0 robot cursor codeTex running editing buttons [] errorCursor splash editorSt (Right ast)
+  return $ RendererState levels 0 robot cursor codeTex running editing buttons [] errorCursor splash levelNumber editorSt (Right ast)

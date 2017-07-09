@@ -29,6 +29,7 @@ data RendererState = RendererState {
   parseErrorMess     :: [(SDL.Texture, SDL.V2 CInt)],
   parseErrorCursor   :: (SDL.Texture, SDL.V2 CInt),
   splashScreen       :: (SDL.Texture, SDL.V2 CInt),
+  levelNumber        :: (SDL.Texture, SDL.V2 CInt),
   editor             :: EditorState,
   currentParseResult :: Either ParseError Cond
 }

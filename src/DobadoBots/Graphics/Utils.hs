@@ -2,7 +2,8 @@ module DobadoBots.Graphics.Utils (
  loadFontBlended,
  getBmpTex,
  isInRectangle,
- changeLevel
+ changeLevel,
+ setLevelNumber
 ) where
 
 import Control.Monad            (unless)
@@ -62,3 +63,23 @@ isInRectangle (SDL.Rectangle (SDL.P (SDL.V2 xr yr)) (SDL.V2 w h)) (SDL.P (SDL.V2
 
 changeLevel :: Int -> RendererState -> Int
 changeLevel i rst = ((currentSelectedLvl rst) + i) `mod` (length (levels rst))
+
+setLevelNumber :: SDL.Renderer -> RendererState -> IO RendererState
+setLevelNumber r rst = do
+  levelNumber <- loadFontBlended r "data/fonts/Inconsolata-Regular.ttf" 14 (Raw.Color 255 255 255 0) lvlString
+  return $ RendererState 
+                  (levels rst)
+                  (currentSelectedLvl rst)
+                  (robotTexture rst)
+                  (editorCursor rst)
+                  (codeTextures rst)
+                  (running rst)
+                  (editing rst) 
+                  (buttons rst)
+                  (parseErrorMess rst)
+                  (parseErrorCursor rst)
+                  (splashScreen rst)
+                  levelNumber
+                  (editor rst)
+                  (currentParseResult rst)
+ where lvlString = "Level " ++ show (currentSelectedLvl rst + 1)
