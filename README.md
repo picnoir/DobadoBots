@@ -46,7 +46,7 @@ In this section, we will dive in each of these concepts.
 
 ### Conditional structures
 
-As it names states, a conditional structure aims to express a condition. We express robots behavior using this structure as a base building block.
+As it name states, a conditional structure aims to express a condition. We express robots behavior using this structure as a base building block.
 
 Let's have a look at an example:
 
@@ -63,9 +63,9 @@ ELSE
 Here, you are basically doing two checks:
 
 1. If the distance returned by the front laser of the robot is more than 30, it moves forward.
-2. If no, it will check the nature of the object detected by the front laser. If it is an obstacle, it will turn to the right, otherwise, it moves forward.
+2. If not, it will check the nature of the object detected by the front laser. If it is an obstacle, it will turn to the right, otherwise, it moves forward.
 
-A more general view of this structure would be this.
+A more general view of the conditionalstructure would be like this.
 
 ```
 IF [Sensor]
@@ -76,28 +76,28 @@ ELSE
 
 ### Sensor
 
-Robots can scan their environment using its front laser ray. This laser scans what is fronting the robot, it gather two kinds of information:
+The robots can scan the environment using its front laser ray. This laser scans what is fronting it and gathers two kind of information:
 
 - **laserDistance**:
-  - Checks the distance between the robot and the nearest fronting obstacle.|
+  - Checks the distance between the robot and the nearest fronting obstacle.
   - Can be compared to any positive number using <, > or =
   - Shape: ```
-              laserDistance (<,>,=) 23
+              laserDistance {<,>,=} 23
            ```
 - **laserScan**:
   - Checks what kind of obstacle in fronting the robot. 
   - Shape: ```
-              laserScan = (obstacle, wall, objective)
+              laserScan = {obstacle, wall, objective}
            ```
 - **objectiveDistance**:
   - Checks the distance between the robot and the objective.
   - Shape: ```
-              objectiveDistance (<,>,=) 23
+              objectiveDistance {<,>,=} 23
            ```
 
 ### Actions 
 
-You can move the robot using actions instruction. There are 4 of them.
+You can move the robot using action instructions. There are 4 of them.
 
 - **moveForward**: ... as it states, moves the robot forward.
 - **turnRight**: ... as it states, rotates the robot to the right.
