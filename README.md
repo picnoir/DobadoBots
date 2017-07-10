@@ -36,7 +36,7 @@ In order to launch the game, use
 
 ## Language
 
-The language consists in three majors concepts:
+The language consists off three majors concepts:
 
 1. Conditional structures.
 2. Robot actions.
@@ -65,7 +65,7 @@ Here, you are basically doing two checks:
 1. If the distance returned by the front laser of the robot is more than 30, it moves forward.
 2. If not, it will check the nature of the object detected by the front laser. If it is an obstacle, it will turn to the right, otherwise, it moves forward.
 
-A more general view of the conditionalstructure would be like this.
+A more general view of the conditional structure would be like this.
 
 ```
 IF [Sensor]
@@ -76,7 +76,7 @@ ELSE
 
 ### Sensor
 
-The robots can scan the environment using its front laser ray. This laser scans what is fronting it and gathers two kind of information:
+The robots can scan the environment using its front laser ray. This laser scans what is fronting it and gathers two kinds of information:
 
 - **laserDistance**:
   - Checks the distance between the robot and the nearest fronting obstacle.
