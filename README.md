@@ -3,7 +3,13 @@
 
 [![Travis Status](https://travis-ci.org/NinjaTrappeur/DobadoBots.svg?branch=master)](https://travis-ci.org/NinjaTrappeur/DobadoBots)
 
+## Video
+
 [![Live Video](http://img.youtube.com/vi/Lb8V3ujVHMc/0.jpg)](http://www.youtube.com/watch?v=Lb8V3ujVHMc "Live Video")
+
+Click on the above image to play a video showing Dobadobots.
+
+## Abstract
 
 Dobadobots is a video-game where you program your own robot AI. The goal of the game is to move the robot to the objective (the orange square).
 
